@@ -38,8 +38,6 @@ n_paths = 0
 goal = "shiny gold"
 for start in (all_colors - set([goal])):
     n_paths += nx.has_path(G, start, goal)
-    # dist = nx.shortest_path_length(G, start, goal)
-    # print(dist)
 
 print(n_paths)
 
