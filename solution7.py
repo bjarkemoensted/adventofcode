@@ -47,15 +47,8 @@ print(n_paths)
 
 ### Star 2
 def scan_recursive(graph, start_node):
-    neighbors = list(graph.neighbors(start_node))
-    res = 1
-    if neighbors:
-        res = 1
-        for v in neighbors:
-            n = G[start_node][v]["n_contains"]
-            res += n*scan_recursive(graph, start_node=v)
-        #
-    return res
+    return 1 + sum(graph[start_node][v]["n_contains"]*scan_recursive(graph, v)
+                   for v in graph.neighbors(start_node))
 
 
 res = scan_recursive(graph=G, start_node="shiny gold")
