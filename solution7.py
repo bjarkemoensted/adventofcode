@@ -29,7 +29,6 @@ G = nx.DiGraph()
 for line in lines:
     u, tups = parse(line)
     for n, v in tups:
-
         G.add_edge(u, v, n_contains=n)
 
 
