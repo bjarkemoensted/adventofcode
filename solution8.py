@@ -86,8 +86,6 @@ while not fixed:
         alternative = current_node + val
     elif inst == "jmp":
         alternative = current_node + 1
-    if alternative in terminating_nodes:
-        pass
 
     # Change intruction if that would terminate the code
     if alternative in terminating_nodes:
