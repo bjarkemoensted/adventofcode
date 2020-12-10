@@ -21,7 +21,7 @@ def isvalid_new(pos1, pos2, letter, password):
     valid = (password[pos1-1] == letter) ^ (password[pos2-1] == letter)
     return valid
 
-with open("input2.txt") as f:
+with open("input02.txt") as f:
     for line in f:
         matches = re.findall(pattern, line)
         assert len(matches) == 1

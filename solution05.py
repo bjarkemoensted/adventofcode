@@ -6,7 +6,7 @@ Created on Sat Dec  5 09:53:01 2020
 @author: ahura
 """
 
-with open("input5.txt") as f:
+with open("input05.txt") as f:
     raw = [line.strip() for line in f.readlines()]
 
 def readrow(s):

@@ -32,7 +32,7 @@ def scan_trajectory(map_, direction, initial=None, charmap=None):
     return n_trees
 
 
-with open("input3.txt") as f:
+with open("input03.txt") as f:
     map_ = np.array([list(line.strip()) for line in f])
 
 

@@ -8,7 +8,7 @@ Created on Tue Dec  1 17:18:01 2020
 from functools import reduce
 import itertools
 
-with open("input1.txt") as f:
+with open("input01.txt") as f:
     nums = [int(line) for line in f.readlines()]
 
 ### star 1

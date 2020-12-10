@@ -14,7 +14,7 @@ def parseline(line):
     val = int(val)
     return inst, val
 
-with open("input8.txt") as f:
+with open("input08.txt") as f:
     code = [parseline(line) for line in f]
 
 

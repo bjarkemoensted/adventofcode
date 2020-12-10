@@ -58,7 +58,7 @@ def isvalid(entry, rules=None):
         return True
 
 
-with open("input4.txt") as f:
+with open("input04.txt") as f:
     raw = f.read()
     contents = parse_batch(raw)
 
