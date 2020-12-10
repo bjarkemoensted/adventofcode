@@ -6,7 +6,7 @@ Created on Wed Dec  9 08:08:16 2020
 @author: ahura
 """
 
-with open("input9.txt") as f:
+with open("input09.txt") as f:
     numbers = [int(line.strip()) for line in f]
 
 

@@ -9,7 +9,7 @@ Created on Mon Dec  7 08:17:22 2020
 import networkx as nx
 import re
 
-with open("input7.txt") as f:
+with open("input07.txt") as f:
     lines = f.readlines()
 
 pattern = "(\d+) ([\w\s]+) bag"
