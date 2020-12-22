@@ -73,10 +73,6 @@ n_valid = n_msg - len(unmatches_messages)
 print(n_valid)
 
 ### Star 2
-newrules = deepcopy(rules)
-newrules[8] = [[42], [42, 8]]
-newrules[11] = [[42, 31], [42, 11, 31]]
-
 def resolve_rule(ruledict, node):
     rule = ruledict[node]
     # If we hit and end node, we're done
@@ -102,7 +98,7 @@ def resolve_rule(ruledict, node):
     return res
 
 
-pattern = resolve_rule(newrules, node=0)
+pattern = resolve_rule(rules, node=0)
 regex = re.compile(pattern)
 
 n_matches = sum(1 for w in messages if regex.fullmatch(w))
