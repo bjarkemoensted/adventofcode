@@ -34,7 +34,9 @@ def search_with_bit_criteria(candidates, criterion, ind=0):
     else:
         target_bit = criterion(bit_counts.items(), key=lambda t: t[1])[0]
 
+    # Update candidate set
     candidates = [line for line in candidates if line[ind] == target_bit]
+    # Recursive step - apply criterion to the next bit
     return search_with_bit_criteria(candidates, criterion, ind + 1)
 
 
