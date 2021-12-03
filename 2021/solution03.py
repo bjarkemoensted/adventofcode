@@ -22,6 +22,8 @@ print(f"First solution: {star1}.")
 
 
 def search_with_bit_criteria(candidates, criterion, ind=0):
+    """Recursively eliminates candidate lines from the data based on whether they
+    meet the input criterion. Returns the result when only one candidate remains."""
     if len(candidates) == 1:
         return "".join(candidates[0])
     # Identify target bit
