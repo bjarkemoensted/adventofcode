@@ -3,7 +3,10 @@ import numpy as np
 with open("input04.txt") as f:
     parts = f.read().split("\n\n")
 
+# Read in numbers for bingo games
 numbers = [int(x) for x in parts[0].split(",")]
+
+# Parse bingo boards in 5x5 numpy arrays
 boards = []
 for boardstring in parts[1:]:
     board = np.array([[int(s.strip()) for s in line.strip().split()] for line in boardstring.split("\n")])
@@ -11,9 +14,11 @@ for boardstring in parts[1:]:
 
 
 class Game:
+    """Game class to keep track of progress of a bingo game"""
     def __init__(self, board):
-        self.checked = np.zeros(shape=board.shape)
+        self.checked = np.zeros(shape=board.shape)  # 1=checked, 0=unchecked
         self.board = board
+        # Map each board number to its position on board
         self.positions = {}
         for i, row in enumerate(board):
             for j, val in enumerate(row):
@@ -22,12 +27,14 @@ class Game:
         #
 
     def check(self, number):
+        """If number exists on board, check it"""
         if number in self.positions:
             i, j = self.positions[number]
             self.checked[i, j] = 1
         #
 
     def is_filled(self):
+        """Check if the board is filled (one row or column filled)"""
         res = False
         nrows, ncols = self.checked.shape
         if any(val == nrows for val in np.sum(self.checked, axis=0)):
@@ -37,6 +44,7 @@ class Game:
         return res
 
     def get_unchecked_numbers(self):
+        """Returns list of numbers that aren't checked"""
         unchecked_mask = np.logical_not(self.checked).astype(int)
         res = [val for val in np.multiply(unchecked_mask, self.board).flat if val != 0]
         return res
