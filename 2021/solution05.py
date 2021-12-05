@@ -32,6 +32,7 @@ def get_points_on_line(line):
     p1, p2 = line
     vec = p2 - p1
     norm = np.linalg.norm(vec)
+    # Ugly hack to get direction to be [+-1, +-1] for diagnonals
     direction = np.round((vec * 1 / norm)).astype(int)
     running = p1
     n_steps = max(map(abs, vec))
