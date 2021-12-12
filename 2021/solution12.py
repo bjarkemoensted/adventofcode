@@ -10,14 +10,6 @@ for u, v in edges:
     G.add_edge(u, v)
 
 
-def path_has_multiple_small_caves(path):
-    """Checks if a path contains multiple visits to any small cave."""
-    small = [s for s in path if s.islower()]
-    counts = Counter(small)
-    res = any(v > 1 for v in counts.values())
-    return res
-
-
 def traverse_caves(G, allow_two_small_cave_visits=False):
     """Breadth-first traverses all possible paths in the caverns on the input graph.
     Returns all such paths.
@@ -41,7 +33,10 @@ def traverse_caves(G, allow_two_small_cave_visits=False):
                 allow_small_cave = node not in path
                 # If we've been, but one double visit is allowed, check if we've already 'used' the double visit
                 if not allow_small_cave and allow_two_small_cave_visits:
-                    allow_small_cave = node != "start" and not path_has_multiple_small_caves(path)
+                    # Check if path contains double-visits to small caves
+                    no_multivisits_yet = all(v <= 1 for v in Counter(s for s in path if s.islower()).values())
+                    # If not, and if new node isn't the start node, we do allow it after all.
+                    allow_small_cave = node != "start" and no_multivisits_yet
 
                 # The new cave fits in path if it is large, or we have room for a small cave
                 node_fits_in_path = node.isupper() or allow_small_cave
