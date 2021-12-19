@@ -11,9 +11,6 @@ def parse(s):
     return res
 
 
-nums = parse(raw)
-
-
 def _access_nested(arr, inds):
     ptr = arr
     for i in inds:
@@ -29,8 +26,8 @@ def _set_nested(arr, inds, val):
 
 
 class Number:
-    def __init__(self, arr, verbose=True):
-        self.arr = arr
+    def __init__(self, arr, verbose=False):
+        self.arr = deepcopy(arr)
         self.verbose = verbose
 
     def print(self, *args, **kwargs):
@@ -52,7 +49,7 @@ class Number:
 
     def __add__(self, other):
         arr = [self.arr, other.arr]
-        res = type(self)(arr=arr)
+        res = type(self)(arr=arr, verbose=self.verbose)
         res.print(f"After addition: {res}.")
         res.reduce()
         return res
@@ -91,19 +88,25 @@ class Number:
     def _scan_for_number(self, inds, right=True):
         """Scans for the next number. Right and up if rigth = true, otherwise left and up"""
         inds = deepcopy(inds)
+
         while inds:
             if right:
                 inds[-1] += 1
             else:
                 inds[-1] -= 1
             falloff = inds[-1] < 0 or inds[-1] >= len(self[inds[:-1]])
-            # TODO problemet er her, vi skal ogsaa "ned" i lister mode hoejre, f.eks.
             if falloff:
                 inds.pop()
                 continue
+            elif isinstance(self[inds], int):
+                return inds
             else:
-                if isinstance(self[inds], int):
-                    return inds
+                subinds = list(self._it(inds))
+                if not right:
+                    subinds = subinds[::-1]
+                for subind in subinds:
+                    if isinstance(self[subind], int):
+                        return subind
 
     def explode(self, inds):
         self.print(f"Exploding at: {inds}, value={self[inds]}.")
@@ -145,10 +148,48 @@ class Number:
                     continue
                 #
             done = not exploded and not split
+        #
+
+    def _get_outer(self, right=True):
+        inds = []
+        while isinstance(self[inds], list):
+            next_ = len(self[inds]) -1 if right else 0
+            inds.append(next_)
+        return self[inds]
 
 
-a = Number([[[[4,3],4],4],[7,[[8,4],9]]])
-b = Number([1,1])
+def compute_magnitude(number, inds=None):
+    if inds is None:
+        inds = []
+    inds = deepcopy(inds)
 
-c = a + b
-print(c)
+    elem = number[inds]
+    if isinstance(elem, int):
+        return elem
+    else:
+        a = compute_magnitude(number, inds + [0])
+        b = compute_magnitude(number, inds + [1])
+        return 3*a + 2*b
+
+
+nums = [Number(arr, verbose=False) for arr in parse(raw)]
+
+
+running = nums[0]
+for num in nums[1:]:
+    running += num
+
+mag = compute_magnitude(running)
+print(f"Solution to star 1: {mag}.")
+
+
+largest_magnitude = float('-inf')
+for i, a in enumerate(nums):
+    for j, b in enumerate(nums):
+        if i == j:
+            continue
+        this_mag = compute_magnitude(a+b)
+        largest_magnitude = max(largest_magnitude, this_mag)
+    #
+
+print(f"Solution to start 2: {largest_magnitude}.")
