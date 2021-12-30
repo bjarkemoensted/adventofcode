@@ -1,159 +1,153 @@
-import numpy as np
+from copy import deepcopy
 
 with open("input22.txt") as f:
-    raw = f.readlines()
+    raw = f.read()
 
 
-def parse(line):
+def parse(s):
     """Returns parsed instructions like (1/0, [(xmin, xmax), (ymin, ...), ...])"""
-    line = line.strip()
-    onoff = line.split(" ")[0]
-    val = {"on": 1, "off": 0}[onoff]
-    lims = []
-    for substring in line[len(onoff)+1:].split(","):
-        intstrings = substring.split("=")[1].split("..")
-        lims.append(tuple(int(s) for s in intstrings))
-    res = (val, lims)
+    res = []
+    for line in s.split("\n"):
+        line = line.strip()
+        onoff = line.split(" ")[0]
+        val = {"on": 1, "off": 0}[onoff]
+        lims = []
+        for substring in line[len(onoff) + 1:].split(","):
+            intstrings = substring.split("=")[1].split("..")
+            lims.append(tuple(int(s) for s in intstrings))
+        res.append((val, lims))
     return res
 
 
 class Cube:
-    def __init__(self, size=50):
-        width = 2*size + 1
-        self.width = width
-        self.size = size
-        self.m = np.zeros(shape=(width, width, width), dtype=int)
+    """Cube object. Holds the limits in the x, y, and z directions, and has helper methods for string representation
+    and volume computations."""
+    def __init__(self, limits):
+        self.limits = limits
 
-    def set(self, value, limits):
-        limits_adjusted = []
-        for limit in limits:
-            a, b = (val + self.size for val in limit)
-            if a < 0:
-                a = 0
-            elif a > self.width:
-                return
-            if b > self.width:
-                b = self.width
-            elif b < 0:
-                return
-            limits_adjusted.append((a, b+1))
-        subspace_size = tuple(b-a for a, b in limits_adjusted)
+    def volume(self):
+        res = 1
+        for a, b in self.limits:
+            res *= (b + 1 - a)
+        return res
 
-        mprime = np.ones(shape=subspace_size, dtype=int)*value
-        (x1, x2), (y1, y2), (z1, z2) = limits_adjusted
-        self.m[x1:x2, y1:y2, z1:z2] = mprime
+    def __str__(self):
+        res = f"Cube at ({', '.join(map(str, self.limits))}, V={self.volume()})"
+        return res
+
+    def __repr__(self):
+        return self.__str__()
 
 
-def determine_size(limits):
-    res = float("-inf")
-    for limit in sum(limits, []):
-        for val in limit:
-            res = max(res, abs(val))
+def get_overlap(x, y):
+    """Returns the overlap between cubes x and y. Returns None if they don't overlap"""
+    limits = []
+    for (a1, a2), (b1, b2) in zip(x.limits, y.limits):
+        low = max(a1, b1)
+        high = min(a2, b2)
+        if low > high:
+            return None
+        limits.append((low, high))
+    res = Cube(limits)
     return res
 
 
-s = """on x=-20..26,y=-36..17,z=-47..7
-on x=-20..33,y=-21..23,z=-26..28
-on x=-22..28,y=-29..23,z=-38..16
-on x=-46..7,y=-6..46,z=-50..-1
-on x=-49..1,y=-3..46,z=-24..28
-on x=2..47,y=-22..22,z=-23..27
-on x=-27..23,y=-28..26,z=-21..29
-on x=-39..5,y=-6..47,z=-3..44
-on x=-30..21,y=-8..43,z=-13..34
-on x=-22..26,y=-27..20,z=-29..19
-off x=-48..-32,y=26..41,z=-47..-37
-on x=-12..35,y=6..50,z=-50..-2
-off x=-48..-32,y=-32..-16,z=-15..-5
-on x=-18..26,y=-33..15,z=-7..46
-off x=-40..-22,y=-38..-28,z=23..41
-on x=-16..35,y=-41..10,z=-47..6
-off x=-32..-23,y=11..30,z=-14..3
-on x=-49..-5,y=-3..45,z=-29..18
-off x=18..30,y=-20..-8,z=-3..13
-on x=-41..9,y=-7..43,z=-33..15
-on x=-54112..-39298,y=-85059..-49293,z=-27449..7877
-on x=967..23432,y=  373..81175,z=27513..53682""".split("\n")
-instructions = [parse(line) for line in raw]
+def dice(cube, cutout):
+    """Takes two cube-shaped objects. Returns a list of cubes that together make up the
+    volume of input cube with the cutout cube removed."""
+    assert len(cutout.limits) == len(cube.limits)
 
-cube = Cube()
+    # Remaining part of the input cube (shrinks as more and more volume is sliced away)
+    remaining = deepcopy(cube)
+    # If there's no overlap, the result is simply the initial cube
+    overlap = get_overlap(cube, cutout)
+    if not overlap:
+        return [remaining]
 
-for instruction in instructions:
-    cube.set(*instruction)
+    # Compute the volume of the result for sanity checking
+    initial_volume = cube.volume()
+    target_volume = initial_volume - overlap.volume()
 
+    parts = []
+    for i in range(len(cutout.limits)):
+        a_cut, b_cut = cutout.limits[i]
+        a, b = remaining.limits[i]
+        if a < a_cut:
+            # See if we can slice of a section below the cutout
+            cut_here = [(a, a_cut - 1) if ii == i else lim for ii, lim in enumerate(remaining.limits)]
+            parts.append(Cube(cut_here))
+            a = a_cut
+            remaining.limits[i] = (a, b)
+        if b > b_cut:
+            # Aaand cut above
+            cut_here = [(b_cut + 1, b) if ii == i else lim for ii, lim in enumerate(remaining.limits)]
+            parts.append(Cube(cut_here))
+            b = b_cut
+            remaining.limits[i] = (a, b)
+        #
 
-n_on_initialized = sum(cube.m.flat)
-print(f"Solution to star 1: {n_on_initialized}.")
+    # Check that we got the volume right
+    final_volume = sum(part.volume() for part in parts)
+    if not final_volume == target_volume:
+        raise ValueError
 
-
-def find_intersection_borders(region_a, region_b):
-    assert len(region_b.borders) == len(region_a.borders)
-    borders = []
-    for lim_a, lim_b in zip(region_a.borders, region_b.borders):
-        (a1, a2), (b1, b2) = lim_a, lim_b
-        p1 = max(a1, b1)
-        p2 = min(a2, b2)
-        if p1 > p2:
-            return None
-        borders.append((p1, p2))
-
-    return borders
+    return parts
 
 
-class Region:
-    def __init__(self, borders, value=0):
-        if not all(a <= b for a, b in borders):
-            raise ValueError
-        self.borders = borders
-        self.value = value
-        self.subregions = []
-
-    def naive_area(self):
-        res = 1
-        for a, b in self.borders:
-            res *= (1 + b - a)
-        return res
-
-    def area(self):
-        res = self.naive_area() - sum(reg.naive_area() for reg in self.subregions)
-        return res
-
-    def count_on(self):
-        running_regions = [self]
-        sum_ = 0
-        while running_regions:
-            new_subregions = []
-            for reg in running_regions:
-                sum_ += reg.area() * reg.value
-                new_subregions += reg.subregions
-            running_regions = new_subregions
-
-        return sum_
-
-    def insert(self, other):
-        running = other
-        for reg in self.subregions:
+def shatter(hard_cubes, soft_cubes):
+    """Takes a list of 'hard' and 'soft' cubes. Iteratively cuts from every soft cube the overlap between it and
+    the hard cubes. Returns a list cubes spanning the remaining volume."""
+    running = deepcopy(soft_cubes)
+    for hard in hard_cubes:
+        new_soft_cubes = []  # Holds the soft cubes for subsequent iteration
+        for soft in running:
+            parts = dice(soft, hard)
+            new_soft_cubes += parts
+        running = new_soft_cubes
+    return running
 
 
-    def __str__(self):
-        return str(self.borders)
+def run_instructions(steps):
+    """Runs the input instructions"""
+    cubes = []  # Holds all cubes that are turned on
+    for value, limits in steps:
+        new_cube = Cube(limits)
+        # Identify existing cubes which overlaps with the new one
+        overlap_inds = [i for i, cube in enumerate(cubes) if get_overlap(cube, new_cube) is not None]
+        if value == 1:
+            # If we're turning on a region, ignore the regions that are already on
+            soft = [new_cube]
+            hard = [cubes[i] for i in overlap_inds]
+            # Remove from new cube the parts that we already have
+            shattered = shatter(hard, soft)
+            # Add resulting parts
+            cubes += shattered
+        elif value == 0:
+            # If we're turning off a region, remove overlaps with existing cubes
+            # Take out the affected regions
+            soft = []
+            for i in overlap_inds[::-1]:
+                soft.append(cubes.pop(i))
+            # Remove the parts that we have to turn off
+            hard = [new_cube]
+            shattered = shatter(hard, soft)
+            # Put the remainder back in
+            cubes += shattered
+        #
+    return cubes
 
 
-A = Region([(0, 10), (0, 10), (0, 10)], value=1)
-B = Region([(5, 10), (5, 10), (10, 11)])
+# Read in instructions
+instructions = parse(raw)
+# Identify boot instructions (cubes that are confined to x,y,z in [-50:50])
+boot_instructions = [(val, limits) for val, limits in instructions if all(a >= -50 and b <= 50 for a, b in limits)]
 
-C = A.intersection(B)
+# Find volume of region turned on after booting up
+boot_cubes = run_instructions(boot_instructions)
+boot_volume = sum(cube.volume() for cube in boot_cubes)
+print(f"Solution to star 1: {boot_volume}.")
 
-A.subregions.append(C)
-
-print(A.intersection(B))
-
-
-# limits = [tup[1] for tup in instructions]
-# size = determine_size(limits)
-# cube2 = Cube(size=size)
-# for instruction in instructions:
-#     cube2.set(*instruction)
-#
-# n_on_initialized = sum(cube.m.flat)
-# print(f"Solution to star 1: {n_on_initialized}.")
+# Find volume of region turned on after running the full instructions
+final_cubes = run_instructions(instructions)
+final_volume = sum(cube.volume() for cube in final_cubes)
+print(f"Solution to star 2: {final_volume}.")
