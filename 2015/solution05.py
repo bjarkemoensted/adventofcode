@@ -1,5 +1,3 @@
-from hashlib import md5
-
 # Read in data
 with open("input05.txt") as f:
     raw = f.read()
