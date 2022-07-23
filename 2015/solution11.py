@@ -1,0 +1,56 @@
+# Read in data
+with open("input11.txt") as f:
+    puzzle_input = f.read()
+
+
+alph = "abcdefghijklmnopqrstuvwxyz"
+ind2letter = {i: letter for i, letter in enumerate(alph)}
+letter2ind = {letter: i for i, letter in ind2letter.items()}
+
+
+def increment(s):
+    res = list(s)
+    for i in range(len(s)-1, -1, -1):
+        char = s[i]
+        ind = letter2ind[char]
+        newind = (ind + 1) % len(alph)
+        newchar = ind2letter[newind]
+        res[i] = newchar
+        if newind != 0:
+            return "".join(res)
+
+
+def password_is_valid(s):
+    inds = [letter2ind[char] for char in s]
+    forbidden = "iol"
+    if any(char in forbidden for char in s):
+        return False
+    if not any(inds[i+2] == inds[i+1] + 1 == inds[i] + 2 for i in range(len(inds) - 2)):
+        return False
+
+    n_double_letters = 0
+    i = 0
+    while i < len(s) - 1:
+        if s[i] == s[i+1]:
+            n_double_letters += 1
+            i += 2
+        else:
+            i += 1
+        #
+    if n_double_letters < 2:
+        return False
+
+    return True
+
+
+password = puzzle_input
+while not password_is_valid(password):
+    password = increment(password)
+
+print(f"Next valid password is: {password}.")
+
+password = increment(password)
+while not password_is_valid(password):
+    password = increment(password)
+
+print(f"Next valid one after that is: {password}.")
