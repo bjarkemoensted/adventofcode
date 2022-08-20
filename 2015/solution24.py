@@ -56,8 +56,7 @@ def find_equipartitions(S):
             x = S[j - 1]
             if i - x >= 0:
                 cell = []
-                if partitions[(i, j - 1)]:
-                    cell.append
+                # TODO I guess I should take all partitions summing to i-x and append x, and similar for the i, j-1 case
                 P[i, j] = P[i, j - 1] or P[i - x, j - 1]
             else:
                 P[i, j] = P[i, j - 1]
