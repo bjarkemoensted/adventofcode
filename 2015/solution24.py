@@ -14,71 +14,40 @@ def parse(s):
     return res
 
 
-def generate_partitions(iterable, left_size):
-    """Generate partitions of a specified size from input iterable.
-    For example, generate_partitions([1,2,3,4,5], 2) will generate all pairs of partitions
-    with 2 elements in the 'left' partition and 3 in the 'right'."""
+def complement(numbers, subset):
+    """Returns the complement to a subset given numbers.
+    Example: numbers=[1,2,3], subset=[2] -> [1, 3]"""
 
-    inds = list(range(len(iterable)))
-    all_inds = set(inds)
-    for comb in combinations(inds, left_size):
-        left_inds = set(comb)
-        right_inds = all_inds - left_inds
-        left_partition = [iterable[i] for i in left_inds]
-        right_partition = [iterable[i] for i in right_inds]
-        yield left_partition, right_partition
+    if not all(isinstance(val, int) for val in numbers):
+        raise TypeError
+    if not all(isinstance(val, int) for val in subset):
+        raise TypeError
 
-
-def find_equipartitions(S):
-    """Implements the pseudopolynomial time number partitioning algorithm.
-        Stolen from here: https://en.wikipedia.org/wiki/Pseudopolynomial_time_number_partitioning"""
-
-    n = len(S)
-    K = sum(S)
-    # If the sum is odd, S can't be partitioned equally
-    if K % 2 != 0:
-        return False
-
-    # Initialize array to hold sub-results
-    nrows = K // 2 + 1
-    ncols = n + 1
-    partitions = {}
-    for j in range(ncols):
-        # We can always find a subset which sums to zero (the empty set)
-        partitions[(0, j)] = []
-    for i in range(1, nrows):
-        # We can never get a sum greater than zero with an empty set
-        partitions[(i, 0)] = False
-
-    for i in range(1, nrows):
-        for j in range(1, ncols):
-            # Apply the recurrence relation to populate the table
-            x = S[j - 1]
-            if i - x >= 0:
-                cell = []
-                # TODO I guess I should take all partitions summing to i-x and append x, and similar for the i, j-1 case
-                P[i, j] = P[i, j - 1] or P[i - x, j - 1]
-            else:
-                P[i, j] = P[i, j - 1]
-            #
-        #
-
-    return P[-1, -1]
+    subset = set(subset)
+    res = [number for number in numbers if number not in subset]
+    return res
 
 
-def is_partitionable(S):
-    """Implements the pseudopolynomial time number partitioning algorithm.
+def iterate_subsets(numbers, required_sum):
+    """Iterates over all subsets of input numbers, which has the specified sum."""
+
+    # Ensure numbers are sorted descending
+    numbers = sorted(numbers, reverse=True)
+    for n_elems in range(1, len(numbers)):
+        for subset in combinations(numbers, n_elems):
+            sum_ = sum(subset)
+            if sum_ == required_sum:
+                yield subset
+
+
+def subset_sum(numbers, target):
+    """Implements the pseudopolynomial time number partitioning algorithm for the subset sum problem.
     Stolen from here: https://en.wikipedia.org/wiki/Pseudopolynomial_time_number_partitioning"""
 
-    # TODO call the equipartitions method and see if any solutions exist
-    n = len(S)
-    K = sum(S)
-    # If the sum is odd, S can't be partitioned equally
-    if K % 2 != 0:
-        return False
+    n = len(numbers)
 
     # Initialize array to hold sub-results
-    nrows = K//2 + 1
+    nrows = target + 1
     ncols = n + 1
 
     P = np.empty(shape=(nrows, ncols), dtype=object)
@@ -88,7 +57,7 @@ def is_partitionable(S):
     for i in range(1, nrows):
         for j in range(1, ncols):
             # Apply the recurrence relation to populate the table
-            x = S[j-1]
+            x = numbers[j-1]
             if i - x >= 0:
                 P[i, j] = P[i, j-1] or P[i-x, j-1]
             else:
@@ -99,47 +68,77 @@ def is_partitionable(S):
     return P[-1, -1]
 
 
-def determine_best_distributions(vals):
-    """Determines which distributions of presents which are possible with the minimum possible number of
-    packages in the passenger compartment. This may yield several results, in which case some tie-breaking
-    must be applied."""
+def is_partitionable(numbers, n_parts):
+    """Determines if input numbers can be partitioned into n parts with equal sums. Example:
+    numbers=[1,2,3,6], n_parts=3 -> True"""
 
-    vals = sorted(vals, reverse=True)
-    solutions = []
-    for n_passenger_compartment in range(1, len(vals)):
-        first_combination = True
-        for partitions in generate_partitions(vals, left_size=n_passenger_compartment):
-            passenger, remaining = partitions
-            overshoot = 2*sum(passenger) - sum(remaining)
-            if first_combination and (overshoot < 0):
-                break  # If the first (and largest) left configuration is too light, they'll all be.
-            first_combination = False
-            if overshoot != 0:
-                continue  # Weight in PC must be equal to double the remaining weight, or a partition is impossible
+    sum_ = sum(numbers)
+    if sum_ % n_parts != 0:
+        raise ValueError
+    target_sum = sum_ // n_parts
 
-            if is_partitionable(remaining):
-                solutions.append(passenger)
-            #
-        if solutions:
-            break
+    # Any set of numbers sums to its own sum (duh)
+    if n_parts == 1:
+        return True
+
+    # For partitioning into two parts, use dynamic programming tricks
+    if n_parts == 2:
+        return subset_sum(numbers, target_sum)
+
+    # Otherwise, brute force for subsets summing to sum/n, then recurse on the remaining numbers
+    for subset in iterate_subsets(numbers, required_sum=target_sum):
+        remaining = complement(numbers, subset)
+        # If recursion suceeds, we've found a partition that works
+        if is_partitionable(remaining, n_parts-1):
+            return True
         #
-    return solutions
+
+    # If we never found a solution, no partition exists
+    return False
 
 
 def quantum_entanglement(arr):
+    """Computes the 'quantum entanglement' (product of numbers)."""
     res = 1
     for x in arr:
         res *= x
     return res
 
 
+def balance_loads(numbers, n_partitions):
+    """Determines the optimal load for the input weights. 'Optimal' here means minimum number of weights in the first
+    partition, using 'quantum entanglement' as tiebreaker.
+    Returns the QE of the optimal configuration."""
+
+    solutions = []
+    target_sum = sum(numbers) // n_partitions
+    current_solution_length = -1
+
+    for subset in iterate_subsets(numbers, required_sum=target_sum):
+        # We need the shortes possible subset, so if we starting iterating over a new length, stop if solutions exist
+        new_length = len(subset)
+        if new_length != current_solution_length:
+            current_solution_length = new_length
+            if solutions:
+                break
+
+        # if the remaining numbers can be partitioned into n-1 partitions, this subset is a solution
+        remaining_numbers = complement(numbers, subset)
+        if is_partitionable(remaining_numbers, n_partitions-1):
+            solutions.append(subset)
+
+    # The solution with the minimum QE is the best solution
+    quantum_entanglements = map(quantum_entanglement, solutions)
+    res = min(quantum_entanglements)
+
+    return res
+
+
 weights = parse(puzzle_input)
 example_weights = [1, 2, 3, 4, 5, 7, 8, 9, 10, 11]
 
-#best_passenger_compartment_loads = determine_best_distributions(weights)
-#best_qe = min(map(quantum_entanglement, best_passenger_compartment_loads))
-#print(best_qe)
+star1 = balance_loads(weights, n_partitions=3)
+print(f"Quantum entanglement for initial problem: {star1}.")
 
-bla = [1, 2, 3, 4, 5, 7, 8, 10]
-meh = find_equipartitions(bla)
-print(meh, bla, sum(bla))
+star2 = balance_loads(weights, n_partitions=4)
+print(f"Quantum entanglement for subsequent problem: {star2}.")
