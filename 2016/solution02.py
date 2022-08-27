@@ -78,5 +78,6 @@ def main():
     code2 = beepboop(parsed, keypad=KEYPAD2, starting_loc=(2, 2))
     print(f"Nope, the real code is {''.join(map(str, code2))}.")
 
+
 if __name__ == '__main__':
     main()
