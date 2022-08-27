@@ -1,4 +1,4 @@
-from itertools import chain, combinations
+from itertools import combinations
 import numpy as np
 
 # Read in data
