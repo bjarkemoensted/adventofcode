@@ -1,5 +1,6 @@
 import string
 
+
 def read_input():
     with open("input03.txt") as f:
         puzzle_input = f.read()
