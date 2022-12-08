@@ -1,0 +1,2 @@
+numpy==1.23.5
+pkg_resources==0.0.0
