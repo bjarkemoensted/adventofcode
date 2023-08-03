@@ -15,7 +15,6 @@ def parse(s):
 
 def decompress(s):
     """Decompresses a string"""
-
     letters = set(string.ascii_letters)
     res = ""
     ind = 0
@@ -47,21 +46,45 @@ def decompress(s):
     return res
 
 
+def compute_recursively_decompressed_string_length(s, running=0):
+    res = running
+    if not s:
+        return res
+
+    char = s[0]
+
+    if char in string.ascii_letters:
+        res += 1
+        remainder = s[1:]
+    elif char == "(":
+        m = re.match(r"\((\d+)x(\d+)\)", s)
+        marker_length = len(m.group(0))
+        n_chars_repeat = int(m.group(1))
+        n_times_repeat = int(m.group(2))
+
+        # Recursively decompress the substring affected by the decompression marker
+        snippet_affected_by_marker = s[marker_length:marker_length+n_chars_repeat]
+        decomp = compute_recursively_decompressed_string_length(snippet_affected_by_marker)
+
+        res += n_times_repeat*decomp
+
+        # Discard the marker and decompressed substring and proceed
+        remainder = s[marker_length+n_chars_repeat:]
+    else:
+        raise ValueError
+
+    return res + compute_recursively_decompressed_string_length(remainder)
+
+
 def main():
     raw = read_input()
     parsed = parse(raw)
 
-    test_data = {
-        "ADVENT": "ADVENT",
-        "A(1x5)BC": "ABBBBBC",
-        "(3x3)XYZ": "XYZXYZXYZ",
-        "A(2x2)BCD(2x2)EFG": "ABCBCDEFEFG",
-        "(6x1)(1x3)A": "(1x3)A",
-        "X(8x2)(3x3)ABCY": "X(3x3)ABC(3x3)ABCY"
-    }
-
     decompressed = decompress(parsed)
     print(f"The decompressed string contains {len(decompressed)} characters.")
+
+    decompressed2 = compute_recursively_decompressed_string_length(parsed)
+    print(f"Using version 2 of the decompression algorithm, the resulting string has {decompressed2} characters.")
 
 
 if __name__ == '__main__':
