@@ -189,7 +189,10 @@ def compute_button_presses_until_low_pulse(G):
     Each submodule repeats its state pattern after emitting a low pulse, so the solution is simply the
     least common multiple of the number of steps it takes each submodule to fire a low pulse."""
 
-    hubs = ["vg", "vc", "nb", "ls"]  # found by inspecting the graph
+    # From inspecting the graph, the nodes 2 steps back from the output receive signals from the distinct submodules.
+    output = [n for n in G.nodes if isinstance(G.nodes[n]["state"], Output)][0]
+    secondlast = list(G.predecessors(output))[0]
+    hubs = list(G.predecessors(secondlast))
 
     # Start by identifying cycle lengths
     cycles = [None for _ in hubs]
