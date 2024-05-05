@@ -75,7 +75,7 @@ def a_star(G: Graph, target, start=(1, 1)):
     d_g[start] = 0
 
     d_f = dict()
-    d_f[start] = d_g[start] = manhatten_dist(start, target)
+    d_f[start] = manhatten_dist(start, target)
 
     open_.push(start, priority=d_f[start])
     camefrom = dict()
