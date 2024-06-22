@@ -8,13 +8,17 @@ dec a"""
 
 
 def read_input():
-    #return _test #!!!
+    #return _test
     with open("input23.txt") as f:
         puzzle_input = f.read()
     return puzzle_input
 
 
 def _toggle(instruction):
+    """Toggles a given instruction.
+    inc -> dec, others -> inc for single-argument instructions,
+    jnz -> cpy, others -> jnz for double-argument instructions"""
+
     fun, *args = instruction
     newfun = None
     if len(args) == 1:
@@ -35,15 +39,6 @@ def _toggle(instruction):
     return res
 
 
-def isvalid(instruction):
-    fun, *args = instruction
-    if fun == "cpy":
-        return isinstance(args[1], str)
-    elif fun in ("inc", "dec"):
-        return isinstance(args[0], str)
-    return True
-
-
 def parse(s):
     res = []
     for line in s.split("\n"):
@@ -58,42 +53,138 @@ def parse(s):
     return res
 
 
+# The sequence of instructions and instructions lengths (1 + n_args) required to spot a multiplication instruction
+_multiplication_instructions = (('cpy', 3), ('inc', 2), ('dec', 2), ('jnz', 3), ('dec', 2), ('jnz', 3))
+
+
+def detect_mul(instructions):
+    """
+    Spot stuff like:
+    cpy b c
+    inc a
+    dec c
+    jnz c -2
+    dec d
+    jnz d -5
+
+    The above multiplies values b and d and add them to register a.
+    An equivalent instruction is then
+    mul b, d, a (a += b*d)
+    (followed by a number of NOPs to leave the indices of other instructions intact)
+
+    This method the equivalent multiplication instruction, or None of no such instruction exists.
+    """
+
+    # Can't replace if the number and signatures of instructions are incorrect
+    if len(instructions) != len(_multiplication_instructions):
+        return
+    for ins, (type_, len_) in zip(instructions, _multiplication_instructions):
+        if ins[0] != type_ or len(ins) != len_:
+            return
+        #
+
+    # Check that the instructions can be interpreted as multiplication
+    b, c = instructions[0][1:]
+    a = instructions[1][1]
+    d = instructions[-1][1]
+    required = ((2, 1, c), (3, 1, c), (3, 2, -2), (4, 1, d), (5, 1, d), (5, 2, -5))
+    if any(instructions[i][j] != req for i, j, req in required):
+        return
+
+    res = ("mul", b, d, a)
+    return res
+
+
+def peephole_optimize(instructions):
+    """Takes a list of instructions. Returns an optimized version where repeated additions have been replaced
+    by multiplication instructions."""
+    instructions = [ins for ins in instructions]
+    n_ins = len(_multiplication_instructions)
+
+    i = 0
+    while i < len(instructions):
+        # Check for multiplication in the current window
+        window_end = i+n_ins
+        multiply_instruction = detect_mul(instructions[i:window_end])
+        if multiply_instruction is None:
+            i += 1
+            continue
+        # Found a multiplication optimization. Replace the first instruction by multiplication
+        instructions[i] = multiply_instruction
+        i += 1
+        while i < window_end:
+            # Replace remaining instructions in the window with NOPs
+            instructions[i] = ("nop",)
+            i += 1
+
+    return instructions
+
+
+class Registry:
+    _key_type = str
+
+    def __init__(self, keys=None, **kwargs):
+        """Registry class for holding data and handling setting and getting data from registers.
+        Starting values of registers can be specified as keyword arguments."""
+
+        if keys is None:
+            keys = ("a", "b", "c", "d")
+        if not all(isinstance(k, self._key_type) for k in keys):
+            raise TypeError
+
+        self._keys = keys  # store ordered keys for displaying purposes
+        self._vals = {k: kwargs.get(k, 0) for k in keys}  # Set registers to zero unless values are provided
+
+    def __getitem__(self, item):
+        """This allows reg[42] to give while reg['a'] gives the value of register a."""
+        if isinstance(item, self._key_type):
+            return self._vals[item]
+        return item
+
+    def __setitem__(self, key, value):
+        """Allows setting registers using values or references to other registers"""
+        if not isinstance(key, self._key_type):
+            raise TypeError(f"{key} is not type {self._key_type}")
+
+        new_val = self[value]
+        self._vals[key] = new_val
+
+    def __str__(self):
+        parts = (f"{k} = {self._vals[k]}" for k in self._keys)
+        s = ", ".join(parts)
+        return s
+
+
 class Interpreter:
-    def __init__(self, registers: dict, instructions, pointer=0, verbose=False):
-        self.registers = {k: v for k, v in registers.items()}
-        self.keys = sorted(self.registers.keys())
-        self.instructions = [ins for ins in instructions]
-        self.pointer = pointer
-        self._seen_states = set([])
+    def __init__(self, registry: Registry, instructions, verbose=False):
+        """Optimized interpreter which handles multiplication."""
+
+        self.registry = registry
+
+        # Store the 'raw' and optimized instructions to make wure toggle instructions don't mess things up
+        self._base_instructions = [ins for ins in instructions]
+        self.instructions = peephole_optimize(self._base_instructions)
+        self.pointer = 0
+
+        # Stuff for debugging and spotting which instructions are run the most
         self.verbose = verbose
         self.n_its = 0
+        self.counts = [0 for _ in self.instructions]
 
     def _debug(self):
-        reg = ", ".join(f"{k}={self.registers[k]}" for k in self.keys)
-        s = f"Step: {self.n_its}: {reg}. Ind {self.pointer}. Current instruction {self.instructions[self.pointer]}."
+        """Prints details about current instruction and registry values"""
+        ins = self.instructions[self.pointer]
+        n = self.counts[self.pointer]
+        s = f"{self.n_its}: Instruction {self.pointer}: {ins} ({self.registry}). n_calls: {n}."
         print(s)
 
-    @property
-    def contents(self):
-        res = tuple(self.registers[k] for k in self.keys)
-        return res
-
-    def _tup(self):
-        res = (self.pointer, tuple(self.instructions), self.contents)
-        return res
-
     def run_single(self):
+        """Runs a single instruction"""
+
+        self.counts[self.pointer] += 1
         instruction = self.instructions[self.pointer]
-        state = self._tup()
         if self.verbose:
             self._debug()
-
-        if state in self._seen_states:
-            raise RuntimeError("Circular instructions detected")
-        self._seen_states.add(state)
-
-        if not isvalid(instruction):
-            raise ValueError(f"Invalid instruction: {instruction}")
 
         ins, *args = instruction
         fun = getattr(self, ins)
@@ -101,65 +192,66 @@ class Interpreter:
         self.n_its += 1
 
     def run_instructions(self):
-        done = False
-        while not done:
+        while 0 <= self.pointer < len(self.instructions):
             self.run_single()
-            done = not (0 <= self.pointer < len(self.instructions))
-
-    def _read(self, x):
-        val = x
-        if isinstance(x, str):
-            val = self.registers[x]
-        return val
-
-    def tgl(self, x):
-        shift = self._read(x)
-        target_ind = self.pointer + shift
-        if 0 <= target_ind < len(self.instructions):
-            target_ins = self.instructions[target_ind]
-            new_ins = _toggle(target_ins)
-            self.instructions[target_ind] = new_ins
-
-        self.pointer += 1
+        #
 
     def cpy(self, x, y):
-        val = self._read(x)
-        self.registers[y] = val
+        self.registry[y] = x
         self.pointer += 1
 
     def inc(self, x):
-        self.registers[x] += 1
+        self.registry[x] += 1
         self.pointer += 1
 
     def dec(self, x):
-        self.registers[x] -= 1
+        self.registry[x] -= 1
         self.pointer += 1
 
     def jnz(self, x, y):
-        x = self._read(x)
-        y = self._read(y)
-        if x == 0:
+        if self.registry[x] == 0:
             self.pointer += 1
         else:
-            self.pointer += y
+            self.pointer += self.registry[y]
+        #
+
+    def tgl(self, x):
+        """Runs a toggle instruction which modifies the instructions"""
+        shift = self.registry[x]
+        target_ind = self.pointer + shift
+
+        # Ignore instruction if trying to modify an instruction that doesn't exist (out of bounds)
+        if 0 <= target_ind < len(self._base_instructions):
+            # Modify the 'raw' instructions
+            target_ins = self._base_instructions[target_ind]
+            new_ins = _toggle(target_ins)
+            self._base_instructions[target_ind] = new_ins
+            # Rerun optimization in case anything changed
+            self.instructions = peephole_optimize(self._base_instructions)
+
+        self.pointer += 1
+
+    def mul(self, x, y, z):
+        self.registry[z] += self.registry[x]*self.registry[y]
+        self.pointer += 1
+
+    def nop(self):
+        self.pointer += 1
 
 
 def main():
     raw = read_input()
     instructions = parse(raw)
-    reg = {let: 0 for let in "abcd"}
-    reg["a"] = 7
-
-    int_ = Interpreter(registers=reg, instructions=instructions, verbose=True)
+    int_ = Interpreter(registry=Registry(a=7), instructions=instructions, verbose=False)
     int_.run_instructions()
-    star1 = int_.registers["a"]
+
+    star1 = int_.registry["a"]
     print(f"After running the instructions, register a contains the value {star1}.")
 
-    #reg["a"] = 12
-    #int2 = Interpreter(registers=reg, instructions=instructions, verbose=True)
-    #int2.run_instructions()
-    #star2 = int2.registers["a"]
-    #print(f"After running the instructions, register a contains the value {star2}.")
+    int2 = Interpreter(registry=Registry(a=12), instructions=instructions, verbose=False)
+    int2.run_instructions()
+    star2 = int2.registry["a"]
+    print(f"After running the instructions, register a contains the value {star2}.")
 
 
 if __name__ == '__main__':
