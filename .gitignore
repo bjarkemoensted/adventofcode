@@ -132,4 +132,5 @@ dmypy.json
 **/.idea
 
 **/*delme*
+**/input*.txt
 secrets.json
