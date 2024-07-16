@@ -1,24 +1,12 @@
 import pathlib
-_here = pathlib.Path(__file__).resolve().parent
-{% if example_filename -%}
-import json
-{% endif %}
 
 
 def read_input():
+    _here = pathlib.Path(__file__).resolve().parent
     fn = _here / "{{input_folder}}" / "{{input_filename}}"
     with open(fn) as f:
         puzzle_input = f.read()
     return puzzle_input
-
-
-{% if example_filename -%}
-def read_examples():
-    fn = _here / "{{input_folder}}" / "{{example_filename}}"
-    with open(fn) as f:
-        d = json.load(f)
-    return d
-{% endif %}
 
 
 def parse(s):
@@ -26,9 +14,8 @@ def parse(s):
     return res
 
 
-def solve():
-    raw = read_input()
-    parsed = parse(raw)
+def solve(data: str):
+    parsed = parse(data)
 
     # TODO solve puzzle
     star1 = None
@@ -40,5 +27,14 @@ def solve():
     return star1, star2
 
 
+def main():
+    {% if has_examples -%}
+    from aoc.utils.data import check_examples
+    check_examples(year={{year}}, day={{day}}, solver=solve)
+    {% endif -%}
+    raw = read_input()
+    solve(raw)
+
+
 if __name__ == '__main__':
-    solve()
+    main()

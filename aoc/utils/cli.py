@@ -1,5 +1,4 @@
 import argparse
-import json
 import os
 import pathlib
 
@@ -48,7 +47,7 @@ def initialize():
     data, examples = read_data(year=year, day=day)
     has_examples = len(examples) > 0
 
-    solution_draft = make_solution_draft(day=day, has_examples=has_examples)
+    solution_draft = make_solution_draft(year=year, day=day, has_examples=has_examples)
 
     _here = pathlib.Path(os.getcwd())
     input_dir = _here / config.input_folder
@@ -57,15 +56,8 @@ def initialize():
     with open(input_file, "w") as f:
         f.write(data)
 
-    if has_examples:
-        example_file = input_dir / config.example_filename.format(day=day)
-        with open(example_file, "w") as f:
-            json.dump(examples, f, sort_keys=True, indent=4)
-        #
-
     box = crypto.Box()
     box.encrypt(input_file)
-    box.encrypt(example_file, overwrite_if_exists=True)
 
     solution_file = _here / config.solution_filename.format(day=day)
     if pathlib.Path(solution_file).exists() and not args.force:
