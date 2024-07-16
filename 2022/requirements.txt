@@ -1,2 +1,0 @@
-networkx==2.8.8
-numpy==1.23.5
