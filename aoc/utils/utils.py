@@ -6,7 +6,7 @@ import re
 from aoc.utils import config
 
 
-def _day_year_valid(day: int=None, year: int=None):
+def _day_year_valid(day: int = None, year: int = None):
     if all(arg is None for arg in (day, year)):
         raise ValueError
 
@@ -78,3 +78,6 @@ def get_day_and_year():
         raise RuntimeError("Could not automatically determine year and day.")
 
     return day, year
+
+
+
