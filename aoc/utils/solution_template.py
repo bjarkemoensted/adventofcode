@@ -30,7 +30,7 @@ def solve(data: str):
 def main():
     {% if has_examples -%}
     from aoc.utils.data import check_examples
-    check_examples(year={{year}}, day={{day}}, solver=solve, suppress_output=True)
+    check_examples(year={{year}}, day={{day}}, solver=solve)
     {% endif -%}
     raw = read_input()
     solve(raw)
