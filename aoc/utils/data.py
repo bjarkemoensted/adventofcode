@@ -3,10 +3,8 @@ from aocd.utils import get_owner
 from aocd.exceptions import DeadTokenError
 from aocd.models import Puzzle, User, default_user
 
-import contextlib
 import dis
 from hashlib import md5
-import os
 import sys
 from termcolor import cprint
 from typing import Callable
@@ -63,6 +61,33 @@ def _coerce_val(val) -> str:
     return str(val)
 
 
+class StreamFilter:
+    def __init__(self, filter_: str):
+        self.filter_ = filter_
+        self.stream = None
+        self.just_ignored = False
+        self._old_stdout = None
+
+    def write(self, s):
+        ignore = (self.filter_ is not None) and s.startswith(self.filter_)
+        if ignore:
+            self.just_ignored = True
+            return
+        if self.just_ignored and s == "\n":
+            self.just_ignored = False
+        else:
+            self.stream.write(s)
+        #
+
+    def __enter__(self):
+        self.stream = sys.stdout
+        sys.stdout = self
+        return self
+
+    def __exit__(self, *args):
+        sys.stdout = self.stream
+
+
 def _evaluate_examples(solver: Callable, examples: list, suppress_output: bool):
     """Takes a solver and list of examples (as exposed in the aocd.models.Puzzle.examples property).
     Returns a tuple of tuples representing each puzzle part and attempted/correct answers, as well as a boolean
@@ -76,12 +101,10 @@ def _evaluate_examples(solver: Callable, examples: list, suppress_output: bool):
     ), None  # No examples for part b (yet?)
     """
 
-    with open(os.devnull, 'w') as devnull:
-        # Redirect to devnull if we're going quiet
-        newout = devnull if suppress_output else sys.stdout
-        with contextlib.redirect_stdout(newout):
-            all_attempts = [solver(example.input_data) for example in examples]
-        #
+    filter_ = "Solution to" if suppress_output else None
+    ssh = StreamFilter(filter_=filter_)
+    with ssh:
+        all_attempts = [solver(example.input_data) for example in examples]
 
     answer_keys = ("answer_a", "answer_b")
     if not all(isinstance(attempt, tuple) and len(attempt) == len(answer_keys) for attempt in all_attempts):
@@ -111,12 +134,14 @@ def _evaluate_examples(solver: Callable, examples: list, suppress_output: bool):
 def check_examples(solver: Callable, year: int, day: int, suppress_output=True, verbose=True):
     puzzle = Puzzle(year=year, day=day)
     examples = puzzle.examples
+    if verbose:
+        print(f"Got {len(examples)} examples.")
     results = _evaluate_examples(solver=solver, examples=examples, suppress_output=suppress_output)
 
     res_a, res_b = results
 
     a_correct = all(correct for _, _, correct in res_a)
-    b_missing = res_b is None
+    b_missing = res_b is None and not puzzle.answered_a
     new_solver = solver_looks_new(solver)
     needs_refresh = all((a_correct, b_missing, new_solver))
     if needs_refresh:
@@ -124,13 +149,16 @@ def check_examples(solver: Callable, year: int, day: int, suppress_output=True, 
             print(f"Part 2 might have unlocked - refreshing puzzle cache...")
         puzzle._request_puzzle_page()
         examples = puzzle.examples
+        if verbose:
+            print(puzzle.answered_a, puzzle.answer_a)
+            print(f"Got {len(examples)} examples.")
         results = _evaluate_examples(solver=solver, examples=examples, suppress_output=suppress_output)
 
     correct_list = []
     for part, res_ in enumerate(results):
         print(f"*** part {part + 1} ***")
         if res_ is None:
-            cprint(" - No data yet.", color="light_grey")
+            cprint(f" - No example data{' (yet?)' if not puzzle.answered_a else '!'}.", color="light_grey")
             continue
         for i, (attempt, correct_answer, correct) in enumerate(res_):
             color = "green" if correct else "red"
