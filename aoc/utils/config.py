@@ -4,7 +4,7 @@ import pathlib
 
 
 _here = pathlib.Path(__file__).resolve().parent
-root_dir = _here.parents[2]
+root_dir = _here.parents[1]
 
 _input_file_pattern = "input*"
 ext_data = ".txt"
@@ -18,6 +18,7 @@ year_regex        = "(\d{4})"
 input_filename    = "input{day:02d}"+ext_data
 example_filename  = "example{day:02d}"+ext_data
 input_folder      = "inputs"
+year_folder       = "aoc_{year:04d}"
 
 day_min = 1
 day_max = 25
@@ -29,6 +30,8 @@ year_max = _now.year - int(_now.month != 12)
 years_range = tuple(range(year_min, year_max + 1))
 
 _secrets = _here / "secrets.json"
+
+
 def read_secrets():
     try:
         with open(_secrets) as f:
@@ -55,3 +58,7 @@ def update_secrets(overwrite=False, **kwargs):
 
 salt = b'\xff\xb5L6\x87\\\x88\xbf\xf4\xcaw\xfau\xda\xbd\xd5'
 password_field = 'password'
+
+
+if __name__ == '__main__':
+    print(root_dir)

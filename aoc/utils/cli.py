@@ -5,7 +5,7 @@ import pathlib
 from aoc.utils.template_tools import make_solution_draft
 from aoc.utils import config
 from aoc.utils import crypto
-from aoc.utils.data import read_data
+from aoc.utils.data import read_data_and_examples
 from aoc.utils.utils import get_day_and_year
 
 
@@ -44,7 +44,7 @@ def initialize():
         year = args.year
 
     print(f"Initializing solution for year {year}, day {day}...")
-    data, examples = read_data(year=year, day=day)
+    data, examples = read_data_and_examples(year=year, day=day)
     has_examples = len(examples) > 0
 
     solution_draft = make_solution_draft(year=year, day=day, has_examples=has_examples)
@@ -65,3 +65,8 @@ def initialize():
 
     with open(solution_file, "w") as f:
         f.write(solution_draft)
+    #
+
+
+def run_multiple():
+    pass

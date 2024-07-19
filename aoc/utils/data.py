@@ -1,15 +1,19 @@
 from aocd.cookies import get_working_tokens
 from aocd.utils import get_owner
 from aocd.exceptions import DeadTokenError
-from aocd.models import Puzzle, User, default_user
+from aocd.models import Puzzle, User, default_user, AOCD_CONFIG_DIR
 
 import dis
 from hashlib import md5
+import json
 import sys
 from termcolor import cprint
 from typing import Callable
 
 from aoc.utils.temp import TempCache
+
+
+_tokens_file = AOCD_CONFIG_DIR / "tokens.json"
 
 
 def token_works(token: str) -> bool:
@@ -20,7 +24,37 @@ def token_works(token: str) -> bool:
         return False
 
 
-def read_data(year: int, day: int, token=None):
+def read_tokens():
+    try:
+        with open(_tokens_file, "r") as f:
+            d = json.load(f)
+        #
+    except FileNotFoundError:
+        d = dict()
+    return d
+
+
+def add_tokens_from_current_session():
+    token2owner = get_working_tokens()
+
+    owner2token = read_tokens()
+    owners_old = set(owner2token.keys())
+    n_new = 0
+    for token, owner in token2owner.items():
+        if owner not in owners_old:
+            owner2token[owner] = token
+            n_new += 1
+        #
+
+    if n_new:
+        with open(_tokens_file, "w") as f:
+            json.dump(owner2token, f, indent=4)
+        print(f"Added {n_new} token{'s' if n_new != 1 else ''} to {_tokens_file}.")
+    else:
+        print("No new tokens discovered.")
+
+
+def read_data_and_examples(year: int, day: int, token=None):
     user = User(token=token) if token is not None else default_user()
     puzzle = Puzzle(year=year, day=day, user=user)
 
@@ -179,6 +213,4 @@ def check_examples(solver: Callable, year: int, day: int, suppress_output=True, 
 
 
 if __name__ == "__main__":
-    tokens = get_working_tokens()
-    for token_, owner in tokens.items():
-        print(token_, owner, get_owner(token_))
+    add_tokens_from_current_session()

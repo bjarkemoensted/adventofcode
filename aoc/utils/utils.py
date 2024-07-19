@@ -78,6 +78,3 @@ def get_day_and_year():
         raise RuntimeError("Could not automatically determine year and day.")
 
     return day, year
-
-
-
