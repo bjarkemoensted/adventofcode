@@ -5,6 +5,9 @@ import time
 
 
 class TempCache:
+    """Helper class for a temp file-like object for containing data short term.
+    Used to compare solvers with solvers executed in the near-past to determine if a solver is new."""
+
     def __init__(self, filename: str, mode="r", folder=None, retain_seconds=3600, verbose=False):
         if folder is None:
             folder = tempfile.gettempdir()

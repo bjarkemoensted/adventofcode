@@ -6,7 +6,8 @@ import re
 from aoc.utils import config
 
 
-def _day_year_valid(day: int = None, year: int = None):
+def _day_year_valid(day: int = None, year: int = None) -> bool:
+    """Whether a year and/or day is valid"""
     if all(arg is None for arg in (day, year)):
         raise ValueError
 
@@ -33,8 +34,10 @@ def _infer_year_day_from_filename(fn, n_parents=3):
 
     # Attempt matching
     day_matches = re.findall(config.solution_regex, path_truncated)
-    day = int(day_matches[-1])
     year_matches = re.findall(config.year_regex, path_truncated)
+    if any(len(hits) == 0 for hits in (day_matches, year_matches)):
+        return None
+    day = int(day_matches[-1])
     year = int(year_matches[-1])
 
     # Make sure values are within bounds

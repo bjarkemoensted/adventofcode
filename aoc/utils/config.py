@@ -20,14 +20,14 @@ example_filename  = "example{day:02d}"+ext_data
 input_folder      = "inputs"
 year_folder       = "aoc_{year:04d}"
 
-day_min = 1
-day_max = 25
-days_range = tuple(range(day_min, day_max + 1))
-
 _now = datetime.datetime.now()
 year_min = 2015
 year_max = _now.year - int(_now.month != 12)
 years_range = tuple(range(year_min, year_max + 1))
+
+day_min = 1
+day_max = 25
+days_range = tuple(range(day_min, day_max + 1))
 
 _secrets = _here / "secrets.json"
 

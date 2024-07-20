@@ -13,47 +13,6 @@ from typing import Callable
 from aoc.utils.temp import TempCache
 
 
-_tokens_file = AOCD_CONFIG_DIR / "tokens.json"
-
-
-def token_works(token: str) -> bool:
-    try:
-        _ = get_owner(token)
-        return True
-    except DeadTokenError:
-        return False
-
-
-def read_tokens():
-    try:
-        with open(_tokens_file, "r") as f:
-            d = json.load(f)
-        #
-    except FileNotFoundError:
-        d = dict()
-    return d
-
-
-def add_tokens_from_current_session():
-    token2owner = get_working_tokens()
-
-    owner2token = read_tokens()
-    owners_old = set(owner2token.keys())
-    n_new = 0
-    for token, owner in token2owner.items():
-        if owner not in owners_old:
-            owner2token[owner] = token
-            n_new += 1
-        #
-
-    if n_new:
-        with open(_tokens_file, "w") as f:
-            json.dump(owner2token, f, indent=4)
-        print(f"Added {n_new} token{'s' if n_new != 1 else ''} to {_tokens_file}.")
-    else:
-        print("No new tokens discovered.")
-
-
 def read_data_and_examples(year: int, day: int, token=None):
     user = User(token=token) if token is not None else default_user()
     puzzle = Puzzle(year=year, day=day, user=user)
@@ -184,7 +143,6 @@ def check_examples(solver: Callable, year: int, day: int, suppress_output=True, 
         puzzle._request_puzzle_page()
         examples = puzzle.examples
         if verbose:
-            print(puzzle.answered_a, puzzle.answer_a)
             print(f"Got {len(examples)} examples.")
         results = _evaluate_examples(solver=solver, examples=examples, suppress_output=suppress_output)
 
@@ -213,4 +171,4 @@ def check_examples(solver: Callable, year: int, day: int, suppress_output=True, 
 
 
 if __name__ == "__main__":
-    add_tokens_from_current_session()
+    pass

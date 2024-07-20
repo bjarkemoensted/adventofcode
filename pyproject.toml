@@ -26,6 +26,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 aoc-init = "aoc.utils.cli:initialize"
+aoc-check = "aoc.utils.check_solutions:main"
 
 [tool.poetry.plugins."adventofcode.user"]
 omd = "aoc:plugin"
