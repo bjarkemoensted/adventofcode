@@ -22,6 +22,6 @@ def make_solution_draft(day: int, year:int, has_examples=False) -> str:
         year=year
     )
 
-    res = temp.render(**render_kwargs)
+    res = temp.render(**render_kwargs)+"\n"
 
     return res
