@@ -81,7 +81,7 @@ class StreamFilter:
         sys.stdout = self.stream
 
 
-def _evaluate_examples(solver: Callable, examples: list, suppress_output: bool):
+def _evaluate_examples(solver: Callable, examples: list, suppress_output: bool, extra_kwargs_parser=None):
     """Takes a solver and list of examples (as exposed in the aocd.models.Puzzle.examples property).
     Returns a tuple of tuples representing each puzzle part and attempted/correct answers, as well as a boolean
     indicating wheher the answer is correct:
@@ -97,7 +97,14 @@ def _evaluate_examples(solver: Callable, examples: list, suppress_output: bool):
     filter_ = "Solution to" if suppress_output else None
     ssh = StreamFilter(filter_=filter_)
     with ssh:
-        all_attempts = [solver(example.input_data) for example in examples]
+        all_attempts = []
+        for example in examples:
+            if example.extra is not None and extra_kwargs_parser is not None:
+                kwargs = extra_kwargs_parser(example.extra)
+            else:
+                kwargs = dict()
+            attempt = solver(example.input_data, **kwargs)
+            all_attempts.append(attempt)
 
     answer_keys = ("answer_a", "answer_b")
     if not all(isinstance(attempt, tuple) and len(attempt) == len(answer_keys) for attempt in all_attempts):
@@ -124,12 +131,29 @@ def _evaluate_examples(solver: Callable, examples: list, suppress_output: bool):
     return res
 
 
-def check_examples(solver: Callable, year: int, day: int, suppress_output=True, verbose=True):
+def check_examples(
+        solver: Callable,
+        year: int,
+        day: int,
+        suppress_output=True,
+        verbose=True,
+        extra_kwargs_parser=None
+    ):
+    """Checks whether the provided solver gives correct results for the given examples.
+    Some examples come with an 'extra' attribute, denoting when something is a special case for that example.
+    If extra_kwargs_parser is provided, it will be used to pass such a string into a keyword dict, which is passed
+    to the solver."""
+
     puzzle = Puzzle(year=year, day=day)
     examples = puzzle.examples
     if verbose:
         print(f"Got {len(examples)} examples.")
-    results = _evaluate_examples(solver=solver, examples=examples, suppress_output=suppress_output)
+    results = _evaluate_examples(
+        solver=solver,
+        examples=examples,
+        suppress_output=suppress_output,
+        extra_kwargs_parser=extra_kwargs_parser
+    )
 
     res_a, res_b = results
 
