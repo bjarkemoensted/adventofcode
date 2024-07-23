@@ -137,7 +137,8 @@ def check_examples(
         day: int,
         suppress_output=True,
         verbose=True,
-        extra_kwargs_parser=None
+        extra_kwargs_parser=None,
+        abort_on_fail=False
     ):
     """Checks whether the provided solver gives correct results for the given examples.
     Some examples come with an 'extra' attribute, denoting when something is a special case for that example.
@@ -189,7 +190,7 @@ def check_examples(
     msg = f"### Correct: {n_correct}/{len(correct_list)} ({p_correct:.0f}%) ###"
     cprint(msg, color="green" if all(correct_list) else "red")
     print()
-    if not all(correct_list):
+    if abort_on_fail and not all(correct_list):
         print("Aborting since some examples fail...")
         sys.exit(0)
 
