@@ -1,3 +1,4 @@
+import numba
 import pathlib
 
 
@@ -14,22 +15,22 @@ def parse(s):
     return res
 
 
-def steps_to_complete(instructions, max_offset=None):
-    if max_offset is None:
+@numba.jit
+def steps_to_complete(instructions, max_offset=-1):
+    if max_offset == -1:
         max_offset = float('inf')
 
     instructions = [val for val in instructions]
     ind = 0
     n = 0
-    while True:
-        try:
-            val = instructions[ind]
-            shift = -1 if val >= max_offset else +1
-            instructions[ind] += shift
-            ind += val
-            n += 1
-        except IndexError:
-            return n
+    while 0 <= ind < len(instructions):
+        val = instructions[ind]
+        shift = -1 if val >= max_offset else +1
+        instructions[ind] += shift
+        ind += val
+        n += 1
+
+    return n
 
 
 def solve(data: str):
