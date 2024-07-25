@@ -138,7 +138,8 @@ def check_examples(
         suppress_output=True,
         verbose=True,
         extra_kwargs_parser=None,
-        abort_on_fail=False
+        abort_on_fail=False,
+        auto_refresh=True
     ):
     """Checks whether the provided solver gives correct results for the given examples.
     Some examples come with an 'extra' attribute, denoting when something is a special case for that example.
@@ -162,7 +163,7 @@ def check_examples(
     b_missing = res_b is None and not puzzle.answered_a
     new_solver = solver_looks_new(solver)
     needs_refresh = all((a_correct, b_missing, new_solver))
-    if needs_refresh:
+    if needs_refresh and auto_refresh:
         if verbose:
             print(f"Part 2 might have unlocked - refreshing puzzle cache...")
         puzzle._request_puzzle_page()
