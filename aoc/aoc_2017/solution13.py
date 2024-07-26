@@ -1,3 +1,4 @@
+import numba
 import pathlib
 
 
@@ -10,63 +11,49 @@ def read_input():
 
 
 def parse(s):
-    res = dict()
+    res = []
     for line in s.splitlines():
-        k, v = map(int, line.split(": "))
-        res[k] = v
+        depth, range_ = [int(elem) for elem in line.strip().split(": ")]
+        period = 2*range_ - 2
+        scanner = (depth, range_, period)
+        res.append(scanner)
     return res
 
 
-def _phase(range_: int) -> int:
-    """Recurrence time for a scanner moving back and forth between a range"""
-    res = 2*range_ - 2
-    return res
-
-
-def iterate_path(phases: dict, delay: int = 0):
-    """Provides the depths of the layers where caught"""
-    time_ = delay
-    pos = 0
-    passed = 0
-    while passed < len(phases):
-        try:
-            caught = time_ % phases[pos] == 0
-            passed += 1
-        except KeyError:
-            caught = False
+@numba.njit
+def severity(firewall):
+    res = 0
+    for depth, range_, period in firewall:
+        caught = depth % period == 0
+        sev = depth*range_
         if caught:
-            yield pos
-        pos += 1
-        time_ += 1
-    #
-
-
-def compute_severity(firewall: dict):
-    phases = {depth: _phase(range_) for depth, range_ in firewall.items()}
-    res = sum([depth*firewall[depth] for depth in iterate_path(phases)])
+            res += sev
 
     return res
 
 
-def determine_best_delay(firewall: dict):
-    """Brute force approach to finding the earliest time where no scanner catch the package."""
-    phases = {depth: _phase(range_) for depth, range_ in firewall.items()}
+@numba.njit
+def determine_delay(firewall):
     delay = 0
     while True:
-        try:
-            next(iterate_path(phases, delay))
-            delay += 1
-        except StopIteration:
+        caught = False
+        for depth, _, period in firewall:
+            if (depth + delay) % period == 0:
+                caught = True
+                break
+            #
+        else:
             return delay
+        delay += 1
 
 
 def solve(data: str):
     firewall = parse(data)
 
-    star1 = compute_severity(firewall)
+    star1 = severity(firewall)
     print(f"Solution to part 1: {star1}")
 
-    star2 = determine_best_delay(firewall)
+    star2 = determine_delay(firewall)
     print(f"Solution to part 2: {star2}")
 
     return star1, star2
