@@ -36,10 +36,8 @@ def severity(firewall):
 def determine_delay(firewall):
     delay = 0
     while True:
-        caught = False
         for depth, _, period in firewall:
             if (depth + delay) % period == 0:
-                caught = True
                 break
             #
         else:
