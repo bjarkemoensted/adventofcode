@@ -101,6 +101,9 @@ def _evaluate_examples(solver: Callable, examples: list, suppress_output: bool, 
         for example in examples:
             if example.extra is not None and extra_kwargs_parser is not None:
                 kwargs = extra_kwargs_parser(example.extra)
+            elif example.extra is not None and extra_kwargs_parser is None:
+
+                raise Warning(f"Example has extra ({example.extra}). Specify a parser for it.")
             else:
                 kwargs = dict()
             attempt = solver(example.input_data, **kwargs)
@@ -149,13 +152,15 @@ def check_examples(
     puzzle = Puzzle(year=year, day=day)
     examples = puzzle.examples
     if verbose:
-        print(f"Got {len(examples)} examples.")
-    results = _evaluate_examples(
+        print(f"Got {len(examples)} examples. {extra_kwargs_parser}.")
+
+    _eval_kwargs = dict(
         solver=solver,
         examples=examples,
         suppress_output=suppress_output,
         extra_kwargs_parser=extra_kwargs_parser
     )
+    results = _evaluate_examples(**_eval_kwargs)
 
     res_a, res_b = results
 
@@ -170,7 +175,7 @@ def check_examples(
         examples = puzzle.examples
         if verbose:
             print(f"Got {len(examples)} examples.")
-        results = _evaluate_examples(solver=solver, examples=examples, suppress_output=suppress_output)
+        results = _evaluate_examples(**_eval_kwargs)
 
     correct_list = []
     for part, res_ in enumerate(results):

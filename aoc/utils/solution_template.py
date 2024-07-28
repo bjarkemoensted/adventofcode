@@ -1,14 +1,3 @@
-import pathlib
-
-
-def read_input():
-    _here = pathlib.Path(__file__).resolve().parent
-    fn = _here / "{{input_folder}}" / "{{input_filename}}"
-    with open(fn) as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
-
 def parse(s):
     res = s  # TODO parse input here
     return res
@@ -28,11 +17,13 @@ def solve(data: str):
 
 
 def main():
+    year, day = {{year}}, {{day}}
     {% if has_examples -%}
     from aoc.utils.data import check_examples
-    check_examples(year={{year}}, day={{day}}, solver=solve)
+    check_examples(year=year, day=day, solver=solve)
     {% endif -%}
-    raw = read_input()
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
     solve(raw)
 
 
