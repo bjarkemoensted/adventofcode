@@ -233,8 +233,6 @@ def solve(data: str):
     print(f"Solution to part 1: {star1}")
 
     star2 = match_template_and_run(instructions)
-    # 914 too low
-    # TODO count n non-primes between b and c (including c I think)
     print(f"Solution to part 2: {star2}")
 
     return star1, star2
