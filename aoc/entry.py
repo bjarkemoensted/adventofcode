@@ -3,7 +3,6 @@ import importlib
 import os
 import pathlib
 
-import aoc
 from aoc.utils import config
 
 

@@ -1,10 +1,5 @@
-# Read in data
-with open("input05.txt") as f:
-    raw = f.read()
-
-
-def parse(stuff):
-    res = [line for line in stuff.split("\n")]
+def parse(s):
+    res = [line for line in s.split("\n")]
     return res
 
 
@@ -26,12 +21,6 @@ def string_is_nice(s):
     return True
 
 
-strings = parse(raw)
-
-n_nice = sum(string_is_nice(s) for s in strings)
-print(f"There are {n_nice} nice strings.")
-
-
 def string_is_nice2(s):
     if not any(s[i:i+2] in s[i+2:] for i in range(len(s) - 2)):
         return False
@@ -40,5 +29,26 @@ def string_is_nice2(s):
     return True
 
 
-n_nice2 = sum(string_is_nice2(s) for s in strings)
-print(f"There are now {n_nice2} nice strings.")
+def solve(data: str):
+    strings = parse(data)
+
+    star1 = sum(string_is_nice(s) for s in strings)
+    print(f"Solution to part 1: {star1}")
+
+    star2 = sum(string_is_nice2(s) for s in strings)
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2015, 5
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
+
+
+if __name__ == '__main__':
+    main()

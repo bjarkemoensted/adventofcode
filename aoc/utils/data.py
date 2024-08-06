@@ -173,6 +173,8 @@ def check_examples(
 
     if extra_kwargs_parser is None:
         extra_kwargs_parser = _default_extra_kwargs_parser
+    elif extra_kwargs_parser == "ignore":
+        extra_kwargs_parser = lambda s: dict()
 
     _eval_kwargs = dict(
         solver=solver,

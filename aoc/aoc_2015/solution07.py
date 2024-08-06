@@ -1,37 +1,3 @@
-# Read in data
-with open("input07.txt") as f:
-    raw = f.read()
-
-example_input = \
-"""123 -> x
-456 -> y
-x AND y -> d
-x OR y -> e
-x LSHIFT 2 -> f
-y RSHIFT 2 -> g
-NOT x -> h
-NOT y -> i"""
-
-
-def make_binary(val):
-    if isinstance(val, str):
-        val = int(val)
-    return bin(val & 0b1111111111111111)
-
-
-def make_decimal(bin_):
-    return int(bin_, 2)
-
-
-operators = {
-    'OR': '|',
-    'AND': '&',
-    'LSHIFT': '<<',
-    'RSHIFT': '>>',
-    'NOT': '~'
-}
-
-
 def parse(s):
     """Parses input lines into a, and expression that can be evaluated given the necessary variables and values,
     and b, the output wire in which the resulting output (if it can be computed) should be stored."""
@@ -56,6 +22,25 @@ def parse(s):
         res.append((expression, output_wire))
 
     return res
+
+
+def make_binary(val):
+    if isinstance(val, str):
+        val = int(val)
+    return bin(val & 0b1111111111111111)
+
+
+def make_decimal(bin_):
+    return int(bin_, 2)
+
+
+operators = {
+    'OR': '|',
+    'AND': '&',
+    'LSHIFT': '<<',
+    'RSHIFT': '>>',
+    'NOT': '~'
+}
 
 
 def construct_network(instructions, overrides=None):
@@ -90,13 +75,32 @@ def construct_network(instructions, overrides=None):
     return d
 
 
-operations = parse(raw)
-signals = construct_network(operations)
+def solve(data: str):
+    operations = parse(data)
+    signals = construct_network(operations)
 
-signal_a = signals['a']
-print(f"Signal in wire a: {make_decimal(signal_a)}.")
+    signal_a = signals['a']
+    star1 = make_decimal(signal_a)
+    print(f"Solution to part 1: {star1}")
 
-override = {'b': signal_a}
-new_signals = construct_network(operations, override)
-new_signal_a = new_signals['a']
-print(f"New signal in a: {make_decimal(new_signal_a)}.")
+    override = {'b': signal_a}
+    new_signals = construct_network(operations, override)
+    new_signal_a = new_signals['a']
+
+    star2 = make_decimal(new_signal_a)
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2015, 7
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve, extra_kwargs_parser="ignore")
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
+
+
+if __name__ == '__main__':
+    main()

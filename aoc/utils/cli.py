@@ -57,7 +57,3 @@ def initialize():
     with open(solution_file, "w") as f:
         f.write(solution_draft)
     #
-
-
-def run_multiple():
-    pass

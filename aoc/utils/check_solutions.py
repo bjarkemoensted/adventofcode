@@ -42,7 +42,7 @@ def get_available_years_and_days():
             try:
                 _ = importlib.import_module(f"aoc.{yn}.{dn}")
                 days_available.append(day)
-            except ModuleNotFoundError:
+            except (ModuleNotFoundError, FileNotFoundError):
                 pass
             #
         if days_available:
@@ -58,7 +58,7 @@ def _run(years: list, days: list):
     datasets = read_tokens()
 
     def _format(label: str, arr: list):
-        """Formats stuff like 'years: 2015, 2016', i.e. handles plural s and stuff"""
+        """Formats stuff like 'years: aoc_2015, 2016', i.e. handles plural s and stuff"""
         formatted = f"{label}{'s' if len(arr) != 1 else ''}: {', '.join(map(str, arr))}"
         return formatted
 
