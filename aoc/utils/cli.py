@@ -4,7 +4,6 @@ import pathlib
 
 from aoc.utils.template_tools import make_solution_draft
 from aoc.utils import config
-from aoc.utils import crypto
 from aoc.utils.data import read_data_and_examples
 from aoc.utils.utils import get_day_and_year
 
@@ -50,14 +49,6 @@ def initialize():
     solution_draft = make_solution_draft(year=year, day=day, has_examples=has_examples)
 
     _here = pathlib.Path(os.getcwd())
-    input_dir = _here / config.input_folder
-    input_dir.mkdir(parents=True, exist_ok=True)
-    input_file = input_dir / config.input_filename.format(day=day)
-    with open(input_file, "w") as f:
-        f.write(data)
-
-    box = crypto.Box()
-    box.encrypt(input_file)
 
     solution_file = _here / config.solution_filename.format(day=day)
     if pathlib.Path(solution_file).exists() and not args.force:

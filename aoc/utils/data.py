@@ -29,6 +29,22 @@ def _hash_callable(f: Callable) -> str:
     return res
 
 
+def _default_extra_kwargs_parser(s: str) -> dict:
+    """Standard attempt at parsing the 'extra' params that example data often come with.
+    The ones I've seen are of the form 'n=5'. Not tested with multiple arguments."""
+    sep = ","
+    res = dict()
+    for part in s.split(sep):
+        a, b = part.split("=")
+        try:
+            b = int(b)
+        except ValueError:
+            pass
+        res[a] = b
+
+    return res
+
+
 def solver_looks_new(solver: Callable) -> bool:
     hash_ = _hash_callable(solver)
     fn = ".aoc_solver_hash_cache.txt"
@@ -147,12 +163,16 @@ def check_examples(
     """Checks whether the provided solver gives correct results for the given examples.
     Some examples come with an 'extra' attribute, denoting when something is a special case for that example.
     If extra_kwargs_parser is provided, it will be used to pass such a string into a keyword dict, which is passed
-    to the solver."""
+    to the solver. If none is provided but extra kwargs are passed, an attempt will be made to parse the format
+    I've seen most often, i.e. parsing stuff like 'n=5' into {'n': 5}"""
 
     puzzle = Puzzle(year=year, day=day)
     examples = puzzle.examples
     if verbose:
         print(f"Got {len(examples)} examples. {extra_kwargs_parser}.")
+
+    if extra_kwargs_parser is None:
+        extra_kwargs_parser = _default_extra_kwargs_parser
 
     _eval_kwargs = dict(
         solver=solver,

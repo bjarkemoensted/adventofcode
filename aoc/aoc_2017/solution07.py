@@ -1,16 +1,7 @@
 from collections import Counter
 from copy import deepcopy
 from functools import cache
-import pathlib
 import re
-
-
-def read_input():
-    _here = pathlib.Path(__file__).resolve().parent
-    fn = _here / "inputs" / "input07.txt"
-    with open(fn) as f:
-        puzzle_input = f.read()
-    return puzzle_input
 
 
 def parse(s):
@@ -116,10 +107,11 @@ def solve(data: str):
 
 
 def main():
+    year, day = 2017, 7
     from aoc.utils.data import check_examples
-    check_examples(year=2017, day=7, solver=solve)
-
-    raw = read_input()
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
     solve(raw)
 
 

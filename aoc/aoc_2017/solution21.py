@@ -129,16 +129,16 @@ def simulate_growth(rules: dict, n_steps: int = 5, verbose=False, state=None):
     return state
 
 
-def solve(data: str, n_steps=5):
+def solve(data: str, iterations=5):
     rules = parse(data)
-    endstate = simulate_growth(rules=rules, n_steps=n_steps)
+    endstate = simulate_growth(rules=rules, n_steps=iterations)
 
     star1 = sum(char == "#" for char in endstate.flat)
     print(f"Solution to part 1: {star1}")
 
     n_final = 18
-    n_left = n_final - n_steps
-    if n_steps <= 3:
+    n_left = n_final - iterations
+    if iterations <= 3:
         star2 = None
     else:
         final_state = simulate_growth(rules=rules, n_steps=n_left, state=endstate)
@@ -152,8 +152,7 @@ def main():
     year, day = 2017, 21
     from aoc.utils.data import check_examples
 
-    parser = lambda s: dict(n_steps=int(s.split("iterations=")[-1]))
-    check_examples(year=year, day=day, solver=solve, extra_kwargs_parser=parser)
+    check_examples(year=year, day=day, solver=solve)
 
     from aocd import get_data
     raw = get_data(year=year, day=day)

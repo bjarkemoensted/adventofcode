@@ -1,13 +1,4 @@
-import pathlib
 from string import ascii_lowercase
-
-
-def read_input():
-    _here = pathlib.Path(__file__).resolve().parent
-    fn = _here / "inputs" / "input16.txt"
-    with open(fn) as f:
-        puzzle_input = f.read()
-    return puzzle_input
 
 
 def parse(s):
@@ -101,16 +92,11 @@ def solve(data: str):
 
 
 def main():
+    year, day = 2017, 16
     from aoc.utils.data import check_examples
-
-    from aocd.models import Puzzle
-    puzzle = Puzzle(year=2017, day=16)
-    examples = puzzle.examples
-    print(examples)
-
-
-    check_examples(year=2017, day=16, solver=solve)
-    raw = read_input()
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
     solve(raw)
 
 

@@ -1,13 +1,4 @@
 import numba
-import pathlib
-
-
-def read_input():
-    _here = pathlib.Path(__file__).resolve().parent
-    fn = _here / "inputs" / "input17.txt"
-    with open(fn) as f:
-        puzzle_input = f.read()
-    return puzzle_input
 
 
 def parse(s):
@@ -57,9 +48,11 @@ def solve(data: str):
 
 
 def main():
+    year, day = 2017, 17
     from aoc.utils.data import check_examples
-    check_examples(year=2017, day=17, solver=solve)
-    raw = read_input()
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
     solve(raw)
 
 
