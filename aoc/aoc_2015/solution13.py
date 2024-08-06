@@ -1,23 +1,5 @@
 from itertools import permutations
 
-# Read in data
-with open("input13.txt") as f:
-    puzzle_input = f.read()
-
-example_input = \
-"""Alice would gain 54 happiness units by sitting next to Bob.
-Alice would lose 79 happiness units by sitting next to Carol.
-Alice would lose 2 happiness units by sitting next to David.
-Bob would gain 83 happiness units by sitting next to Alice.
-Bob would lose 7 happiness units by sitting next to Carol.
-Bob would lose 63 happiness units by sitting next to David.
-Carol would lose 62 happiness units by sitting next to Alice.
-Carol would gain 60 happiness units by sitting next to Bob.
-Carol would gain 55 happiness units by sitting next to David.
-David would gain 46 happiness units by sitting next to Alice.
-David would lose 7 happiness units by sitting next to Bob.
-David would gain 41 happiness units by sitting next to Carol."""
-
 
 def parse(s):
     """Parses into e.g. {'Alice': {"Bob": -42, ...}, ...}"""
@@ -56,12 +38,28 @@ def determine_optimum_arrangement(names, preferences):
     return res
 
 
-prefs = parse(puzzle_input)
-names = sorted(prefs.keys())
-max_score = determine_optimum_arrangement(names=names, preferences=prefs)
+def solve(data: str):
+    prefs = parse(data)
 
-print(f"Maximum felicity is {max_score}.")
+    names = sorted(prefs.keys())
+    star1 = determine_optimum_arrangement(names=names, preferences=prefs)
+    print(f"Solution to part 1: {star1}")
 
-names_with_me = [name for name in names] + ["Me"]
-new_max = determine_optimum_arrangement(names=names_with_me, preferences=prefs)
-print(f"Happiness by including me: {new_max}.")
+    names_with_me = [name for name in names] + ["Me"]
+    star2 = determine_optimum_arrangement(names=names_with_me, preferences=prefs)
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2015, 13
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
+
+
+if __name__ == '__main__':
+    main()

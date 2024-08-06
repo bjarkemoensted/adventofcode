@@ -1,7 +1,4 @@
 import json
-# Read in data
-with open("input12.txt") as f:
-    puzzle_input = f.read()
 
 
 def parse(s):
@@ -36,10 +33,30 @@ def grab_numbers(obj, res=None, ignore_red=False):
     return res
 
 
-data = parse(puzzle_input)
-numbers = grab_numbers(data)
+def solve(data: str):
+    parsed = parse(data)
 
-print(f"Numbers in data sum to {sum(numbers)}.")
+    numbers = grab_numbers(parsed)
 
-new_numbers = grab_numbers(data, ignore_red=True)
-print(f"Non-red numbers in data sum to {sum(new_numbers)}.")
+    star1 = sum(numbers)
+    print(f"Solution to part 1: {star1}")
+
+    new_numbers = grab_numbers(parsed, ignore_red=True)
+
+    star2 = sum(new_numbers)
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2015, 12
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
+
+
+if __name__ == '__main__':
+    main()

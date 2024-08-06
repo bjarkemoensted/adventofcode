@@ -1,10 +1,9 @@
-# Read in data
-with open("input10.txt") as f:
-    puzzle_input = f.read()
-
-
-def extend_sequence(s):
+def extend_sequence(s, n_times=1):
     """Extends a sequence, e.g. transforms "11" into "21" (two ones)."""
+
+    if n_times == 0:
+        return s
+
     res = ""
     buffer = ""
 
@@ -17,17 +16,33 @@ def extend_sequence(s):
     if buffer:
         res += str(len(buffer)) + buffer[-1]
 
-    return res
+    return extend_sequence(res, n_times - 1)
 
 
-extended = puzzle_input
-for _ in range(40):
-    extended = extend_sequence(extended)
+def solve(data: str):
+    extended = data
+    for _ in range(40):
+        extended = extend_sequence(extended)
+
+    star1 = len(extended)
+    print(f"Solution to part 1: {star1}")
+
+    for _ in range(10):
+        extended = extend_sequence(extended)
+    star2 = len(extended)
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
 
 
-print(f"Final sequence length after 40 iterations: {len(extended)}.")
+def main():
+    year, day = 2015, 10
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
-for _ in range(10):
-    extended = extend_sequence(extended)
 
-print(f"Final sequence length after 50 iterations: {len(extended)}.")
+if __name__ == '__main__':
+    main()

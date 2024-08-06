@@ -1,8 +1,3 @@
-# Read in data
-with open("input11.txt") as f:
-    puzzle_input = f.read()
-
-
 alph = "abcdefghijklmnopqrstuvwxyz"
 ind2letter = {i: letter for i, letter in enumerate(alph)}
 letter2ind = {letter: i for i, letter in ind2letter.items()}
@@ -43,14 +38,32 @@ def password_is_valid(s):
     return True
 
 
-password = puzzle_input
-while not password_is_valid(password):
+def solve(data: str):
+    password = data
+    while not password_is_valid(password):
+        password = increment(password)
+
+    star1 = password
+    print(f"Solution to part 1: {star1}")
+
     password = increment(password)
+    while not password_is_valid(password):
+        password = increment(password)
 
-print(f"Next valid password is: {password}.")
+    star2 = password
+    print(f"Solution to part 2: {star2}")
 
-password = increment(password)
-while not password_is_valid(password):
-    password = increment(password)
+    return star1, star2
 
-print(f"Next valid one after that is: {password}.")
+
+def main():
+    year, day = 2015, 11
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
+
+
+if __name__ == '__main__':
+    main()

@@ -1,15 +1,5 @@
 import networkx as nx
 
-# Read in data
-with open("input09.txt") as f:
-    raw = f.read()
-
-
-example_input = \
-"""London to Dublin = 464
-London to Belfast = 518
-Dublin to Belfast = 141"""
-
 
 def parse(s):
     graph = nx.Graph()
@@ -37,11 +27,11 @@ def extend_path(path, graph):
     return res
 
 
-def grow_all_paths(graph):
+def grow_all_paths(G):
     paths = []
     for node in G:
         thispath = [node]
-        newpaths = extend_path(thispath, graph)
+        newpaths = extend_path(thispath, G)
 
         paths += newpaths
     return paths
@@ -51,18 +41,36 @@ def path_length(path, graph):
     return sum(graph[path[i]][path[i+1]]['weight'] for i in range(len(path) - 1))
 
 
-G = parse(raw)
+def solve(data: str):
+    G = parse(data)
 
-paths = grow_all_paths(G)
-shortest = float('inf')
-longest = float('-inf')
-for path in paths:
-    if len(path) < len(G):
-        continue
-    length = path_length(path, G)
-    shortest = min(shortest, length)
-    longest = max(longest, length)
+    paths = grow_all_paths(G)
+    shortest = float('inf')
+    longest = float('-inf')
+    for path in paths:
+        if len(path) < len(G):
+            continue
+        length = path_length(path, G)
+        shortest = min(shortest, length)
+        longest = max(longest, length)
+
+    star1 = shortest
+    print(f"Solution to part 1: {star1}")
+
+    star2 = longest
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
 
 
-print(f"Shortest path visiting all nodes has length {shortest}.")
-print(f"longest path visiting all nodes has length {longest}.")
+def main():
+    year, day = 2015, 9
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
+
+
+if __name__ == '__main__':
+    main()

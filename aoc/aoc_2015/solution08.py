@@ -1,10 +1,6 @@
-# Read in data
-with open("input08.txt") as f:
-    raw = f.read()
-
-
 def parse(s):
-    return [line.strip() for line in s.split("\n")]
+    res = [line.strip() for line in s.split("\n")]
+    return res
 
 
 def get_code_length(s):
@@ -36,12 +32,30 @@ def get_encoded_string_length(s):
     return len_
 
 
-lines = parse(raw)
-total_string_length = sum(get_code_length(line) for line in lines)
-total_code_length = sum(get_string_length(line) for line in lines)
+def solve(data: str):
+    lines = parse(data)
 
-print(total_code_length - total_string_length)
+    total_string_length = sum(get_code_length(line) for line in lines)
+    total_code_length = sum(get_string_length(line) for line in lines)
 
-total_encoded_length = sum(get_encoded_string_length(line) for line in lines)
+    star1 = total_code_length - total_string_length
+    print(f"Solution to part 1: {star1}")
 
-print(total_encoded_length - total_code_length)
+    total_encoded_length = sum(get_encoded_string_length(line) for line in lines)
+    star2 = total_encoded_length - total_code_length
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2015, 8
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
+
+
+if __name__ == '__main__':
+    main()

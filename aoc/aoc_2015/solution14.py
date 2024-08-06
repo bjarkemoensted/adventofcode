@@ -1,12 +1,3 @@
-# Read in data
-with open("input14.txt") as f:
-    puzzle_input = f.read()
-
-example_input = \
-"""Comet can fly 14 km/s for 10 seconds, but then must rest for 127 seconds.
-Dancer can fly 16 km/s for 11 seconds, but then must rest for 162 seconds."""
-
-
 def parse(s):
     """Parses reindeer info. Gives a dict mapping reindeer names to properties"""
     res = {}
@@ -35,14 +26,6 @@ def determine_distance_travelled(reindeer, n_seconds):
     return distance
 
 
-data = parse(puzzle_input)
-
-n_seconds_for_race = 2503
-name2dist = {name: determine_distance_travelled(d, n_seconds_for_race) for name, d in data.items()}
-
-print(f"Fastest reindeer travelled {max(name2dist.values())} km.")
-
-
 def compute_points(reindeers, n_seconds):
     points = {k: 0 for k in reindeers.keys()}
     positions = {k: 0 for k in reindeers.keys()}
@@ -65,5 +48,31 @@ def compute_points(reindeers, n_seconds):
     return points
 
 
-race_results = compute_points(data, n_seconds_for_race)
-print(f"Winner of second reindeer race has {max(race_results.values())} points.")
+def solve(data: str):
+    reindeer_stats = parse(data)
+
+    n_seconds_for_race = 2503
+    name2dist = {name: determine_distance_travelled(d, n_seconds_for_race) for name, d in reindeer_stats.items()}
+
+    star1 = max(name2dist.values())
+    print(f"Solution to part 1: {star1}")
+
+    race_results = compute_points(reindeer_stats, n_seconds_for_race)
+
+    star2 = max(race_results.values())
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2015, 14
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
+
+
+if __name__ == '__main__':
+    main()
