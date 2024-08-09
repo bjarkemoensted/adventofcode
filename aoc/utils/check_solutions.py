@@ -68,7 +68,7 @@ def _run(years: list, days: list):
 
     # The AOCD logger outputs warnings every time it waits to get/post
     with nolog():
-        res = run_for(plugs=plugs, years=years, days=days, datasets=datasets)
+        res = run_for(plugs=plugs, years=years, days=days, datasets=datasets, timeout=0)
         print()
 
     return res

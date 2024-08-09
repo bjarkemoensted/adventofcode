@@ -1,10 +1,6 @@
 from collections import Counter
 import math
 
-# Read in data
-with open("input17.txt") as f:
-    puzzle_input = f.read()
-
 
 def parse(s):
     res = [int(line) for line in s.split("\n")]
@@ -70,14 +66,30 @@ def count_unique_combinations(combinations):
     return round(res)
 
 
-containers_puzzle = parse(puzzle_input)
-# Find the number of combinations of containers that have a combined volume of 150L.
-combinations = brute_force(containers_puzzle, target_volume=150)
-n_combs = count_unique_combinations(combinations)
-print(f"There are {n_combs} distinct ways of filling the containers.")
+def solve(data: str, liters=150):
+    containers_puzzle = parse(data)
+    # Find the number of combinations of containers that have a combined volume of 150L.
+    combinations = brute_force(containers_puzzle, target_volume=liters)
+    star1 = count_unique_combinations(combinations)
+    print(f"Solution to part 1: {star1}")
 
-# Find the number of such combinations which uses the lowest possible number of containers
-lowest_n_containers = min(map(len, combinations))
-short_combs = [comb for comb in combinations if len(comb) == lowest_n_containers]
-n_short_combs = count_unique_combinations(short_combs)
-print(f"There are {n_short_combs} combinations using the minimum possible number of containers.")
+    # Find the number of such combinations which uses the lowest possible number of containers
+    lowest_n_containers = min(map(len, combinations))
+    short_combs = [comb for comb in combinations if len(comb) == lowest_n_containers]
+    star2 = count_unique_combinations(short_combs)
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2015, 17
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
+
+
+if __name__ == '__main__':
+    main()

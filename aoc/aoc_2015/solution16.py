@@ -1,8 +1,3 @@
-# Read in data
-with open("input16.txt") as f:
-    puzzle_input = f.read()
-
-
 def parse(s):
     res = {}
     for line in s.split("\n"):
@@ -18,53 +13,77 @@ def parse(s):
     return res
 
 
-forensic_analysis_str = \
-"""children: 3
-cats: 7
-samoyeds: 2
-pomeranians: 3
-akitas: 0
-vizslas: 0
-goldfish: 5
-trees: 3
-cars: 2
-perfumes: 1"""
+def determine_sue(d, forensics):
+    # Makes list of all auntie Sues and eliminate those for whom the input is inconsistent with evidence
+    candidate_sues = sorted(d.keys())
+    for i in range(len(candidate_sues) - 1, -1, -1):
+        sue = candidate_sues[i]
+        if any(forensics[k] != v for k, v in d[sue].items()):
+            del candidate_sues[i]
+
+    assert len(candidate_sues) == 1
+    res = candidate_sues[0]
+    return res
 
 
-# Map each compound to its quantity based on the analysis results
-forensics = {c: int(q) for c, q in map(lambda s: s.split(": "), forensic_analysis_str.split("\n"))}
-d = parse(puzzle_input)
-
-# Makes list of all auntie Sues and eliminate those for whom the input is inconsistent with evidence
-candidate_sues = sorted(d.keys())
-for i in range(len(candidate_sues)-1, -1, -1):
-    sue = candidate_sues[i]
-    if any(forensics[k] != v for k, v in d[sue].items()):
-        del candidate_sues[i]
-
-assert len(candidate_sues) == 1
-print(f"Only suspect left after elimination is Sue number {candidate_sues[0]}.")
-
-
-# Go again but with the updated criteria
-candidate_sues = sorted(d.keys())
-for i in range(len(candidate_sues)-1, -1, -1):
-    sue = candidate_sues[i]
-    eliminate = False
-    for k, v in d[sue].items():
-        expected = forensics[k]
-        if k in ('cats', 'trees'):
-            if v <= expected:
+def determine_sue2(d, forensics):
+    # Go again but with the updated criteria
+    candidate_sues = sorted(d.keys())
+    for i in range(len(candidate_sues)-1, -1, -1):
+        sue = candidate_sues[i]
+        eliminate = False
+        for k, v in d[sue].items():
+            expected = forensics[k]
+            if k in ('cats', 'trees'):
+                if v <= expected:
+                    eliminate = True
+                #
+            elif k in ('pomeranians', 'goldfish'):
+                if v >= expected:
+                    eliminate = True
+                #
+            elif v != expected:
                 eliminate = True
-            #
-        elif k in ('pomeranians', 'goldfish'):
-            if v >= expected:
-                eliminate = True
-            #
-        elif v != expected:
-            eliminate = True
-    if eliminate:
-        del candidate_sues[i]
-    #
+        if eliminate:
+            del candidate_sues[i]
+        #
 
-print(f"The remaining suspect after applying the new elimination rules is: {candidate_sues[0]}.")
+    res = candidate_sues[0]
+    return res
+
+
+def solve(data: str):
+    d = parse(data)
+
+    forensic_analysis_str = \
+        """children: 3
+        cats: 7
+        samoyeds: 2
+        pomeranians: 3
+        akitas: 0
+        vizslas: 0
+        goldfish: 5
+        trees: 3
+        cars: 2
+        perfumes: 1"""
+
+    forensics = {c.strip(): int(q) for c, q in map(lambda s: s.split(": "), forensic_analysis_str.split("\n"))}
+
+    star1 = determine_sue(d, forensics)
+    print(f"Solution to part 1: {star1}")
+
+    star2 = determine_sue2(d, forensics)
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2015, 16
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
+
+
+if __name__ == '__main__':
+    main()
