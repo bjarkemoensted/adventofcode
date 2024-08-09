@@ -1,11 +1,3 @@
-import abc
-from copy import deepcopy
-
-# Read in data
-with open("input23.txt") as f:
-    puzzle_input = f.read()
-
-
 def parse(s):
     res = []
     for line in s.split("\n"):
@@ -76,13 +68,30 @@ class Computer:
             self.run_next()
 
 
-instructions1 = parse(puzzle_input)
-computer = Computer(instructions=instructions1)
-computer.run_all()
+def solve(data: str):
+    instructions1 = parse(data)
+    computer = Computer(instructions=instructions1)
+    computer.run_all()
+    star1 = computer.state['b']
+    print(f"Solution to part 1: {star1}")
 
-print(f"After running instructions, register b has value {computer.state['b']}")
+    part2state = {'a': 1, 'b': 0}
+    computer2 = Computer(instructions=instructions1, state=part2state)
+    computer2.run_all()
+    star2 = computer2.state['b']
+    print(f"Solution to part 2: {star2}")
 
-part2state = {'a': 1, 'b': 0}
-computer2 = Computer(instructions=instructions1, state=part2state)
-computer2.run_all()
-print(f"After running instructions starting with a=1, register b has value {computer2.state['b']}")
+    return star1, star2
+
+
+def main():
+    year, day = 2015, 23
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
+
+
+if __name__ == '__main__':
+    main()

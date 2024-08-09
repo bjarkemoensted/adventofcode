@@ -1,10 +1,6 @@
 import abc
 from copy import deepcopy
 
-# Read in data
-with open("input22.txt") as f:
-    puzzle_input = f.read()
-
 
 def parse(s):
     raw = {}
@@ -29,10 +25,6 @@ class Character:
     def __str__(self):
         s = f"{self.__name__} with {self.hit_points} Hit points, {self.mana} mana, and {self.armor} armor."
         return s
-
-
-boss_stats = parse(puzzle_input)
-player_stats = {'hit_points': 50, "mana": 500}
 
 
 class InvalidActionException(Exception):
@@ -248,10 +240,6 @@ class Game:
             return self.outcome
 
 
-player = Character("Player", **player_stats)
-boss = Character("Boss", **boss_stats)
-
-
 def brute_force(starting_game: Game):
     best = float('inf')
     best_game = None
@@ -290,11 +278,6 @@ def brute_force(starting_game: Game):
     return best_game
 
 
-game1_initial = Game(player, boss)
-game1_final = brute_force(starting_game=game1_initial)
-print(f"Lowest possible mana expense for boss fight: {game1_final.total_mana_spent}.")
-
-
 class HardGame(Game):
     def _tick_player(self, spell):
         self.player.hit_points -= 1
@@ -304,6 +287,32 @@ class HardGame(Game):
     #
 
 
-hard_game_initial = HardGame(player, boss)
-hard_game_final = brute_force(hard_game_initial)
-print(f"Lowest possible mana expense for hard boss fight: {hard_game_final.total_mana_spent}.")
+def solve(data: str):
+    boss_stats = parse(data)
+    player_stats = {'hit_points': 50, "mana": 500}
+
+    player = Character("Player", **player_stats)
+    boss = Character("Boss", **boss_stats)
+
+    game1_initial = Game(player, boss)
+    game1_final = brute_force(starting_game=game1_initial)
+    star1 = game1_final.total_mana_spent
+    print(f"Solution to part 1: {star1}")
+
+    hard_game_initial = HardGame(player, boss)
+    hard_game_final = brute_force(hard_game_initial)
+    star2 = hard_game_final.total_mana_spent
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2015, 22
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
+
+
+if __name__ == '__main__':
+    main()

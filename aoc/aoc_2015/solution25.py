@@ -1,8 +1,3 @@
-# Read in data
-with open("input25.txt") as f:
-    puzzle_input = f.read()
-
-
 def parse(s):
     s = s.replace(",", "").replace(".", "")
     words = s.split(" ")
@@ -40,8 +35,27 @@ def get_code_at_coords(initial, i, j):
     return code_running
 
 
-coords = parse(puzzle_input)
-initial_code = 20151125
+def solve(data: str):
+    coords = parse(data)
+    initial_code = 20151125
 
-star1 = get_code_at_coords(initial_code, *coords)
-print(f"The correct code is: {star1}.")
+    star1 = get_code_at_coords(initial_code, *coords)
+    print(f"Solution to part 1: {star1}")
+
+    star2 = None
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2015, 25
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
+
+
+if __name__ == '__main__':
+    main()

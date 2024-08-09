@@ -1,18 +1,5 @@
 import numpy as np
 
-# Read in data
-with open("input18.txt") as f:
-    puzzle_input = f.read()
-
-
-example_input = \
-""".#.#.#
-...##.
-#....#
-..#...
-#.#..#
-####.."""
-
 
 def parse(s):
     """Parses input into an array of ones and zeroes indicating lights on/off."""
@@ -81,11 +68,30 @@ def iterate(arr, n, corners_stay_on=False):
     return res
 
 
-m = parse(puzzle_input)
-m = iterate(m, n=100)
-print(f"After 100 iterations, {sum(m.flat)} lights are on.")
+def solve(data: str, iterations=100):
+    m = parse(data)
+    m = iterate(m, n=iterations)
+    star1 = sum(m.flat)
+    print(f"Solution to part 1: {star1}")
 
-m2 = parse(puzzle_input)
-turn_on_corners(m2)
-m2 = iterate(m2, n=100, corners_stay_on=True)
-print(f"When forcing corner lights on, {sum(m2.flat)} lights are on.")
+    m2 = parse(data)
+    turn_on_corners(m2)
+    m2 = iterate(m2, n=iterations, corners_stay_on=True)
+
+    star2 = sum(m2.flat)
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2015, 18
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
+
+
+if __name__ == '__main__':
+    main()

@@ -1,10 +1,6 @@
 from itertools import combinations
 import numpy as np
 
-# Read in data
-with open("input24.txt") as f:
-    puzzle_input = f.read()
-
 
 def parse(s):
     res = []
@@ -134,11 +130,26 @@ def balance_loads(numbers, n_partitions):
     return res
 
 
-weights = parse(puzzle_input)
-example_weights = [1, 2, 3, 4, 5, 7, 8, 9, 10, 11]
+def solve(data: str):
+    weights = parse(data)
 
-star1 = balance_loads(weights, n_partitions=3)
-print(f"Quantum entanglement for initial problem: {star1}.")
+    star1 = balance_loads(weights, n_partitions=3)
+    print(f"Solution to part 1: {star1}")
 
-star2 = balance_loads(weights, n_partitions=4)
-print(f"Quantum entanglement for subsequent problem: {star2}.")
+    star2 = balance_loads(weights, n_partitions=4)
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2015, 24
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
+
+
+if __name__ == '__main__':
+    main()

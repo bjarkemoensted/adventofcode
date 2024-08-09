@@ -1,17 +1,5 @@
-# Read in data
-with open("input19.txt") as f:
-    puzzle_input = f.read()
-
-example_input = \
-"""H => HO
-H => OH
-O => HH
-
-HOH"""
-
-
-def parse(raw):
-    transformation_string, molecule_string = raw.split("\n\n")
+def parse(s):
+    transformation_string, molecule_string = s.split("\n\n")
 
     replacements = []
     for line in transformation_string.split("\n"):
@@ -48,16 +36,11 @@ def make_all_replacements(string, replacements):
     return res
 
 
-transformations, medicine = parse(puzzle_input)
-
-new_strings = make_all_replacements(medicine, transformations)
-n_unique = len(set(new_strings))
-print(f"There are {n_unique} unique new molecules.")
-
-
-def find_quickest_growth(start, replacements, target):
+def find_quickest_growth(start, replacements, target, maxiter=None):
     """Starts from the target string and applies inverse transformations until we hit the starting string."""
 
+    if maxiter is None:
+        maxiter = float("inf")
     string2shortest = {target: 0}
     paths = [target]
     n = 0
@@ -86,7 +69,7 @@ def find_quickest_growth(start, replacements, target):
                     newpaths.append(newstring)
                 #
             #
-        # Update the list of apossible paths
+        # Update the list of possible paths
         paths = sorted(newpaths, key=len) + keep
 
         # Print status
@@ -95,12 +78,46 @@ def find_quickest_growth(start, replacements, target):
             msg += f" Shortest path found is {string2shortest[start]} steps."
         else:
             msg += " NO solution found yet."
-        msg += f" Shortest string: {min(map(len, paths))}. Extended {len(extend)} paths.."
+        msg += f" Shortest string: {min(map(len, paths)) if paths else 'n/a'}. Extended {len(extend)} paths.."
         print(msg, end="\r")
+
+        if n >= maxiter:
+            break
+
     print()
 
-    return string2shortest[start]
+    try:
+        res = string2shortest[start]
+    except KeyError:
+        res = None
+
+    return res
 
 
-n_iterations_needed = find_quickest_growth(start="e", replacements=transformations, target=medicine)
-print(f"The reindeer medicine molecule can be produced in {n_iterations_needed} steps.")
+def solve(data: str):
+    transformations, medicine = parse(data)
+    if not any(a == "e" for a, _ in transformations):
+        transformations += [('e', 'H'), ('e', 'O')]
+
+    new_strings = make_all_replacements(medicine, transformations)
+    star1 = len(set(new_strings))
+    print(f"Solution to part 1: {star1}")
+
+    star2 = find_quickest_growth(start="e", replacements=transformations, target=medicine)
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2015, 19
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+
+    raw = get_data(year=year, day=day)
+    solve(raw)
+
+
+if __name__ == '__main__':
+    main()
