@@ -1,62 +1,63 @@
+import math
+import numba
+
+
 def parse(s):
     res = int(s)
     return res
 
 
-def find_divisors(n, max_prod=None):
-    """Returns list of divisors given a number.
-    max_prod specifies the maximum allowed division, e.g. if a divides b, a will not
-    be included in results if b // a > max_prod."""
+@numba.njit(cache=True)
+def find_divisors(n: int):
+    if n == 1:
+        return [1]
 
-    if not isinstance(n, int):
-        raise TypeError
-
-    if max_prod is None:
-        max_prod = float('inf')
-
-    large_divisors = []
-    small_divisors = []
-    i = 1
-    while i * i <= n:
+    # Look for ints thru sqrt(n) which divides n
+    low = 2
+    high = math.floor(math.sqrt(n) + 1)
+    for i in range(low, high):
+        # If we find one, use the cached divisors from n/i
         if n % i == 0:
-            if n // i <= max_prod:
-                small_divisors.append(i)
-            if i * i != n:
-                large_div = n // i
-                if n // large_div <= max_prod:
-                    large_divisors.append(large_div)
-        i += 1
-
-    divisors = small_divisors + large_divisors[::-1]
-    return divisors
-
-
-def compute_n_presents(house, multiply_by=10, max_prod=None):
-    divisors = find_divisors(house, max_prod=max_prod)
-    presents = multiply_by * sum(divisors)
-    return presents
-
-
-def find_first_house_receiving_n_presents(n_presents, multiply_by=10, max_prod=None):
-    house = 1
-    while compute_n_presents(house, multiply_by=multiply_by, max_prod=max_prod) < n_presents:
-        house += 1
-        if house % 10000 == 0:
-            print(f"Reached house {house}.", end="\r")
+            n_div = n // i
+            old_divisors = find_divisors(n_div)
+            new_divisors = [i*div for div in old_divisors]
+            res = list(set(new_divisors + old_divisors))
+            return res
         #
-    print()
+    # If none are found, n is prime, so only 1 and n divide n
+    return [1, n]
 
-    return house
+
+@numba.njit
+def find_first_int_with_target_divsum(target: int, maxfactor=None):
+    """Finds the lowest interger n such that the sum of divisors of n is at least the target value.
+    If maxfactor is set, only divisors which divide a number at most maxfactor times are included in the sum."""
+
+    if maxfactor is None:
+        maxfactor = float("inf")
+
+    n = 1
+    while True:
+        divs = find_divisors(n)
+        sum_ = 0
+        for div in divs:
+            if n // div <= maxfactor:
+                sum_ += div
+
+        if sum_ >= target:
+            return n
+        n += 1
 
 
 def solve(data: str):
-    n_pres = parse(data)
+    n_presents = parse(data)
 
-    star1 = find_first_house_receiving_n_presents(n_pres)
-
+    target = math.ceil(n_presents / 10)
+    star1 = find_first_int_with_target_divsum(target=target)
     print(f"Solution to part 1: {star1}")
 
-    star2 = find_first_house_receiving_n_presents(n_presents=n_pres, multiply_by=11, max_prod=50)
+    target2 = math.ceil(n_presents / 11)
+    star2 = find_first_int_with_target_divsum(target=target2, maxfactor=50)
     print(f"Solution to part 2: {star2}")
 
     return star1, star2
