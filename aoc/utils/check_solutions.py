@@ -102,6 +102,23 @@ def check(years=None, days=None):
     else:
         days_run = days_available_all_years if days is None else days
         _run(years=years, days=days_run)
+    #
+
+
+def _parse_days(days_str: str) -> list:
+    days = set([])
+    for part in days_str:
+        if "-" in part:
+            a, b = map(int, part.split("-"))
+            addition = set(range(a, b+1))
+        else:
+            addition = {int(part)}
+        if not all(config.day_min <= day <= config.day_max for day in addition):
+            raise ValueError(f"Invalid days argument: {part}")
+        days |= addition
+    
+    res = sorted(days)
+    return res
 
 
 def main():
@@ -114,20 +131,22 @@ def main():
         type=int,
         nargs="+",
         choices=config.years_range,
-        help="Years for which to check solutions. Defaults to all available.",
+        help="Year or years for which to check solutions. Defaults to all available.",
     )
     parser.add_argument(
         "-d",
         "--days",
-        metavar=f"({config.day_min}-{config.day_min})",
-        type=int,
+        metavar=f"({config.day_min}-{config.day_max})",
+        type=str,
         nargs="+",
-        choices=config.days_range,
-        help="Days for which to check solutions. Defaults to check all available for each year.",
+        help="Day or days for which to check solutions. Space separated (1 2 3) including ranges (1 2 5-9 11) works\
+        Defaults to check all available for each year.",
     )
 
     args = parser.parse_args()
+
     kwargs = args.__dict__
+    kwargs["days"] = _parse_days(kwargs["days"])
     check(**kwargs)
 
 
