@@ -1,9 +1,3 @@
-def read_input():
-    with open("input02.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
-
 def parse(s):
     lines = [line.strip() for line in s.split("\n")]
     return lines
@@ -58,9 +52,9 @@ def update_coords(initial, shift, keypad):
 def beepboop(instructions, keypad, starting_loc):
     """Punch in the instructions on the keypad"""
     code = []
-    for inst in instructions:
-        loc = starting_loc
-        for letter in inst:
+    loc = starting_loc
+    for sequence in instructions:
+        for letter in sequence:
             loc = update_coords(loc, keypad=keypad, shift=letter)
         i, j = loc
         code.append(keypad[i][j])
@@ -68,15 +62,27 @@ def beepboop(instructions, keypad, starting_loc):
     return code
 
 
-def main():
-    raw = read_input()
-    parsed = parse(raw)
+def solve(data: str):
+    parsed = parse(data)
+    
     code = beepboop(parsed, keypad=KEYPAD, starting_loc=(1, 1))
+    star1 = ''.join(map(str, code))
+    print(f"Solution to part 1: {star1}")
 
-    print(f"Bathroom code is {''.join(map(str, code))}.")
+    code2 = beepboop(parsed, keypad=KEYPAD2, starting_loc=(2, 0))
+    star2 = ''.join(map(str, code2))
+    print(f"Solution to part 2: {star2}")
 
-    code2 = beepboop(parsed, keypad=KEYPAD2, starting_loc=(2, 2))
-    print(f"Nope, the real code is {''.join(map(str, code2))}.")
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 2
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    #solve(raw)
 
 
 if __name__ == '__main__':

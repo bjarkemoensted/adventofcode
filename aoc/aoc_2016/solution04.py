@@ -3,10 +3,9 @@ import re
 import string
 
 
-def read_input():
-    with open("input04.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
+def parse(s):
+    res = s  # TODO parse input here
+    return res
 
 
 def parse(s):
@@ -41,9 +40,8 @@ def decrypt_room_name(code, id_):
     return res
 
 
-def main():
-    raw = read_input()
-    parsed = parse(raw)
+def solve(data: str):
+    parsed = parse(data)
 
     real_rooms_ids = []
     decrypted_data = []
@@ -56,13 +54,24 @@ def main():
             name_ = decrypt_room_name(code, id_)
             decrypted_data.append((name_, id_, checksum))
 
-    print(f"Read room ids sum to {sum(real_rooms_ids)}.")
+    star1 = sum(real_rooms_ids)
+    print(f"Solution to part 1: {star1}")
 
+    
     north_pole_room = [t for t in decrypted_data if "north" in t[0]]
-    assert len(north_pole_room) == 1
-    target_id = north_pole_room[0][1]
+    star2 = north_pole_room[0][1] if len(north_pole_room) == 1 else None
+    print(f"Solution to part 2: {star2}")
 
-    print(f"North pole objects are stored in sector {target_id}.")
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 4
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':

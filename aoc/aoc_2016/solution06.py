@@ -1,20 +1,12 @@
 from collections import Counter
 
-
-def read_input():
-    with open("input06.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
-
 def parse(s):
     res = [list(line) for line in s.split("\n")]
     return res
 
 
-def main():
-    raw = read_input()
-    parsed = parse(raw)
+def solve(data: str):
+    parsed = parse(data)
 
     # List of characters at positions 0, 1, etc
     transposed = list(map(list, zip(*parsed)))
@@ -27,11 +19,22 @@ def main():
         most_common_chars.append(chars_by_frequency[-1])
         least_common_chars.append(chars_by_frequency[0])
 
-    solution1 = "".join(most_common_chars)
-    print(f"Solution 1: {solution1}.")
+    star1 = "".join(most_common_chars)
+    print(f"Solution to part 1: {star1}")
 
-    solution2 = "".join(least_common_chars)
-    print(f"Solution 2: {solution2}.")
+    star2 = "".join(least_common_chars)
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 6
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':

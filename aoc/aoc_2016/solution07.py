@@ -1,9 +1,3 @@
-def read_input():
-    with open("input07.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
-
 def parse(s):
     res = s.split("\n")
     return res
@@ -80,15 +74,25 @@ def ip_supports_ssl(ip_string):
     return False
 
 
+def solve(data: str):
+    ip_strings = parse(data)
+
+    star1 = sum(ip_supports_tls(ip_string) for ip_string in ip_strings)
+    print(f"Solution to part 1: {star1}")
+
+    star2 = sum(ip_supports_ssl(ip_string) for ip_string in ip_strings)
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
 def main():
-    raw = read_input()
-    ip_strings = parse(raw)
-
-    solution1 = sum(ip_supports_tls(ip_string) for ip_string in ip_strings)
-    print(f"There are {solution1} IPs which support TLS.")
-
-    solution2 = sum(ip_supports_ssl(ip_string) for ip_string in ip_strings)
-    print(f"There are {solution2} IPs which support SSL.")
+    year, day = 2016, 7
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':

@@ -1,10 +1,9 @@
 import hashlib
 
 
-def read_input():
-    with open("input05.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
+def parse(s):
+    res = s  # TODO parse input here
+    return res
 
 
 def parse(s):
@@ -68,18 +67,27 @@ def crack_password_fancy(door_id, password_length=8):
     return "".join(password)
 
 
-def main():
-    raw = read_input()
-    door_id = parse(raw)
+def solve(data: str):
+    door_id = parse(data)
 
-    password = crack_password(door_id=door_id)
-    print(f"The door password for door {door_id} is {password}.")
+    star1 = crack_password(door_id=door_id)
+    print(f"Solution to part 1: {star1}")
 
     print()
-    password2 = crack_password_fancy(door_id=door_id)
-    print(f"The door password for the fancy door is {password2}.")
+    star2 = crack_password_fancy(door_id=door_id)
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 5
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':
     main()
-
