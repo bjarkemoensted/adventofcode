@@ -5,7 +5,8 @@ import pathlib
 from aoc.utils.template_tools import make_solution_draft
 from aoc.utils import config
 from aoc.utils.data import read_data_and_examples
-from aoc.utils.helpers import get_day_and_year
+from aoc.utils import tokens
+from aoc.utils.utils import get_day_and_year
 
 
 def initialize():
@@ -57,3 +58,9 @@ def initialize():
     with open(solution_file, "w") as f:
         f.write(solution_draft)
     #
+
+
+def fix_tokens():
+    parser = argparse.ArgumentParser(description="Interactive CLI token fixing")
+    parser.parse_args()
+    tokens.fix_tokens()

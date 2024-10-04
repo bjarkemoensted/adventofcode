@@ -28,7 +28,16 @@ def read_tokens():
         #
     except FileNotFoundError:
         d = dict()
-    return d
+    
+    # Empty strings seem to cause aocd to just reuse another key
+    res = dict()
+    for k, v in d.items():
+        if v:
+            res[k] = v
+        else:
+            cprint(f"*** Missing access token for user: {k} ***", color="red")
+    
+    return res
 
 
 def add_tokens_from_current_session():
@@ -54,7 +63,6 @@ def add_tokens_from_current_session():
 
 
 def save(user2token, default_user=None):
-
     # Can't have nulls because aocd attempts some string ops
     user2token = {k: "" if v is None else v for k, v in user2token.items()}
     if default_user:
@@ -135,7 +143,6 @@ def fix_tokens():
     
     default_sym = "*"
     browser_sym = "B"
-    missing_sym = "M"
 
     def display():
         for user in users:
@@ -145,8 +152,6 @@ def fix_tokens():
 
             ds = default_sym if user == default_user else len(default_sym)*" "
             bs = browser_sym if token in browser_tokens else len(browser_sym)*" "
-            if token is None:
-                bs = missing_sym
             
             parts = (ds, i_string, bs, user)
             line = f"{ds}{i_string} {bs} {user}"
@@ -155,23 +160,33 @@ def fix_tokens():
             cprint(line, color=color)
         #
 
-    print(f"Found {len(user2token)} tokens. Missing {sum(v is None for v in user2token.values())}")
+    print(f"Found {len(user2token)} user tokens - {sum(v is None for v in user2token.values())} are dead.")
+
+    print(f"An overview of the tokens is presented below")
+    print(f"The current default user is indicated with a '{default_sym}'.")
+    print(f"Any tokens found in the browser storage is indicated with '{browser_sym}'.")
+    print(f"Workingive tokens are shown in ", end="")
+    cprint("green", color="green", end="")
+    print(", and the missing ones in ", end="")
+    cprint("red", color="red", end=".\n")
     print(f"Default user id: {default_user}.")
-    print(f"{default_sym}: current default. {browser_sym}: from  Browser. {missing_sym}: Missing")
+
     display()
     print()
 
     new_default = None
     allowed = {i for i, user in oneind2user.items() if user not in missing_users}
     while new_default is None and len(allowed) > 0:
-        raw_= input(f"Select an option in {', '.join(map(str, allowed))}: ")
+        raw_= input(f"Select an option in {', '.join(map(str, allowed))} (enter to keep current): ")
         try:
             ind = int(raw_.strip())
             if ind in allowed:
                 new_default = oneind2user[ind]
             #
         except:
-            pass
+            if not raw_:
+                new_default = default_user
+            #
         #
 
     save(user2token=user2token, default_user=new_default)

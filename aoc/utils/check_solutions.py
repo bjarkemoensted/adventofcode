@@ -3,9 +3,7 @@ from aoc.utils.tokens import read_tokens
 from aocd.utils import get_plugins
 from aocd.runner import run_for
 
-from contextlib import contextmanager
 import importlib
-import logging
 import pathlib
 
 from aoc.utils import config
