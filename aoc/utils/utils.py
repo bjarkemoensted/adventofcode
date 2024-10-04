@@ -1,9 +1,23 @@
+from contextlib import contextmanager
 import glob
+import logging
 import os
 import pathlib
 import re
 
 from aoc.utils import config
+
+
+@contextmanager
+def nolog():
+    previous_level = logging.root.manager.disable
+    logging.disable(logging.CRITICAL)
+    try:
+        yield
+    finally:
+        logging.disable(previous_level)
+    #
+
 
 
 def _day_year_valid(day: int = None, year: int = None) -> bool:

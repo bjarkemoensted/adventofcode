@@ -9,17 +9,7 @@ import logging
 import pathlib
 
 from aoc.utils import config
-
-
-@contextmanager
-def nolog():
-    previous_level = logging.root.manager.disable
-    logging.disable(logging.CRITICAL)
-    try:
-        yield
-    finally:
-        logging.disable(previous_level)
-    #
+from aoc.utils.utils import nolog
 
 
 def disp(s):
@@ -106,6 +96,8 @@ def check(years=None, days=None):
 
 
 def _parse_days(days_str: str) -> list:
+    if not days_str:
+        return None
     days = set([])
     for part in days_str:
         if "-" in part:

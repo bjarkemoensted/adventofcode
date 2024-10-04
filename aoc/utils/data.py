@@ -5,7 +5,6 @@ from aocd.models import Puzzle, User, default_user, AOCD_CONFIG_DIR
 
 import dis
 from hashlib import md5
-import json
 import sys
 from termcolor import cprint
 from typing import Callable
