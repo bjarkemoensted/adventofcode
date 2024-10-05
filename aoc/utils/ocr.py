@@ -2,6 +2,8 @@ from collections import Counter, defaultdict
 import numpy as np
 
 
+# Letter maps from: https://github.com/mstksg/advent-of-code-ocr/blob/main/src/Advent/OCR/LetterMap.hs
+
 
 #######################################################################################################################
 ##                                        Small (6x4 pixel) font                                                     ##
