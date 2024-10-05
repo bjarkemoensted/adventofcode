@@ -208,27 +208,26 @@ def standardize(m: np.ndarray, pixel_on=None):
     counts = Counter(m.flat)
     if len(counts) != 2:
         raise ValueError(f"Expected 2 distinct pixel values but got {len(counts)}: {', '.join(counts.keys())}.")
-    
-    res = m.copy()
 
     # Infer pixel on/off values if not specified
     if pixel_on is None:
         # If the standard pixel values are used, assume the usual meaning
         if set(counts.keys()) == {target_on, target_off}:
-            return res
+            return m
         
         # Otherwise, assume the most common value represents off, and the other on.
         pixel_on, pixel_off = sorted(counts.keys(), key=lambda val: counts[val])
     
     # Replace values to get the standard format
     replace = {pixel_on: target_on, pixel_off: target_off}
-    rows, cols = res.shape
+    rows, cols = m.shape
+    res = np.full(m.shape, " ", dtype='<U1')
+
     for i in range(rows):
         for j in range(cols):
-            res[i, j] = replace[res[i, j]]
+            res[i, j] = replace[m[i, j]]
 
     return res
-
 
 def ocr(
         data: str|list|np.ndarray,
@@ -252,7 +251,8 @@ def ocr(
     data: The ascii art-like data to be parsed. Multiple formats can be used:
         string: Plaintext, with newlines characters separating the lines.
         list of lists, with each element of the inner list being a single character.
-        numpy array: 2D string array where each element is a single character.
+        numpy array: 2D string array where each element is a single character. Other values
+            (e.g. integer array) will also be attempted interpreted.
     pixel_on: AoC tends to use "#" and "." to represent pixels being on/off, respectively.
         If the input uses different symbols, pixel_on will be interpreted as the pixel being on,
         and converted to "#" when matched against known glyphs. As the data may only contain 2
