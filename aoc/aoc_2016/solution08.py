@@ -1,11 +1,7 @@
 import numpy as np
 import re
 
-
-def read_input():
-    with open("input08.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
+from aoc.utils.ocr import ocr
 
 
 def parse(s):
@@ -57,16 +53,29 @@ def run_instructions(instructions):
     return display
 
 
-def main():
-    raw = read_input()
-    instructions = parse(raw)
+def solve(data: str, **kwargs):
+    for k, v in kwargs.items():
+        print(k, type(v), v)
+    instructions = parse(data)
 
     final_display = run_instructions(instructions)
 
-    n_pixels = sum(val > 0 for val in final_display.flat)
-    print(f"Display contains {n_pixels} pixels that are turned on.")
+    star1 = sum(val > 0 for val in final_display.flat)
+    print(f"Solution to part 1: {star1}")
 
-    print_display(final_display)
+    star2 = ocr(final_display)
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 8
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':
