@@ -1,12 +1,6 @@
 import heapq
 
 
-def read_input():
-    with open("input13.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
-
 def parse(s):
     res = int(s)
     return res
@@ -126,20 +120,30 @@ def distinct_bfs_count(G: Graph, n_steps, start=(1, 1)):
     return res
 
 
-def main():
-    raw = read_input()
-    offset = parse(raw)
+def solve(data: str):
+    offset = parse(data)
     G = Graph(offset)
 
-    target = (31, 39)
+    target = (7, 4) if offset == 10 else (31, 39)
 
     path = a_star(G=G, target=target)
     star1 = len(path) - 1
     print(f"Getting to site {target} requires {star1} steps.")
 
     n_steps = 50
-    n_distinct = distinct_bfs_count(G, n_steps)
-    print(f"With at most {n_steps} steps, {n_distinct} distinct sites can be reached.")
+    star2 = distinct_bfs_count(G, n_steps)
+    print(f"With at most {n_steps} steps, {star2} distinct sites can be reached.")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 13
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':

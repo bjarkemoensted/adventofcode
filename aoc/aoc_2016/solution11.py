@@ -4,18 +4,6 @@ from itertools import combinations
 import re
 
 
-test = """The first floor contains a hydrogen-compatible microchip and a lithium-compatible microchip.
-The second floor contains a hydrogen generator.
-The third floor contains a lithium generator.
-The fourth floor contains nothing relevant."""
-
-
-def read_input():
-    with open("input11.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
-
 def parse(s):
     res = dict()
     floor = 1
@@ -253,9 +241,8 @@ def a_star(data: dict, maxiter=None):
     return
 
 
-def main():
-    raw = read_input()
-    data = parse(raw)
+def solve(data: str):
+    data = parse(data)
 
     path = a_star(data=data, maxiter=100000)
     star1 = len(path) - 1
@@ -266,8 +253,19 @@ def main():
         data[1][k] += more_stuff
 
     path2 = a_star(data=data)
-    star2 = len(path2) - 1
+    star2 = len(path2) - 1 if path2 else None  # no example for part 2 so just return None
     print(f"With the extra stuff, it takes a minimum of {star2} steps to bring everything to the top floor")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 11
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    #solve(raw)
 
 
 if __name__ == '__main__':

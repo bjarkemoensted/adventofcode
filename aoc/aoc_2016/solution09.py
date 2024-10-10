@@ -2,12 +2,6 @@ import re
 import string
 
 
-def read_input():
-    with open("input09.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
-
 def parse(s):
     res = s
     return res
@@ -76,15 +70,26 @@ def compute_recursively_decompressed_string_length(s, running=0):
     return res + compute_recursively_decompressed_string_length(remainder)
 
 
-def main():
-    raw = read_input()
-    parsed = parse(raw)
+def solve(data: str):
+    parsed = parse(data)
 
     decompressed = decompress(parsed)
-    print(f"The decompressed string contains {len(decompressed)} characters.")
+    star1 = len(decompressed)
+    print(f"Solution to part 1: {star1}")
 
-    decompressed2 = compute_recursively_decompressed_string_length(parsed)
-    print(f"Using version 2 of the decompression algorithm, the resulting string has {decompressed2} characters.")
+    star2 = compute_recursively_decompressed_string_length(parsed)
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 9
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':

@@ -1,14 +1,6 @@
 from functools import cache
 import hashlib
 
-_test = "abc"
-
-
-def read_input():
-    with open("input14.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
 
 def parse(s):
     res = s
@@ -93,9 +85,8 @@ def get_first_n_keys(keygen: KeyGen, n: int):
     return keys
 
 
-def main():
-    raw = read_input()
-    salt = parse(raw)
+def solve(data: str):
+    salt = parse(data)
 
     keygen = KeyGen(salt=salt)
     n = 64
@@ -108,6 +99,17 @@ def main():
     keys2 = get_first_n_keys(keygen=stretch_keygen, n=n)
     star2 = keys2[-1]
     print(f"Key number {n} with stretched hashing is produced by index {star2}.")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 14
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':

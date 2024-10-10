@@ -115,9 +115,11 @@ def _evaluate_examples(solver: Callable, examples: list, suppress_output: bool, 
         all_attempts = []
         for example in examples:
             if example.extra is not None and extra_kwargs_parser is not None:
-                kwargs = extra_kwargs_parser(example.extra)
+                try:
+                    kwargs = extra_kwargs_parser(example.extra)
+                except ValueError:
+                    raise ValueError(f"Couldn't parse extra stuff: {example.extra}")
             elif example.extra is not None and extra_kwargs_parser is None:
-
                 raise Warning(f"Example has extra ({example.extra}). Specify a parser for it.")
             else:
                 kwargs = dict()

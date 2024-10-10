@@ -3,11 +3,6 @@ from copy import deepcopy
 import re
 
 
-def read_input():
-    with open("input10.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
 
 def parse(s):
     assign = []
@@ -58,6 +53,7 @@ def run_instructions(assign, swap, target_comparison):
     the method will return the number of the robot which compares chips 42 and 60, along with the final state
     of bots and outputs."""
 
+    target_comparison = sorted(target_comparison)
     instructions = {bot: (low, high) for bot, low, high in swap}
     state = _make_initial_state(assign)
     bot_making_target_comparison = None
@@ -83,19 +79,33 @@ def run_instructions(assign, swap, target_comparison):
     return state, bot_making_target_comparison
 
 
-def main():
-    raw = read_input()
-    instructions = parse(raw)
-    comp = [17, 61]
+def solve(data: str, chips=None):
+    if chips is None:
+        chips = [17, 61]
+    instructions = parse(data)
 
-    end_state, bot = run_instructions(*instructions, target_comparison=comp)
-    print(f"The comparison between microchips {comp[0]} and {comp[1]} is made by bot number {bot}.")
+    end_state, bot = run_instructions(*instructions, target_comparison=chips)
+    star1 = bot
+    print(f"Solution to part 1: {star1}")
 
     solution2 = 1
     for n in (0, 1, 2):
         solution2 *= end_state["output"][n][0]
 
-    print(f"The product of the first 3 outputs is: {solution2}.")
+    star2 = solution2
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 10
+    from aoc.utils.data import check_examples
+    extra_kwargs_parser = lambda s: dict(chips=[int(m) for m in re.findall(r"value-(\d+)", s)])
+    check_examples(year=year, day=day, solver=solve, extra_kwargs_parser=extra_kwargs_parser)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':

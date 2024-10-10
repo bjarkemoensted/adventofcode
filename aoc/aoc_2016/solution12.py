@@ -1,17 +1,3 @@
-test = """cpy 41 a
-inc a
-inc a
-dec a
-jnz a 2
-dec a"""
-
-
-def read_input():
-    with open("input12.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
-
 def parse(s):
     res = []
     for line in s.split("\n"):
@@ -66,11 +52,13 @@ class Interpreter:
             self.pointer += 1
         else:
             self.pointer += y
+        #
+    
+    #
 
 
-def main():
-    raw = read_input()
-    instructions = parse(raw)
+def solve(data: str):
+    instructions = parse(data)
     reg = {let: 0 for let in "abcd"}
     int_ = Interpreter(registers=reg, instructions=instructions)
 
@@ -83,6 +71,17 @@ def main():
     int2_.run_instructions()
     star2 = int2_.registers["a"]
     print(f"With the new initialization, register a ends up containing {star2}.")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 12
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':
