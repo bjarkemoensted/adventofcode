@@ -33,6 +33,17 @@ files = [
 ]
 
 [[package]]
+name = "aococr"
+version = "0.2.0"
+description = ""
+optional = false
+python-versions = "<4.0,>=3.10"
+files = [
+    {file = "aococr-0.2.0-py3-none-any.whl", hash = "sha256:0d729ae84459281bb676f4badf9e5b5993e0d82a7d7b819de70e603147a02e5f"},
+    {file = "aococr-0.2.0.tar.gz", hash = "sha256:09983a331a4a6ea2f22828cc1cf5fa1792d6063f6bd6739a2527115c0daf84e7"},
+]
+
+[[package]]
 name = "beautifulsoup4"
 version = "4.12.3"
 description = "Screen-scraping library"
@@ -736,4 +747,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "e19cefd93a7eaca379452c7f07924273ea8ff26df61c7c20de3f52b03994e531"
+content-hash = "6c35f99d588dd2dd025b66fcb42841e2bc8516b2c3e74801e91c106f4e331e76"

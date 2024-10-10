@@ -1,7 +1,6 @@
+from aococr import aococr
 import numpy as np
 import re
-
-from aoc.utils.ocr import ocr
 
 
 def parse(s):
@@ -63,7 +62,7 @@ def solve(data: str, **kwargs):
     star1 = sum(val > 0 for val in final_display.flat)
     print(f"Solution to part 1: {star1}")
 
-    star2 = ocr(final_display)
+    star2 = aococr(final_display)
     print(f"Solution to part 2: {star2}")
 
     return star1, star2
