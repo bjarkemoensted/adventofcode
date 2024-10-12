@@ -1,12 +1,6 @@
 import math
 
 
-def read_input():
-    with open("input19.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
-
 def parse(s):
     res = int(s)
     return res
@@ -58,15 +52,25 @@ def simulate_new_gift_game(n_participants):
     return winner
 
 
-def main():
-    raw = read_input()
-    n_participants = parse(raw)
+def solve(data: str):
+    n_participants = parse(data)
 
     star1 = simulate_gift_game(n_participants)
     print(f"Elf number {star1} ends up with all the presents.")
 
     star2 = simulate_new_gift_game(n_participants)
     print(f"In the circular gift game, elf number {star2} ends up with all the presents.")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 19
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':

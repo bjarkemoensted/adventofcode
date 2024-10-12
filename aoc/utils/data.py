@@ -157,15 +157,13 @@ def check_examples(
         day: int,
         suppress_output=True,
         verbose=True,
-        extra_kwargs_parser=None,
+        extra_kwargs_parser=None,  #TODO remove this from all solutions
         abort_on_fail=False,
         auto_refresh=True
     ):
     """Checks whether the provided solver gives correct results for the given examples.
     Some examples come with an 'extra' attribute, denoting when something is a special case for that example.
-    If extra_kwargs_parser is provided, it will be used to pass such a string into a keyword dict, which is passed
-    to the solver. If none is provided but extra kwargs are passed, an attempt will be made to parse the format
-    I've seen most often, i.e. parsing stuff like 'n=5' into {'n': 5}"""
+    extra_kwargs_parser is a legacy keyword from when I tried to get example.extra's to work with aoc-check."""
 
     puzzle = Puzzle(year=year, day=day)
     examples = puzzle.examples

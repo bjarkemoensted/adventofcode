@@ -1,12 +1,6 @@
 from copy import deepcopy
 
 
-def read_input():
-    with open("input18.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
-
 def parse(s):
     res = s
     return res
@@ -87,10 +81,10 @@ def compute_number_of_safe_tiles(initial_row: str, n_rows_total: int):
     return res
 
 
-def main():
-    raw = read_input()
-    initial_row = parse(raw)
-    n_rows = 40
+def solve(data: str):
+    example_rows = {5: 3, 10: 10}
+    initial_row = parse(data)
+    n_rows = example_rows.get(len(data), 40)
     star1 = compute_number_of_safe_tiles(initial_row, n_rows)
 
     print(f"The room contains {star1} safe tiles in a room with {n_rows} rows.")
@@ -98,6 +92,17 @@ def main():
     n_rows2 = 400000
     star2 = compute_number_of_safe_tiles(initial_row, n_rows2)
     print(f"A similar room with {n_rows2} has {star2} safe tiles.")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 18
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve, extra_kwargs_parser="ignore")
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':

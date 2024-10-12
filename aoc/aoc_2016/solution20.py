@@ -1,9 +1,3 @@
-def read_input():
-    with open("input20.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
-
 def parse(s):
     res = []
     for line in s.split("\n"):
@@ -14,7 +8,7 @@ def parse(s):
     return res
 
 
-def find_allowed_IP_ranges(blacklist, lower=0, upper=4294967295, verbose=False):
+def find_allowed_IP_ranges(blacklist, lower: int, upper: int, verbose=False):
     """Takes a blacklist (list of tuples) of ranges of forbidden IP adresses.
     Given the provided lower and upper bounds on valid IP adresses, returns a list of allowed ranges of IP addresses."""
 
@@ -58,16 +52,28 @@ def find_allowed_IP_ranges(blacklist, lower=0, upper=4294967295, verbose=False):
     return allowed
 
 
-def main():
-    raw = read_input()
-    blacklist = parse(raw)
+def solve(data: str):
+    print("!!!", len(data))
+    blacklist = parse(data)
+    upper = 9 if len(data) == 11 else 4294967295
 
-    allowed_IP_ranges = find_allowed_IP_ranges(blacklist=blacklist)
+    allowed_IP_ranges = find_allowed_IP_ranges(blacklist=blacklist, lower=0, upper=upper)
     star1 = min(a for a, _ in allowed_IP_ranges)
     print(f"The lowest allowed IP is {star1}.")
 
     star2 = sum(b - a + 1 for a, b in allowed_IP_ranges)
     print(f"There are {star2} allowed IP addresses.")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 20
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve, extra_kwargs_parser="ignore")
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':
