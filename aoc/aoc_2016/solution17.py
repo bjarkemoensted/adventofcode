@@ -3,12 +3,6 @@ import hashlib
 import heapq
 
 
-def read_input():
-    with open("input17.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
-
 def parse(s):
     res = s
     return res
@@ -155,9 +149,8 @@ def longest_path(G: Graph, start_path="", target_coord=None) -> int|None:
     return longest
 
 
-def main():
-    raw = read_input()
-    passcode = parse(raw)
+def solve(data: str):
+    passcode = parse(data)
 
     G = Graph(passcode=passcode)
     star1 = a_star(G=G)
@@ -165,6 +158,17 @@ def main():
 
     star2 = longest_path(G=G)
     print(f"The longest possible path to the vault contains {star2} steps.")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 17
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':

@@ -1,15 +1,6 @@
 import math
 import re
 
-_test = """Disc #1 has 5 positions; at time=0, it is at position 4.
-Disc #2 has 2 positions; at time=0, it is at position 1."""
-
-
-def read_input():
-    with open("input15.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
 
 def parse(s):
     res = []
@@ -40,7 +31,7 @@ def trace(time_start: int, discs: list):
     return n_discs_passed
 
 
-def solve(discs, maxiter=None):
+def determine_wait_seconds(discs, maxiter=None):
     """Determines the number of seconds to wait before a dropped capsule will make it through the machines.
     Initially, drops are attempted after 0, 1, 2, ... seconds, and the number of discs succesfully passed is computed.
     The increment is continually updated to the least common multiple of the periods of all discs passed in this manner.
@@ -63,18 +54,28 @@ def solve(discs, maxiter=None):
         n_its += 1
 
 
-def main():
-    raw = read_input()
-    discs = parse(raw)
+def solve(data: str):
+    discs = parse(data)
 
-    star1 = solve(discs)
+    star1 = determine_wait_seconds(discs)
     print(f"The capsule makes it through the machine if dropped after (multiples of) {star1} seconds.")
 
     additional_disc = (11, 0)
     discs.append(additional_disc)
 
-    star2 = solve(discs)
+    star2 = determine_wait_seconds(discs)
     print(f"With the extra disc (multiples of) {star2} seconds are required.")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 15
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':

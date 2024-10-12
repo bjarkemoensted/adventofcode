@@ -1,9 +1,3 @@
-def read_input():
-    with open("input16.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
-
 def parse(s):
     res = s
     return res
@@ -47,9 +41,8 @@ def checksum(s: str) -> str:
     return res
 
 
-def main():
-    raw = read_input()
-    initial_state = parse(raw)
+def solve(data: str):
+    initial_state = parse(data)
     n_bits = 272
 
     data = generate_data(initial_state, n_bits)
@@ -61,6 +54,17 @@ def main():
     data2 = generate_data(initial_state, n_bits2)
     star2 = checksum(data2)
     print(f"The checksum of the larger random-ish data is {star2}.")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 16
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':
