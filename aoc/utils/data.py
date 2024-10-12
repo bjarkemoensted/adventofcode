@@ -170,7 +170,7 @@ def check_examples(
     puzzle = Puzzle(year=year, day=day)
     examples = puzzle.examples
     if verbose:
-        print(f"Got {len(examples)} examples. {extra_kwargs_parser}.")
+        print(f"Got {len(examples)} examples.")
 
     if extra_kwargs_parser is None:
         extra_kwargs_parser = _default_extra_kwargs_parser
@@ -209,7 +209,9 @@ def check_examples(
         for i, (attempt, correct_answer, correct) in enumerate(res_):
             color = "green" if correct else "red"
             eq = "==" if correct else "!="
-            cprint(f" - Example {i+1}: {attempt} {eq} {correct_answer}.", color=color)
+            # examples[i].extra
+            xstr = f" (example extra: {examples[i].extra})" if examples[i].extra is not None and not correct else ""
+            cprint(f" - Example {i+1}: {attempt} {eq} {correct_answer}{xstr}.", color=color)
             correct_list.append(correct)
 
     print()

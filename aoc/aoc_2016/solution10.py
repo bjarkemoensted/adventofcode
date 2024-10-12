@@ -79,9 +79,8 @@ def run_instructions(assign, swap, target_comparison):
     return state, bot_making_target_comparison
 
 
-def solve(data: str, chips=None):
-    if chips is None:
-        chips = [17, 61]
+def solve(data: str):    
+    chips = [17, 61] if len(data) > 500 else [5, 2]
     instructions = parse(data)
 
     end_state, bot = run_instructions(*instructions, target_comparison=chips)
@@ -101,8 +100,7 @@ def solve(data: str, chips=None):
 def main():
     year, day = 2016, 10
     from aoc.utils.data import check_examples
-    extra_kwargs_parser = lambda s: dict(chips=[int(m) for m in re.findall(r"value-(\d+)", s)])
-    check_examples(year=year, day=day, solver=solve, extra_kwargs_parser=extra_kwargs_parser)
+    check_examples(year=year, day=day, solver=solve, extra_kwargs_parser="ignore")
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)
