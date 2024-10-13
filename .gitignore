@@ -137,3 +137,5 @@ secrets.json
 deleteme*
 
 .vscode/**
+# scalene profiling files
+**/profile.*

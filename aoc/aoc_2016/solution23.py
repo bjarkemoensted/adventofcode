@@ -1,17 +1,15 @@
-_test = """cpy 2 a
-tgl a
-tgl a
-tgl a
-cpy 1 a
-dec a
-dec a"""
-
-
-def read_input():
-    #return _test
-    with open("input23.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
+def parse(s):
+    res = []
+    for line in s.split("\n"):
+        ins = line.strip().split()
+        for i in range(len(ins)):
+            try:
+                ins[i] = int(ins[i])
+            except ValueError:
+                pass
+            #
+        res.append(tuple(ins))
+    return res
 
 
 def _toggle(instruction):
@@ -36,20 +34,6 @@ def _toggle(instruction):
         raise ValueError
 
     res = (newfun, *args)
-    return res
-
-
-def parse(s):
-    res = []
-    for line in s.split("\n"):
-        ins = line.strip().split()
-        for i in range(len(ins)):
-            try:
-                ins[i] = int(ins[i])
-            except ValueError:
-                pass
-            #
-        res.append(tuple(ins))
     return res
 
 
@@ -239,9 +223,8 @@ class Interpreter:
         self.pointer += 1
 
 
-def main():
-    raw = read_input()
-    instructions = parse(raw)
+def solve(data: str):
+    instructions = parse(data)
     int_ = Interpreter(registry=Registry(a=7), instructions=instructions, verbose=False)
     int_.run_instructions()
 
@@ -252,6 +235,17 @@ def main():
     int2.run_instructions()
     star2 = int2.registry["a"]
     print(f"After running the instructions, register a contains the value {star2}.")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 23
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':

@@ -2,19 +2,6 @@ from functools import cache
 import heapq
 import networkx as nx
 
-_test = """###########
-#0.1.....2#
-#.#######.#
-#4.......3#
-###########"""
-
-
-def read_input():
-    #return _test
-    with open("input24.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
 
 def parse(s):
     """Builds a 2D-lattice where all non-wall neighboring sites are connected"""
@@ -137,7 +124,7 @@ def ts_solve(G: nx.Graph, startat=0, return_to_starting_point=False, maxiter=Non
         correct_loc = path[-1] == startat or not return_to_starting_point
         if visited_all_nodes and correct_loc:
             dist = cache[path]
-            return path, dist
+            return dist
 
         head = path[-1]
         for v in G.neighbors(head):
@@ -155,16 +142,26 @@ def ts_solve(G: nx.Graph, startat=0, return_to_starting_point=False, maxiter=Non
         n_its += 1
 
 
-def main():
-    raw = read_input()
-    lattice = parse(raw)
+def solve(data: str):
+    lattice = parse(data)
     G = build_shortest_paths_graph(lattice)
 
-    _, len_ = ts_solve(G=G, maxiter=None)
-    print(f"The shortest path visiting all nodes requires {len_} steps.")
+    star1 = ts_solve(G=G, maxiter=None)
+    print(f"The shortest path visiting all nodes requires {star1} steps.")
 
-    _, len2 = ts_solve(G=G, return_to_starting_point=True, maxiter=None)
-    print(f"The shortest path with the robot returning requires {len2} steps.")
+    star2 = ts_solve(G=G, return_to_starting_point=True, maxiter=None)
+    print(f"The shortest path with the robot returning requires {star2} steps.")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 24
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,3 @@
-from copy import deepcopy
-
-
 def parse(s):
     res = s
     return res

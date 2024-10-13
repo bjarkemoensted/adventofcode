@@ -1,12 +1,3 @@
-import time
-
-
-def read_input():
-    with open("input25.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
-
 def parse(s):
     res = []
     for line in s.split("\n"):
@@ -242,13 +233,23 @@ def brute(instructions: list):
         a += 1
 
 
-def main():
-    raw = read_input()
-    raw_instructions = parse(raw)
+def solve(data: str):    
+    raw_instructions = parse(data)
     optimized_instructions = peephole_optimize(raw_instructions)
 
     star1 = brute(instructions=optimized_instructions)
     print(f"The clock signal can be established using a={star1}.")
+
+    star2 = None
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 25
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':
