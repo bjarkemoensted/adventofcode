@@ -185,7 +185,7 @@ def check_examples(
 
     res_a, res_b = results
 
-    a_correct = all(correct for _, _, correct in res_a)
+    a_correct = res_a is None or all(correct for _, _, correct in res_a)
     b_missing = res_b is None and not puzzle.answered_a
     new_solver = solver_looks_new(solver)
     needs_refresh = all((a_correct, b_missing, new_solver))
@@ -202,7 +202,8 @@ def check_examples(
     for part, res_ in enumerate(results):
         print(f"*** part {part + 1} ***")
         if res_ is None:
-            cprint(f" - No example data{' (yet?)' if not puzzle.answered_a else '!'}.", color="light_grey")
+            yet = part > 0 and not puzzle.answered_a
+            cprint(f" - No example data{' (yet?)' if yet else '!'}.", color="light_grey")
             continue
         for i, (attempt, correct_answer, correct) in enumerate(res_):
             color = "green" if correct else "red"

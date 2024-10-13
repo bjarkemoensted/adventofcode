@@ -53,7 +53,6 @@ def find_allowed_IP_ranges(blacklist, lower: int, upper: int, verbose=False):
 
 
 def solve(data: str):
-    print("!!!", len(data))
     blacklist = parse(data)
     upper = 9 if len(data) == 11 else 4294967295
 

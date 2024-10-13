@@ -2,12 +2,6 @@ from functools import cache
 import re
 
 
-def read_input():
-    with open("input21.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
-
-
 def parse(s):
     res = []
     patterns = {
@@ -135,20 +129,31 @@ class Unscrambler(Scrambler):
         return res
 
 
-def main():
-    raw = read_input()
-    instructions = parse(raw)
+def solve(data: str):
+    instructions = parse(data)
 
     scrambler = Scrambler(instructions=instructions)
-
-    password = "abcdefgh"
+    is_example = len(data) < 500
+    password = 'abcde' if is_example else "abcdefgh"
     star1 = scrambler(password)
     print(f"The scrambled password is {star1}.")
 
     unscrambler = Unscrambler(instructions)
     scrambled_password = "fbgdceah"
+
     star2 = unscrambler(scrambled_password)
     print(f"Unscrambling the password '{scrambled_password}' results in: '{star2}'.")
+    
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 21
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve, extra_kwargs_parser="ignore")
+    from aocd import get_data
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':

@@ -1,25 +1,13 @@
+from abc import ABCMeta, abstractmethod
 import heapq
 import networkx as nx
 import re
 
 
-_test = """Filesystem            Size  Used  Avail  Use%
-/dev/grid/node-x0-y0   10T    8T     2T   80%
-/dev/grid/node-x0-y1   11T    6T     5T   54%
-/dev/grid/node-x0-y2   32T   28T     4T   87%
-/dev/grid/node-x1-y0    9T    7T     2T   77%
-/dev/grid/node-x1-y1    8T    0T     8T    0%
-/dev/grid/node-x1-y2   11T    7T     4T   63%
-/dev/grid/node-x2-y0   10T    6T     4T   60%
-/dev/grid/node-x2-y1    9T    8T     1T   88%
-/dev/grid/node-x2-y2    9T    6T     3T   66%"""
-
-
-def read_input():
-    #return _test
-    with open("input22.txt") as f:
-        puzzle_input = f.read()
-    return puzzle_input
+def _tuplify(data: list|tuple):
+    """Ensures data is a tuple. Assumes 2D array format."""
+    res = tuple(tuple(row) for row in data)
+    return res
 
 
 def parse(s):
@@ -60,6 +48,159 @@ def parse(s):
     return used_arr, size_arr
 
 
+def _neighbor_sites(crd: tuple, shape: tuple):
+    """Given a (i, j) coordinate and shape tuple, iterates over the 4 adjacent sites (or fewer if out of bounds)"""
+    steps = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    for step in steps:
+        newcrd = tuple(x + delta for x, delta in zip(crd, step))
+        if all(0 <= coord < lim for coord, lim in zip(newcrd, shape)):
+            yield newcrd
+        #
+    #
+
+
+def _iterate_crd_and_vals(arr: list|tuple):
+    """Given a 2d array, iterates over coordinate, value pairs like (i, j), val."""
+    for i, row in enumerate(arr):
+        for j, val in enumerate(row):
+            yield (i, j), val
+        #
+    #
+
+
+def _infer_shape(arr: list|tuple):
+    nrows = len(arr)
+    ncols = len(arr[0])
+    if any(len(row) != ncols for row in arr):
+        raise ValueError(f"Got different number of elements in each row.")
+
+    return nrows, ncols
+
+
+def _determine_empty_site(used: tuple) -> tuple:
+    """Returns the coord (i, j) of the empty site in the input array. Raises error if there's not exactly empty site."""
+    zeroes = [(i, j) for i, row in enumerate(used) for j, val in enumerate(row) if val == 0]
+    if len(zeroes) != 1:
+        raise ValueError(f"Expected to find exactly 1 empty node, but found {len(zeroes)}: {zeroes}")
+
+    res = zeroes[0]
+    return res
+
+
+class Grid:
+    """Grid class for representing the computing grid.
+    Constructs all shortest pairs between all viable nodes and stores them.
+    Exposes helper methods for getting the shortest path between any two viable nodes,
+    the distance of said paths, and a set of nodes on paths.
+    
+    The idea is that this class represents the 'gameboard' on which various states, defined by
+    the location of the empty node and the goal data, are defined."""
+
+    def __init__(self, viable_nodes, shape: tuple, target_node=(0, 0)):
+        self.shape = shape
+        self.nodes = {(i, j) for (i, j) in viable_nodes}
+        self.neighbors = dict()
+        self.target_node = target_node
+        G = nx.Graph()
+        G.add_nodes_from(self.nodes)
+        for u in self.nodes:
+            for v in _neighbor_sites(u, shape=shape):
+                if v in self.nodes:
+                    G.add_edge(u, v)
+                    self.neighbors[u] = self.neighbors.get(u, set([])) | {v}
+                #
+            #
+
+        self.paths = {u: {v: p for v, p in path_.items()} for u, path_ in nx.all_pairs_shortest_path(G)}
+        
+    def path(self, u, v):
+        """Returns shortest path from u -> v"""
+        res = self.paths[u][v]
+        return res
+    
+    def nodes_on_shortest_paths(self, goal, empty=None):
+        res = set(self.path(goal, self.target_node))
+        if empty is not None:
+            res |= set(self.path(empty, goal))
+        
+        return res
+    
+    def dist(self, u, v):
+        """Returns the shortest distance from u -> v"""
+        p = self.path(u=u, v=v)
+        res = len(p) - 1
+        return res
+
+
+class State(metaclass=ABCMeta):
+    char_goal = "G"
+    char_path = "*"
+    char_space = "·"
+    char_wall = "#"
+    char_empty = "_"
+
+    def __init__(self, empty: tuple, goal: tuple):
+        self.empty = empty
+        self.goal = goal
+
+    @property
+    @abstractmethod
+    def grid(self) -> Grid:
+        pass
+
+    def _determine_rep(self, i, j):
+        coord = (i, j)
+        
+        path = self.grid.nodes_on_shortest_paths(empty=self.empty, goal=self.goal)
+        
+        char = self.char_space if coord in self.grid.nodes else self.char_wall
+        if coord == self.empty:
+            char = self.char_empty
+        elif coord == self.goal:
+            char = self.char_goal
+        elif coord in path:
+            char = self.char_path
+        
+        res = f"({char})" if coord == self.grid.target_node else f" {char} "
+        return res
+
+    def neighbors(self):
+        con = type(self)
+        for empty in self.grid.neighbors.get(self.empty, set([])):
+            goal = self.empty if empty == self.goal else self.goal
+            yield con(empty=empty, goal=goal)
+        #
+    
+    def heuristic(self):
+        goal_to_dest = self.grid.dist(self.goal, self.grid.target_node)
+        if goal_to_dest == 0:
+            return goal_to_dest
+    
+        n_steps_to_goal_neighbor = self.grid.dist(self.empty, self.goal) - 1
+
+        n_shifts_lower_bound = 1 + 5*(goal_to_dest - 1)
+        res = n_steps_to_goal_neighbor + n_shifts_lower_bound
+        
+        return res
+
+    def _as_tuple(self):
+        res = (self.empty, self.goal)
+        return res
+
+    def __lt__(self, other):
+        return self._as_tuple() < other._as_tuple()
+
+    def __str__(self):
+        lines = []
+        rows, cols = self.grid.shape
+        for i in range(rows):
+            line = " ".join([self._determine_rep(i, j) for j in range(cols)])
+            lines.append(line)
+        
+        res = "\n".join(lines)
+        return res
+
+
 def get_viable_pairs(used_arr, size_arr):
     """Takes arrays representing used and total space at each node.
     Returns a list of pairs of coordinates [((i1, j1), (i2, j2)), ...] representing 'viable pairs' of nodes.
@@ -81,255 +222,6 @@ def get_viable_pairs(used_arr, size_arr):
         #
 
     return res
-
-
-def _infer_shape(arr: list|tuple):
-    nrows = len(arr)
-    ncols = len(arr[0])
-    if any(len(row) != ncols for row in arr):
-        raise ValueError(f"Got different number of elements in each row.")
-
-    return nrows, ncols
-
-
-def _tuplify(data: list|tuple):
-    """Ensures data is a tuple. Assumes 2D array format."""
-    res = tuple(tuple(row) for row in data)
-    return res
-
-
-def _determine_empty_site(used: tuple) -> tuple:
-    """Returns the coord (i, j) of the empty site in the input array. Raises error if there's not exactly empty site."""
-    zeroes = [(i, j) for i, row in enumerate(used) for j, val in enumerate(row) if val == 0]
-    if len(zeroes) != 1:
-        raise ValueError(f"Expected to find exactly 1 empty node, but found {len(zeroes)}: {zeroes}")
-
-    res = zeroes[0]
-    return res
-
-
-def _format_elems(arr: list|tuple, pad=" ") -> str:
-    """Helper method for padding and aligning string representations of the grid like on the webpage."""
-    maxlen = max(map(len, [elem for row in arr for elem in row]))
-    lines = []
-    for row in arr:
-        line_elems = []
-        for s in row:
-            elem = s + " "*(maxlen - len(s))
-            line_elems.append(elem)
-
-        lines.append(pad.join(line_elems))
-    res = "\n".join(lines)
-
-    return res
-
-
-def _neighbor_sites(crd: tuple, shape: tuple):
-    """Given a (i, j) coordinate and shape tuple, iterates over the 4 adjacent sites (or fewer if out of bound)"""
-    steps = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-    for step in steps:
-        newcrd = tuple(x + delta for x, delta in zip(crd, step))
-        if all(0 <= coord < lim for coord, lim in zip(newcrd, shape)):
-            yield newcrd
-
-
-def _iterate_crd_and_vals(arr: list|tuple):
-    """Given a 2d array, iterates over coordinate, value pairs like (i, j), val."""
-    for i, row in enumerate(arr):
-        for j, val in enumerate(row):
-            yield (i, j), val
-
-
-def simple_shortest_paths_lattice_with_walls(shape: tuple, walls: set) -> nx.Graph:
-    """Constructs a regular 2D-lattice with the specified shape. walls is a set of coordinates (i, j) that are
-    inaccessible and thus not connected to any other nodes."""
-
-    G = nx.Graph()
-    nrows, ncols = shape
-    nodes = {(i, j) for j in range(ncols) for i in range(nrows)}
-    G.add_nodes_from(nodes)
-    for u in nodes:
-        if u in walls:
-            continue
-        for v in _neighbor_sites(u, shape=shape):
-            if v in walls:
-                continue
-            if v in nodes:
-                G.add_edge(u, v)
-            #
-        #
-
-    paths = nx.all_pairs_shortest_path(G)
-    dists = {u: {v: len(p) - 1 for v, p in d.items()} for u, d in paths}
-
-    return dists
-
-
-class State:
-    def __init__(self, used: tuple, goal_data_coord: tuple, empty_coord: tuple = None):
-        """Represents a configuration of data on the grid.
-        used is a tuple of tuples representing the amount of data stored at node (i, j)
-        goal_data_coord is the (i, j) coordinate of the node currently holding the objective data.
-        empty_coord is the coordinate of the currently empty node."""
-
-        assert isinstance(used, tuple)
-        self.used = used
-        self.shape = _infer_shape(self.used)
-        self.goal_data_coord = goal_data_coord
-        if empty_coord is None:
-            empty_coord = _determine_empty_site(used=self.used)
-        self.empty_coord = empty_coord
-
-    def __iter__(self):
-        """Iterater over the important fields, for converting to tuple and hashing"""
-        for elem in (self.used, self.goal_data_coord):
-            yield elem
-
-    def __hash__(self):
-        """Just use the tuple representation for hashing so we can use states as keys"""
-        res = hash(tuple(self))
-        return res
-
-    def __lt__(self, other):
-        """Need to implement <= to be able to put these on heaps."""
-        return tuple(self) < tuple(other)
-
-    def __str__(self):
-        s = f"Data: {self.goal_data_coord}. Empty: {self.empty_coord}"
-        return s
-
-    def __repr__(self):
-        s = f"{self.goal_data_coord}, {self.empty_coord}"
-        return s
-
-
-def move_data(state: State, crd_from, crd_to):
-    """Moves data from one node to another. Assumes sufficient free space."""
-    i1, j1 = crd_from
-    i2, j2 = crd_to
-    assert state.used[i2][j2] == 0
-
-    # Determine the data size at the involved nodes after moving
-    replace_vals = {
-        crd_to: state.used[i1][j1],
-        crd_from: 0
-    }
-
-    # Determine the contents and locations of the empty and goal nodes after moving
-    new_used = tuple(
-        tuple(
-            replace_vals.get((i, j), state.used[i][j]) for j, val in enumerate(row)
-        )
-        for i, row in enumerate(state.used)
-    )
-    new_empty = crd_from
-    new_goal = crd_to if crd_from == state.goal_data_coord else state.goal_data_coord
-
-    # Create the resulting state
-    res = State(used=new_used, goal_data_coord=new_goal, empty_coord=new_empty)
-    return res
-
-
-class Grid:
-    def __init__(self, size: tuple, walls=None, destination=(0, 0)):
-        """Grid class representing the total capacities of each node.
-        walls is a set of nodes from which data cannot be moved.
-        destination is kept in this class to allow easier visualisation (to put parentheses around that node like on
-        the AoC page, etc.)."""
-
-        assert isinstance(size, tuple)
-        self.size = size
-        self.shape = _infer_shape(self.size)
-        self.destination = destination
-        if walls is None:
-            walls = set([])
-        self.walls = walls
-
-        # Cache the shortest paths on the lattice
-        self._simple_dists = simple_shortest_paths_lattice_with_walls(shape=self.shape, walls=self.walls)
-
-    def _state_to_string(self, state: State, compact: bool):
-        """Format the state + grid in a nice way that resemples the web page. Only for visualization."""
-
-        elems = []
-        for i, used_row in enumerate(state.used):
-            row = []
-            for j, used in enumerate(used_row):
-                size = self.size[i][j]
-                elem = None
-                crd = (i, j)
-                if compact:
-                    elem = "."
-                    if crd == state.goal_data_coord:
-                        elem = "G"
-                    elif crd == state.empty_coord:
-                        elem = "_"
-                    elif crd in self.walls:
-                        elem = "#"
-                else:
-                    elem = f"{used}T/{size}T"
-                    if crd == state.goal_data_coord:
-                        elem = f"[{elem}]"
-                    elif j == state.goal_data_coord[1]:
-                        elem = " " + elem
-                    #
-                if crd == self.destination:
-                    elem = f"({elem})"
-                elif j == self.destination[1]:
-                    elem = " " + elem
-
-                row.append(elem)
-
-            elems.append(row)
-
-        res = _format_elems(elems)
-
-        return res
-
-    def view_state(self, state: State, compact=True):
-        s = self._state_to_string(state=state, compact=compact)
-        print(s)
-
-    def heuristic(self, state: State) -> int:
-        """Lower bound on the number of steps needed to move the data to the destination.
-        First the free space must be moved adjacent to the data, then repeatedly, the data can be moved at most one step
-        at a time closer to the destination, followed by 5 steps of moving the free spot around the data to free up the
-        next site in the shortest path from data to destination."""
-
-        # Find the number of steps in the shortest path from using all viable nodes
-        goal_to_dest = self._simple_dists[state.goal_data_coord][self.destination]
-        if goal_to_dest == 0:
-            return 0
-
-        # The free spot must be moved adjacent to data first
-        empty_to_goal = self._simple_dists[state.empty_coord][state.goal_data_coord] - 1
-        # Best case, the free spot is between data and destination. After that, it's 1 data move and 4 free space moves
-        shift_steps = 1 + 5*(goal_to_dest - 1)
-
-        res = empty_to_goal + shift_steps
-        return res
-
-    def get_neighbors(self, state: State):
-        """Given a state instance, return a list of the states which can be reached from there in a single step, e.g.
-        by running a single move operation. Note that 'neighbor' here does not mean a neighboring node on the
-        grid/lattice, but the entire configuration of data which can be achieved with a single move operation."""
-
-        res = []
-        # Determine the available space on the empty node to which we're moving data
-        copy_to = state.empty_coord
-        i2, j2 = copy_to
-        space = self.size[i2][j2]
-
-        # Check each adjacent site in the grid to see if the data there fits on the empty site
-        for copy_from in _neighbor_sites(copy_to, shape=state.shape):
-            i1, j1 = copy_from
-            data_fits_on_target = space >= state.used[i1][j1]
-            if data_fits_on_target:
-                neighbor = move_data(state=state, crd_from=copy_from, crd_to=copy_to)
-                res.append(neighbor)
-            #
-
-        return res
 
 
 class Queue:
@@ -359,83 +251,88 @@ class Queue:
         return s
 
 
-def a_star(grid: Grid, initial_state: State, maxiter=None, verbose=True):
-    if maxiter is None:
-        maxiter = float("inf")
+
+def a_star(initial_state: State):
+    openset = Queue()
 
     camefrom = dict()
 
-    d_g = {initial_state: 0}
+    def reconstruct(head: State) -> list:
+        nonlocal camefrom
+        rev = [head]
+        while head in camefrom:
+            head = camefrom[head]
+            rev.append(head)
+        
+        res = rev[::-1]
+        return res
+    
+    h = initial_state.heuristic()
+    dist = 0
+    f_score = h + dist
+    g = {initial_state: dist}  # g[u] is shortest path from start u
+    f = {initial_state : f_score}  # f[u] is a lower bound on path through u
+    openset.push(initial_state, priority=f_score)
 
-    d_f = {initial_state: grid.heuristic(initial_state)}
-    closest = float("inf")
-
-    open_ = Queue()
-    open_.push(initial_state, priority=d_f[initial_state])
-    n_its = 0
-    msg_maxlen = 0
-
-    while open_:
-        current = open_.pop()
-        done = current.goal_data_coord == grid.destination
-        if done:
-            path = [current]
-            while path[-1] != initial_state:
-                path.append(camefrom[path[-1]])
-            path = path[::-1]
-            if verbose:
-                print()
-            return path
-
-        for neighbor in grid.get_neighbors(state=current):
-            d_uv = 1
-            g_tentative = d_g[current] + d_uv
-            improved = g_tentative < d_g.get(neighbor, float("inf"))
-            if improved:
-                camefrom[neighbor] = current
-                d_g[neighbor] = g_tentative
-                h = grid.heuristic(neighbor)
-                f = g_tentative + h
-                if h < closest:
-                    closest = h
-                if neighbor not in open_:
-                    open_.push(neighbor, priority=f)
-                #
+    record = float("inf")
+    
+    while openset:
+        u = openset.pop()
+        if u.heuristic() == 0:
+            res = reconstruct(u)
+            return res
+        
+        for v in u.neighbors():
+            d = 1
+            g_tentative = g[u] + d
+            improvement = g_tentative < g.get(v, float("inf"))
+            if improvement:
+                camefrom[v] = u
+                g[v] = g_tentative
+                h = v.heuristic()
+                f_score = g_tentative + h
+                f[v] = f_score
+                openset.push(v, priority=f_score)
+                record = min(record, h)
             #
-        n_its += 1
-        if verbose:
-            msg = f"{n_its}: Considering {len(open_)} states. Best heuristic: {closest}."
-            msg_maxlen = max(msg_maxlen, len(msg))
-            msg = msg + (msg_maxlen - len(msg))*" "
-            print(msg, end="\r")
-
-        if n_its > maxiter:
-            break
-
-    if verbose:
-        print()
-    return None
+        #
+    #
 
 
-def main():
-    raw = read_input()
-    used_arr, size_arr = parse(raw)
-
+def solve(data: str):
+    used_arr, size_arr = parse(data)
+    
     viable_pairs = get_viable_pairs(used_arr=used_arr, size_arr=size_arr)
     star1 = len(viable_pairs)
     print(f"There are {star1} viable pairs")
 
+    shape = _infer_shape(used_arr)
+    _, ncols = shape
     viable_nodes = set(sum(map(list, viable_pairs), []))
-    nrows, ncols = _infer_shape(used_arr)
-    walls = {crd for crd, _ in _iterate_crd_and_vals(used_arr) if crd not in viable_nodes}
-    grid = Grid(size=size_arr, walls=walls)
+    grid = Grid(viable_nodes=viable_nodes, shape=shape)
 
     goal_data_coord = (0, ncols - 1)
-    initial_state = State(used=used_arr, goal_data_coord=goal_data_coord)
+    empty_site_coord = _determine_empty_site(used_arr)
 
-    path = a_star(grid=grid, initial_state=initial_state)
+    GridState = type("GridState", (State,), {"grid": grid})
+    initial_state = GridState(empty=empty_site_coord, goal=goal_data_coord)
+    path = a_star(initial_state)
+
+
     star2 = len(path) - 1
-    print(f"Data can be moved in {star2} steps")
+    print(f"Solution to part 2: {star2}")
+
+    return star1, star2
+
+
+def main():
+    year, day = 2016, 22
+    from aoc.utils.data import check_examples
+    check_examples(year=year, day=day, solver=solve)
+    from aocd import get_data
+    
+    raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':
