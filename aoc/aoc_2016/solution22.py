@@ -1,3 +1,9 @@
+# .      .  .⸳•.` ꞏ  .*  `  ⸳⸳+`.  ꞏ *⸳ `.+⸳      `*     .  *  .• ⸳  .* ⸳ `  .  
+# •`. ꞏ⸳.+   `   ꞏ`* ꞏ.  ⸳ ꞏ.•    Grid Computing  . `•ꞏ    . ꞏ+` ꞏ       .⸳`ꞏ .*
+# `.⸳  `* ⸳ ⸳. * `+  ⸳ https://adventofcode.com/2016/day/22 .+  .   `.ꞏ⸳+`* . •`
+#  + .+  ⸳ꞏ`.*  ⸳    •⸳ꞏ . ⸳+ꞏ .     .`⸳ꞏ⸳   .     ꞏ•` ⸳* .`  . ꞏ.•  * .⸳` .+ ꞏ⸳
+
+
 from abc import ABCMeta, abstractmethod
 import heapq
 import networkx as nx

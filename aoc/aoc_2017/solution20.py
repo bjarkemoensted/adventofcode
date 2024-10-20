@@ -1,3 +1,9 @@
+# .+. ⸳`⸳ꞏ ` ꞏ.•  *  . `⸳.*      .⸳ ꞏ•  *ꞏ.⸳     ⸳`.ꞏ ⸳`*  .. •ꞏ ⸳ `. +.⸳  *   `
+#    ..•ꞏ `ꞏ * `  •⸳ꞏꞏ* ` .`   ⸳  Particle Swarm +.`    `  ꞏ ` .⸳+ ꞏ⸳.   *.` • ꞏ
+#  .ꞏ⸳ꞏ*.   ⸳     .`*⸳ https://adventofcode.com/2017/day/20    ꞏ⸳. ⸳   ꞏ` *ꞏ  ⸳.
+# ⸳ *`⸳ꞏ+     •.  ` .•   ꞏ`⸳• ꞏ*`⸳ .  ⸳ꞏ*.ꞏ`        `.•. *⸳ ⸳ꞏ  .`ꞏ *   ⸳  .ꞏ.*•
+
+
 from collections import defaultdict
 import numba
 import re

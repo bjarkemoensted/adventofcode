@@ -1,3 +1,9 @@
+# •.*ꞏ `⸳ ꞏ ⸳*`ꞏ.   `  `  .ꞏ+ ⸳   +`⸳`ꞏ   ⸳ +  `   ꞏ+ .⸳ `  • `⸳ *. ⸳` `•  ꞏ •⸳`
+# ꞏ  . •.⸳  • +  `  ⸳+.     I Heard You Like Registers   .ꞏ . + `⸳  ꞏ `*⸳    . ⸳
+#  ⸳ꞏ . ` .• `ꞏ    ⸳ . https://adventofcode.com/2017/day/8  `⸳  ꞏ *.  `⸳.•ꞏ   ..
+# .      ` ⸳. * ⸳ꞏ`.   ⸳ `     .ꞏ+ . ⸳ ꞏ •`*ꞏ   ⸳ ** ` ꞏ ⸳.  ` .+ꞏ`⸳  ꞏ    `⸳ꞏ •
+
+
 from collections import defaultdict
 import re
 

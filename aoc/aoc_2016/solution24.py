@@ -1,3 +1,9 @@
+#  `.⸳   *   ꞏ⸳.   +ꞏ⸳ . ꞏ *  ⸳  ꞏ ⸳•   .⸳  ꞏ.`   ⸳ꞏ  ` +⸳ .     .•.⸳ `   ꞏ+ꞏ*`.
+# *   .`ꞏ  ⸳    +ꞏ. *   ⸳  ꞏ * Air Duct Spelunking  `ꞏ⸳⸳ * `    •⸳  .ꞏ  *⸳  . +`
+# `.ꞏ.⸳  ꞏ      .  ꞏ   https://adventofcode.com/2016/day/24   `⸳ ꞏ `   •   ꞏ   ⸳
+# .  +⸳ꞏ ꞏ⸳+.ꞏ        ⸳*` ꞏ.             *.`•  ⸳ ꞏ .⸳* .  ꞏꞏ⸳•  ⸳*     .⸳`   ⸳*.
+
+
 from functools import cache
 import heapq
 import networkx as nx

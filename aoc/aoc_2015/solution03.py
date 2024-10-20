@@ -1,3 +1,9 @@
+# ⸳  ꞏ•*ꞏ . `ꞏ *⸳`* .  ⸳ * .+  ⸳ ` +.      ꞏ. *` ꞏ⸳ `   +  `⸳ •⸳* .     ⸳*ꞏ.   ꞏ
+# ` .+⸳ `ꞏ• * ⸳       Perfectly Spherical Houses in a Vacuum .ꞏ     ꞏ+`   + .+ `
+# `* .ꞏ⸳     `ꞏ    +   https://adventofcode.com/2015/day/3 .•  `    .   +.`⸳ ꞏ*.
+# ꞏ.ꞏ`  *.⸳      * .` •.`⸳*  ꞏ ꞏ*  .`⸳+.  ꞏ* `⸳  .  +•.  ꞏ⸳+`       * ꞏ⸳.  ` *ꞏ+
+
+
 def parse(s):
     res = list(s)
     return res

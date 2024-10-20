@@ -1,3 +1,9 @@
+# ꞏ.  ꞏ`    `⸳ *    .⸳  ꞏ*⸳    `. *  ꞏ .⸳ .`   * `.     ⸳ ⸳.• *ꞏ.         *  `ꞏ⸳
+# .`  * `ꞏ⸳ꞏ    .    `*ꞏ.     + Reindeer Olympics  . ⸳  `+ ⸳ ꞏ. `  ⸳ •    .ꞏ  .•
+# `ꞏ ⸳.   `   +⸳ꞏ  .   https://adventofcode.com/2015/day/14 .    ⸳ꞏ*`    .`⸳ ꞏ .
+# •+`ꞏ ⸳ .     ꞏ .. *  ⸳⸳    ꞏ  ` `⸳* . *  .  ꞏ  ꞏ•` . ꞏ+. ꞏ⸳•⸳.     `.   ꞏ⸳.+` 
+
+
 def parse(s):
     """Parses reindeer info. Gives a dict mapping reindeer names to properties"""
     res = {}

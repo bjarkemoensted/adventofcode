@@ -1,3 +1,9 @@
+# ⸳. `.ꞏ    ⸳    `*ꞏ. * `⸳  ꞏ  .`  *ꞏ    ⸳ *.  `ꞏ    ⸳  ` ꞏ  .*ꞏ`•      ⸳`  ⸳.ꞏ*
+# +ꞏ*.   `⸳•.  ⸳*ꞏ   ⸳.`  + Coprocessor Conflagration ` ⸳ ⸳.`     •ꞏ • ⸳   ꞏꞏ*  
+# `ꞏ    .⸳• *.⸳   `  ꞏ https://adventofcode.com/2017/day/23 .*` ⸳ꞏ + .    ꞏ•. ⸳`
+#  ⸳• ꞏ      `•ꞏ.  ⸳  `*  ⸳ꞏ* `.    .⸳ꞏ   •⸳. ꞏ. `  *     `ꞏ  ⸳•ꞏ.       ꞏ⸳ `⸳*.
+
+
 from collections import defaultdict
 
 

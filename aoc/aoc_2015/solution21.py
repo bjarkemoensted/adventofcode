@@ -1,3 +1,9 @@
+#   ꞏ`   +⸳.   `   ⸳  *`.        `⸳ *.   *     .⸳+• `ꞏ ⸳  *  ` .ꞏ    •⸳ `.⸳* •ꞏ 
+# `  ꞏ  •    .     `⸳. +ꞏ  ` .+ RPG Simulator 20XX   *.`    ⸳+ꞏ*.    .  ⸳ • ꞏ` .
+# ꞏ.•   ` +⸳   ꞏ * .`  https://adventofcode.com/2015/day/21 .    ꞏ ꞏ*    `  `ꞏ+*
+# + .⸳      +ꞏ  ` . + ꞏ.⸳+   `⸳ ꞏ*.       ꞏ*  `   ` . ꞏ•  `      ⸳ *.ꞏ*.     .⸳ꞏ
+
+
 from copy import deepcopy
 from itertools import combinations
 

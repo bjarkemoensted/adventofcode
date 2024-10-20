@@ -1,3 +1,9 @@
+# +.*⸳ꞏ `*.⸳  • ⸳` ꞏ.      ⸳.+ ⸳*    `.•⸳  `•.ꞏ   ⸳ `.  `⸳`⸳* + .` *  ꞏ⸳    ꞏ .+
+# ꞏ+⸳`    ⸳•*`  .⸳.`*   ` ⸳ Two-Factor Authentication ⸳`  ⸳  • ꞏ . `* ⸳   + .`⸳ꞏ
+# • ꞏ ⸳+ .  `  ⸳ꞏ*     https://adventofcode.com/2016/day/8      `    ⸳ `  ⸳  • .
+#  ⸳ *`⸳ꞏ ` ꞏ⸳.   *⸳  ꞏ .   ⸳`*   . ⸳ • + +`⸳  ꞏ.  ꞏ*   •   ` ꞏ  • ⸳.`. *ꞏ  • `⸳
+
+
 from aococr import aococr
 import numpy as np
 import re

@@ -1,3 +1,9 @@
+#  . *ꞏ  `    ⸳ ꞏ.`•⸳ `ꞏ⸳•.       ꞏ`.•  ⸳* .+ .ꞏ   .` ⸳* `ꞏ ꞏ +  *`⸳  .     `*⸳ꞏ
+# ``   .  `ꞏ` ⸳•`* ꞏ..  I Was Told There Would Be No Math •`.ꞏ    ⸳  `+. ꞏ+⸳ꞏ` .
+#  ꞏ`⸳*   . +     .`*  https://adventofcode.com/2015/day/2 .• ꞏ ⸳ꞏ. `• `   ꞏ . ⸳
+# ꞏ⸳• `⸳.     ꞏ`*  .  ⸳* `ꞏ.` ⸳*  ꞏ.    +.⸳ꞏ.`•   ꞏ  ` +ꞏ⸳   +  ꞏ   .  •⸳ `  ꞏ.`
+
+
 def parse(s):
     res = [tuple(int(elem) for elem in line.split("x")) for line in s.split("\n")]
     return res

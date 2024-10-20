@@ -1,3 +1,9 @@
+# `   *`.⸳ •⸳ꞏ+ ⸳ . `ꞏ⸳ꞏ    *`⸳ꞏ•      `ꞏ• ⸳  . •⸳`      ⸳  ꞏ`• `.   ⸳   + `. ꞏ`
+# ꞏ ⸳ .* ꞏ  •`  .⸳`ꞏ   • `  .   ⸳  Matchsticks          ⸳*ꞏ.• ⸳ . ⸳ꞏ  •`    ⸳.  
+# ⸳•ꞏ`   `* ꞏ  ⸳*  ⸳.• https://adventofcode.com/2015/day/8     ⸳⸳ꞏ •   ⸳` ꞏ.ꞏ*`⸳
+#  ꞏ  ⸳*      ꞏ        .  ⸳ꞏ     + ꞏ `*.` ꞏ ꞏ ` .*  ꞏ       `⸳ +   .  ⸳      `*ꞏ
+
+
 def parse(s):
     res = [line.strip() for line in s.split("\n")]
     return res

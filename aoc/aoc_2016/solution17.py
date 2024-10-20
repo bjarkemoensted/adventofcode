@@ -1,3 +1,9 @@
+#   ⸳`ꞏꞏ.*   .*ꞏ⸳ • ⸳`ꞏ `    *⸳ ꞏ•. `ꞏ    *ꞏ . `⸳   +⸳ `    ꞏ*⸳ꞏ.   +.       ⸳.`
+# ꞏ`  ⸳   * ⸳ꞏ      * .` ⸳*ꞏ    Two Steps Forward   ꞏ*`⸳ ⸳ *    ` *   ꞏ  `* .•ꞏ⸳
+# ⸳  ⸳    ` •⸳. .*ꞏꞏ   https://adventofcode.com/2016/day/17     *⸳   .*ꞏ`⸳  • +ꞏ
+# .*  `.⸳ ⸳  •`.  ⸳+ꞏ.` ꞏ.⸳   .   •  ⸳*  `.⸳ *  * ⸳ . .  •`⸳     `⸳ .⸳ + . ⸳ ꞏ.•
+
+
 from functools import cache
 import hashlib
 import heapq

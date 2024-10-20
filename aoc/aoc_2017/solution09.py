@@ -1,3 +1,9 @@
+#  `. *ꞏ`*    `.⸳ *ꞏ` •       `.⸳  `+⸳ .      ꞏ⸳ `* .  `+⸳`  ꞏ•.  ⸳  * ` .  ꞏ⸳* 
+# ⸳ .` ⸳ꞏ+ꞏ •     .`  ⸳ • +`* ⸳ Stream Processing . ꞏ`* . ⸳    ⸳`  ꞏ `⸳•  .ꞏ + `
+# `*⸳•  .⸳+  `   .ꞏ    https://adventofcode.com/2017/day/9 .`   +⸳ꞏ` .* ⸳ ꞏ ` `.
+# *•ꞏ.⸳   ⸳.    .`  •ꞏ. `*⸳    *ꞏ.•   .  `ꞏꞏ` +. *  ` ⸳  *.ꞏ⸳    *`⸳  ꞏ . ⸳ .  +
+
+
 class Parser:
     def __init__(self, verbose=False):
         # Bools to keep track of whether the parser is in 'ignore mode' (after '!') or 'garbage mode' (inside '< >')

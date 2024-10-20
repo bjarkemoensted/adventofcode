@@ -1,3 +1,9 @@
+# . ⸳ *`    .    ` .⸳*      + `⸳  ꞏ  ⸳    •`*⸳ .*⸳   . ` ꞏ ⸳     ` ⸳.⸳ ꞏ ⸳+⸳`*..
+# ⸳*.`.*      ⸳  .    `⸳ꞏ•  ` Some Assembly Required  *   ⸳` .ꞏ ⸳*`ꞏ  * .  + ⸳` 
+#   `⸳+  ꞏ*.⸳  ` .  ꞏ⸳ https://adventofcode.com/2015/day/7  ⸳ .•.  `• ⸳ `ꞏ  *.ꞏ⸳
+# .ꞏ+.`  •.`ꞏ    * ⸳ +.  ` ꞏ⸳  .`  . • + ⸳`.ꞏ   ⸳ *.ꞏ.    ` •⸳   ⸳   +ꞏ.*   ꞏ`⸳*
+
+
 def parse(s):
     """Parses input lines into a, and expression that can be evaluated given the necessary variables and values,
     and b, the output wire in which the resulting output (if it can be computed) should be stored."""

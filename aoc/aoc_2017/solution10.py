@@ -1,3 +1,9 @@
+# `. `ꞏ •    `  .   +  .`ꞏ `⸳  ` •   ꞏ.ꞏ  `⸳•.     . ꞏ *`  `  .• ` ` ⸳       ꞏ.`
+# *. ꞏ •⸳.`      ⸳ `.     +⸳ `ꞏ.+   Knot Hash `.⸳ ꞏ* `   +*⸳    `*      ꞏ `. +⸳.
+# `⸳*⸳ `.    +.  ` .⸳` https://adventofcode.com/2017/day/10 ꞏ +` ⸳ .*`+.     `ꞏ*
+# .ꞏ`*.⸳ ` . ⸳•.     ⸳` ꞏ` •`.  . `⸳`  •ꞏ⸳ ꞏ  .*.+       •.* .     +` ꞏ   .•`⸳+ 
+
+
 def parse(s, as_ascii_codes=False):
     if as_ascii_codes:
         res = [ord(char) for char in s]

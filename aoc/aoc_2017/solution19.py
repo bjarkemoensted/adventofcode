@@ -1,3 +1,9 @@
+# ⸳ꞏ+     + .+⸳ ꞏ    . ꞏ*    .ꞏ*`   ꞏ `+ꞏ`*  .  + ⸳⸳ ꞏ   .` ꞏ  `*  .⸳* ꞏ ``  *.ꞏ
+#   ꞏ` .•+ ⸳ ꞏ.  `•`  *  ⸳.  •  A Series of Tubes `•*.⸳.*ꞏ `  .ꞏ⸳    ꞏ *`⸳* ꞏ⸳  
+# .•.    ⸳   ` *    ⸳  https://adventofcode.com/2017/day/19     `+.     ⸳*  .ꞏ +
+#  ꞏ`+.ꞏ⸳    .•ꞏ`+`    ⸳   *ꞏ⸳`  ꞏ. • ꞏ⸳ ⸳.•  ꞏ`   .  •.` •  ꞏ*  `ꞏ   *.ꞏ     ꞏ.
+
+
 import numpy as np
 from string import ascii_uppercase
 

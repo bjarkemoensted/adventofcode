@@ -1,3 +1,9 @@
+# . .•  • ⸳ꞏ`    + .`⸳+ `  •   `ꞏ*.⸳ ꞏ` *    *  ⸳ꞏ`.⸳ ` +* ⸳*    .  ⸳ +` ꞏ.`+ *⸳
+# `+⸳ꞏ+ .`*    ` ⸳ ⸳ *   .   It Hangs in the Balance * . *  ⸳`  .   *`.⸳` ꞏ    *
+# +  . ` ⸳ ` •ꞏ *      https://adventofcode.com/2015/day/24        ⸳ ꞏ   *  *⸳`.
+# ꞏ` ` •  .* ꞏ⸳*   ꞏ* ⸳`     `.+  ꞏ* `⸳   ꞏ⸳ ꞏ *. ` +.     • ⸳`ꞏ       *.⸳+   .ꞏ
+
+
 from itertools import combinations
 import numpy as np
 

@@ -1,3 +1,9 @@
+# .⸳*.⸳` ꞏ   ` ꞏ •⸳`* .  `+    .ꞏ`     *   ⸳.ꞏ * ⸳⸳  . `*. ꞏ .⸳  ꞏ  .   `ꞏ. ⸳ *⸳
+# ꞏ.      +*.ꞏ  ` *  • ⸳  ꞏ * . Bathroom Security      ⸳.  ⸳ `*   .⸳• `*ꞏ. ⸳ .⸳`
+# .*⸳ ꞏ*`      ꞏ⸳. ⸳   https://adventofcode.com/2016/day/2   ⸳.• ⸳+`ꞏ   .⸳ꞏ•. `.
+#  ⸳`     ꞏ  ⸳ * `. ⸳         ⸳  ꞏ* *. ⸳  .  ⸳*ꞏ  `  ⸳     •.ꞏ`⸳ *ꞏ  ⸳.   ⸳ꞏ+`  
+
+
 def parse(s):
     lines = [line.strip() for line in s.split("\n")]
     return lines

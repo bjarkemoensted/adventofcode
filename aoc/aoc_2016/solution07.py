@@ -1,3 +1,9 @@
+#  `.    *⸳ ⸳.    •   .+ꞏ `⸳   `⸳*     ⸳  . • ⸳`    .*•  ⸳  *   ꞏ `⸳ .⸳+ ` `  •ꞏ
+#   ⸳`.⸳      +    ꞏ +     Internet Protocol Version 7 *      ꞏ`  • .⸳ ``• ⸳•⸳ꞏ 
+# .+  ⸳  ꞏ.`   +    ⸳  https://adventofcode.com/2016/day/7     ꞏ  . *⸳+ꞏ+ .   ⸳ 
+# ⸳.**` .⸳ ++⸳``ꞏ      .+    *⸳ *   .  `•.ꞏ+⸳  * ⸳. `⸳.   ⸳+   * ⸳ꞏ   *⸳  * ⸳. •
+
+
 def parse(s):
     res = s.split("\n")
     return res

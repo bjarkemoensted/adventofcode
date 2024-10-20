@@ -1,3 +1,9 @@
+# ⸳ .*`  ꞏ.`   .+•`   ⸳..⸳  ⸳`ꞏ.  ⸳` `. ꞏ* `⸳  .•⸳ ꞏ  `.   *  ꞏ .⸳+ꞏ ⸳. ` . ꞏ`+⸳
+# * ` . ⸳  .⸳ ꞏ` . ꞏ ⸳ •   Knights of the Dinner Table ` +.ꞏ       ⸳`.*      .`.
+# ..⸳ ꞏ+ .  `⸳ ꞏ ` .   https://adventofcode.com/2015/day/13 ꞏ ⸳    .⸳     ꞏ `*ꞏ.
+#  ꞏ `•⸳.ꞏ   `      .ꞏ+   .ꞏ   ` `.⸳  .*`⸳ ꞏ  •` .  ꞏ` .` *⸳. `  ꞏ⸳    •.⸳ꞏ`* .*
+
+
 from itertools import permutations
 
 

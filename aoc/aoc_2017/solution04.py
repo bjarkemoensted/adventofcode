@@ -1,3 +1,9 @@
+# + ꞏ`⸳.    `⸳ꞏ•   ⸳*.  *⸳.    • `    ⸳`.ꞏ  . ⸳*      `ꞏ  ⸳*⸳`ꞏ`•  .  ⸳ꞏꞏ `+.  ⸳
+#  *ꞏ   * `ꞏ.•` ꞏ  ⸳⸳•`    + High-Entropy Passphrases ꞏ ⸳` `ꞏ  .⸳        `⸳.+*. 
+# ꞏ⸳ •  `+⸳  .⸳ `+     https://adventofcode.com/2017/day/4    *   . ꞏ⸳ `    ⸳ꞏ*.
+# `ꞏ⸳  • ꞏ.  `   ⸳ * ꞏ*  `   + ꞏ  *⸳` ꞏ    ⸳ .  `  `.  `ꞏ    *⸳ `ꞏ  .  ⸳   `ꞏ⸳ *
+
+
 from collections import Counter
 
 

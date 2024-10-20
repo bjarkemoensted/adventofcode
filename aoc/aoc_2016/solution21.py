@@ -1,3 +1,9 @@
+#    ꞏ  .`     `⸳    . *ꞏ•* ⸳ꞏ` ⸳    •⸳•ꞏ ⸳*`    .*  ꞏ `⸳ *⸳  ꞏ* ꞏ      `*ꞏ. ⸳⸳*
+# *.   *`ꞏ`  +  .  ꞏ *ꞏ   ⸳ Scrambled Letters and Hash   `ꞏ .•⸳    * `.ꞏ  *  *` 
+#  ⸳ `    *   ⸳ꞏ`  ` ꞏ https://adventofcode.com/2016/day/21  .`  `ꞏ⸳•  `+⸳ ⸳  *ꞏ
+# `ꞏ`ꞏ  •.⸳  ꞏ+⸳   *.⸳         * `ꞏ⸳   ⸳.   ⸳*ꞏ.`  ꞏ * ⸳*ꞏ` •   ꞏ `ꞏ⸳  *`   + ꞏ⸳
+
+
 from functools import cache
 import re
 

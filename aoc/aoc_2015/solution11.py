@@ -1,3 +1,9 @@
+# ` *   ⸳*  ꞏ•`+.`    •ꞏ   `ꞏ  .*   ⸳ꞏ• *  .`• ⸳ ꞏ* .` .*    `ꞏ*  •  ⸳`  ꞏ*⸳ `.*
+# .*`  * ꞏ.`*⸳ `⸳ *      * ⸳ ꞏ.  Corporate Policy     ⸳ꞏ   .ꞏ•⸳ `  .*  •ꞏ     +`
+#  `.ꞏ       ꞏ.*`    ⸳ https://adventofcode.com/2015/day/11 •⸳   ꞏ.*    ` ꞏ* .*⸳
+#  ⸳ꞏ.+.  * `  ꞏ**ꞏ +ꞏ`  .+ ⸳*+    •   .     ꞏ⸳+` .**⸳ꞏ   ꞏ`    +  ⸳ * ꞏ•⸳ ꞏ.*⸳ 
+
+
 alph = "abcdefghijklmnopqrstuvwxyz"
 ind2letter = {i: letter for i, letter in enumerate(alph)}
 letter2ind = {letter: i for i, letter in ind2letter.items()}

@@ -1,3 +1,9 @@
+# ꞏ *`+.⸳   *   `. `•  ꞏ⸳     +⸳  .  ⸳`ꞏ+ ⸳    ` . ⸳*.`ꞏ• ꞏ*     .  ` • ⸳.  ꞏ⸳.•
+#  ⸳*ꞏ` •   `⸳  *  . ꞏ⸳  . *    Signals and Noise     .    ` •⸳ ꞏ ⸳ *.` ꞏ * .  ⸳
+# .+  ⸳`.*  ⸳    ꞏ•  . https://adventofcode.com/2016/day/6 ꞏ*`.    ` *ꞏ    ` * ꞏ
+# • . ꞏ ⸳`ꞏ .   ꞏ*  .   ` ꞏ +⸳` ⸳ `*⸳ꞏ        `*ꞏ .   +      ⸳ `+ꞏ ⸳.    +.  ⸳*.
+
+
 from collections import Counter
 
 def parse(s):

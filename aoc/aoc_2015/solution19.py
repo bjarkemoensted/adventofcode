@@ -1,3 +1,9 @@
+# ⸳. * ꞏ*`     .  `⸳.  *   `.⸳  •` .* ⸳+    . `*  .⸳ `ꞏ   `• ⸳*. ꞏ   .**⸳  .`  `
+#    .⸳. .  *   ⸳  .+⸳*`ꞏ      Medicine for Rudolph `•            ⸳ .* ꞏ ` +⸳`.⸳
+# ` +⸳. ⸳ * ꞏ.⸳+`      https://adventofcode.com/2015/day/19 .•   ⸳`*  ꞏ⸳   `•.ꞏ`
+# .+  ` ꞏ⸳  .     *  ` ꞏ` +  .  ⸳+ * .ꞏ  ꞏ          .⸳.    ` ꞏ  ⸳.*•     ꞏ     .
+
+
 def parse(s):
     transformation_string, molecule_string = s.split("\n\n")
 

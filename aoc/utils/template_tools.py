@@ -16,13 +16,15 @@ def read_template():
 def make_solution_draft(day: int, year:int, has_examples=False) -> str:
     raw = read_template()
     temp = Template(raw)
+    header = make_ascii_header(year=year, day=day)
 
     render_kwargs = dict(
         input_folder=config.input_folder,
         input_filename=config.input_filename.format(day=day),
         has_examples=has_examples,
         day=day,
-        year=year
+        year=year,
+        ascii_header=header
     )
 
     res = temp.render(**render_kwargs)+"\n"
@@ -51,9 +53,9 @@ def anneal_snow(m: np.array, rs: np.random.RandomState, iterations_per_site=1.0)
 
     rows, cols = m.shape
 
-    max_temp = 5.0
-    min_temp = 0.5
-    temp_steps = 20
+    max_temp = 2.5
+    min_temp = 0.2
+    temp_steps = 10
     temperatures = np.linspace(min_temp, max_temp, temp_steps, endpoint=True)[::-1]
     n_its = round(iterations_per_site)*rows*cols
 
@@ -96,7 +98,7 @@ def anneal_snow(m: np.array, rs: np.random.RandomState, iterations_per_site=1.0)
             weight_running = 1.0
 
             # Keep going until new tension terms will have a very small effect
-            while weight_running <= tension_tol:
+            while weight_running >= tension_tol:
                 # Stop if we fall off the array of if we go from a space to non-space character
                 x += vec
                 falloff = not all(0 <= comp < dim for comp, dim in zip(x, m.shape))
@@ -149,10 +151,17 @@ def let_it_snow(seed: int=None, n_lines: int=4, line_length: int=80):
 
     # Define the frequencies of small/large snowflake symbols, and spaces
     dist = dict(
-        small=0.35,
-        large=0.15,
-        space=0.5
+        small=0.375,
+        large=0.125,
+        space=None
     )
+    
+    # For symbols with frequencies set to None, interpolate the missing fractions equally
+    missing = [(k, v) for k, v in dist.items() if v is None]
+    if missing:
+        missing_proportion = (1.0 - sum(v for v in dist.values() if v is not None)) / len(missing)
+        for k, _ in missing:
+            dist[k] = missing_proportion
 
     # Determine probability distribution over each individual symbol
     symbol_priors = defaultdict(lambda: 0.0)
@@ -174,10 +183,11 @@ def let_it_snow(seed: int=None, n_lines: int=4, line_length: int=80):
     return m
 
 
-def make_ascii_header(year: int, day: int):
+def make_ascii_header(year: int, day: int, as_comments=True):
     """Makes an ASCII snow-art header for a new puzzle."""
 
-    min_line_len = 78  # 80 - 2 so we can start each line with '# '
+    line_starter = "# " if as_comments else ""
+    min_line_len = 80 - len(line_starter)
 
     p = Puzzle(year, day)
     elems = (
@@ -192,23 +202,26 @@ def make_ascii_header(year: int, day: int):
     inject = n_buffer_lines*[""] + list(elems) + n_buffer_lines*[""]
 
     # Generate the snow-art
-    snow_lines = let_it_snow(seed=year, n_lines=len(inject), line_length=line_length)
+    seed = int(f"{year}{day:02}")
+    snow_lines = let_it_snow(seed=seed, n_lines=len(inject), line_length=line_length)
 
     # Insert the required text
     res_lines = []
     for i, sl in enumerate(snow_lines):
         s = inject[i]
-        line = sl
+        line_chars = sl
         if s != "":
             insert_line = " "+inject[i]+" "
             shift = (len(sl) - len(insert_line)) // 2
             for i, char in enumerate(insert_line):
-                line[i + shift] = char
+                line_chars[i + shift] = char
             #
         
-        res_lines.append("".join(line))
+        line = line_starter+"".join(line_chars)
+        res_lines.append(line)
     
     
+    assert len({len(line) for line in res_lines}) == 1
     res = "\n".join(res_lines)
     return res
 

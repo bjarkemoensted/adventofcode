@@ -1,3 +1,9 @@
+#  .ꞏ* ⸳. ꞏ.•   .⸳ • ꞏ       ꞏ   ⸳ .`•. ⸳   `    ꞏ  ⸳ . •`⸳`.  ⸳ꞏ *   ` . +*.  *
+#   *⸳.  `   *ꞏ ⸳. ꞏ+ Radioisotope Thermoelectric Generators ⸳ꞏ    ⸳  *. ꞏ ` *ꞏ⸳
+# .*•.       ꞏ` +   .` https://adventofcode.com/2016/day/11      ꞏ ꞏ.` +⸳ .    .
+#  ⸳.`ꞏ• . . `+⸳       ⸳*ꞏ .`+ ⸳. ` ꞏ •  ꞏ.`  +  ⸳ꞏ      .  ⸳ +ꞏ .  `•  ꞏ*⸳    `
+
+
 from functools import cache
 import heapq
 from itertools import combinations

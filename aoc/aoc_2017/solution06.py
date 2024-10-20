@@ -1,3 +1,9 @@
+# `.⸳.*       ⸳`   `*.    ⸳ꞏ`*   ..⸳ ꞏ  `• ⸳.*`ꞏ`.     `ꞏ.•     *   . ⸳  `ꞏ`*  ⸳
+# .ꞏ `⸳    `* .     ⸳  *       Memory Reallocation  `  *` ⸳   ꞏ     ⸳`ꞏ*.     ⸳.
+# ⸳` •`` ꞏ* .   +⸳     https://adventofcode.com/2017/day/6   *    `  * `  `.⸳+  
+#  ⸳.+  ⸳  .`ꞏ*⸳ꞏ `    . `   ⸳    ``  .•  ⸳ ꞏ  +.`*   `⸳    .` *ꞏ*⸳     ⸳ꞏ.•  `*
+
+
 def parse(s):
     res = [int(elem) for elem in s.split()]
     return res

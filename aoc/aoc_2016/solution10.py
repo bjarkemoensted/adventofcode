@@ -1,3 +1,9 @@
+#  ` . ꞏ⸳⸳   `*ꞏ ⸳   *  ⸳  .`  ꞏ  *` ꞏ⸳  .* ⸳.      *  ⸳`      ꞏ⸳ꞏ` . + .`  *.⸳ 
+# .⸳`  *    ꞏ  .       .ꞏ *⸳  ꞏ    Balance Bots . ꞏ  ` ꞏ *⸳      .ꞏ. ꞏ*.`ꞏ+ ⸳ꞏ  
+# `+* ꞏ   ⸳.+ `* ꞏ ⸳.` https://adventofcode.com/2016/day/10        ꞏ *`⸳  ꞏ.ꞏ+  
+#  .⸳`+ ꞏ   `     .* ⸳ꞏ `+   *⸳.⸳   •`ꞏ⸳   .⸳    * `⸳ ꞏ ꞏ    `    *.`⸳ `  .ꞏ` ꞏ⸳
+
+
 from collections import defaultdict
 from copy import deepcopy
 import re

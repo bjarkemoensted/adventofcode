@@ -1,3 +1,9 @@
+#  . ꞏ`  ⸳ •ꞏ+⸳ ` .  ⸳  •  ⸳` ꞏ `⸳ *  `   .  `* ⸳⸳  ` + . ꞏ⸳`*   •⸳    `. *ꞏ `. 
+#  ꞏ*  .⸳` ⸳ ` *.ꞏ• ` ⸳.`+ ꞏ• Elves Look, Elves Say    .•ꞏ ` ꞏ⸳*    . ⸳* `ꞏ ⸳+`•
+#  •⸳+.ꞏ • `⸳ *   `. . https://adventofcode.com/2015/day/10 ꞏ *`  *• ` ꞏ⸳ ⸳   +`
+# ⸳ `⸳*• .`   .`ꞏ. •* `    ⸳  . ꞏ`+⸳     .   ⸳ꞏ+.*`ꞏ⸳.`   ` *⸳   .•`⸳⸳+  . .   ꞏ
+
+
 def extend_sequence(s, n_times=1):
     """Extends a sequence, e.g. transforms "11" into "21" (two ones)."""
 

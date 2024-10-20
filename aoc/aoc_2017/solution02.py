@@ -1,3 +1,9 @@
+# ꞏ*.ꞏ.*  ⸳  ꞏ      ⸳*•ꞏ`.`   •  .+ꞏ ꞏ       *`⸳  •ꞏ    ꞏ *⸳  .` •ꞏ *.+ • ꞏ.` .ꞏ
+#  ⸳ꞏ•  *ꞏ`       . ꞏ⸳ `+ ꞏ. ⸳ Corruption Checksum  *⸳+  .      •ꞏ.   ⸳  *`+ . ⸳
+# +  `ꞏ⸳.  *   .ꞏ⸳` +  https://adventofcode.com/2017/day/2 *.`    ⸳   ꞏ*.   ꞏ+  
+# .+ ꞏ ` • ꞏ*`  ⸳.*ꞏ  ` ⸳  *. . ꞏ `    • +.`ꞏ⸳.       ꞏ* `.ꞏ •⸳ ꞏ  .⸳• ꞏ `.`   *
+
+
 def parse(s):
     res = [[int(elem) for elem in line.split()] for line in s.splitlines()]
     return res

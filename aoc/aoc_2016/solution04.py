@@ -1,3 +1,9 @@
+# ꞏ• ⸳ +     ꞏ`•⸳  .⸳` ⸳+  `*ꞏ   ` +  ꞏ.  ⸳   ꞏ*` . ⸳ ` +.+ ꞏ ⸳.`  . ꞏ  .+  ꞏ ⸳•
+# * .` `ꞏ     +.  *  ꞏ +    Security Through Obscurity   ꞏ +⸳..ꞏ  ⸳`ꞏ .  `+  ⸳ꞏ.
+# ⸳ꞏ +.*⸳  ⸳` . *  `   https://adventofcode.com/2016/day/4 . ` + ⸳    *` ꞏ ⸳`.+ 
+# ꞏ •. . ⸳ +  ꞏ⸳ .`+  . ꞏ`    `*ꞏ⸳+ . .ꞏ *   ꞏ   *.ꞏ  +ꞏ.`⸳*.ꞏ     •⸳.`      *`ꞏ
+
+
 from collections import Counter
 import re
 import string

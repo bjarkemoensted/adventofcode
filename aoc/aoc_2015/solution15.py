@@ -1,3 +1,9 @@
+# ⸳ꞏ` *ꞏ . `    ⸳.ꞏ⸳• ⸳ `.  +  ꞏ.⸳`   *⸳  `. • . .⸳`+⸳ .     + ..ꞏ⸳`*     ` + ⸳.
+# +`. ꞏ•.⸳*⸳  ꞏ+` ⸳ .*ꞏ`    Science for Hungry People    ꞏ  . ⸳  *  `   .  . ⸳ꞏ*
+# .    ⸳+`ꞏ  +.   •`ꞏ. https://adventofcode.com/2015/day/15 *. ꞏ    .ꞏ  •  •.` ꞏ
+# ꞏ•⸳ꞏ`.⸳ `+   ⸳•  ꞏ⸳ `  ꞏ.• ꞏ .ꞏ *`.• ⸳`⸳    ` *⸳ ꞏ    . +    ⸳  ꞏ ⸳`.  •.  ꞏ ⸳
+
+
 from collections import Counter
 from functools import reduce
 import math

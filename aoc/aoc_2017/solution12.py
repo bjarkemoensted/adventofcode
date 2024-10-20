@@ -1,3 +1,9 @@
+#  ⸳ ꞏ`•` .+       ꞏ⸳*.     * ꞏ⸳..`  ⸳ * `  `ꞏ • .*   ⸳.`ꞏ     ⸳` * ⸳ +ꞏ`  ꞏ`. `
+#  *`*⸳`.   ꞏ ꞏ   ` .`⸳ꞏ      .  Digital Plumber   . ꞏ`⸳    `ꞏ+ .ꞏ     * ⸳ *.  ꞏ
+#  `ꞏ⸳•    ` ꞏ⸳  *     https://adventofcode.com/2017/day/12 ꞏ `` ⸳    . ꞏ`⸳.` ꞏ+
+# `ꞏ⸳.   `⸳.   •⸳   `ꞏ *  ꞏ. .⸳ *`⸳.  ꞏ ꞏ . *`⸳   . ``  ꞏ   ⸳  .•. ꞏ*⸳    `•⸳ꞏ`.
+
+
 def parse(s):
     """Parse as {node_u: set_of_nodes_connected_with_u}"""
     res = dict()

@@ -1,3 +1,9 @@
+#  +* ``ꞏ.`+⸳  `ꞏ⸳.     ` ⸳  ꞏ*⸳ `*ꞏ `.  +  ` .ꞏ ⸳ꞏ*`   ⸳•  ` *`⸳       ⸳*`     
+# ⸳ `.ꞏ⸳`+ ꞏ ⸳•  `*.ꞏ Doesn't He Have Intern-Elves For This?  ⸳ `   *  `. ⸳• ꞏ ⸳
+# ꞏ.ꞏ ⸳ +`   `   *ꞏ `+ https://adventofcode.com/2015/day/5    . •   `   ꞏ  ⸳.*⸳`
+# .⸳.*  •    ꞏ+⸳.  ꞏ⸳    ꞏ `  ` ꞏ⸳  •⸳ `+•`     ꞏ   * ⸳  ꞏ⸳` `+ . `ꞏ  *⸳+ꞏ*`ꞏ   
+
+
 def parse(s):
     res = [line for line in s.split("\n")]
     return res
