@@ -54,6 +54,7 @@ def initialize():
     solution_file = _here / config.solution_filename.format(day=day)
     if pathlib.Path(solution_file).exists() and not args.force:
         print(f"Solution file {solution_file} already exist and --force is not set. Aborting.")
+        return
 
     with open(solution_file, "w") as f:
         f.write(solution_draft)

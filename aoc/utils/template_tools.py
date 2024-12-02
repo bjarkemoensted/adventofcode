@@ -19,8 +19,6 @@ def make_solution_draft(day: int, year:int, has_examples=False) -> str:
     header = make_ascii_header(year=year, day=day)
 
     render_kwargs = dict(
-        input_folder=config.input_folder,
-        input_filename=config.input_filename.format(day=day),
         has_examples=has_examples,
         day=day,
         year=year,

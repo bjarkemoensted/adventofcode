@@ -6,18 +6,12 @@ import pathlib
 _here = pathlib.Path(__file__).resolve().parent
 root_dir = _here.parents[1]
 
-_input_file_pattern = "input*"
-ext_data = ".txt"
-ext_encrypted = ".dat"
 ext_code = ".py"
 solution_template_path = _here / "solution_template.py"
 
 solution_filename = "solution{day:02d}"+ext_code
 solution_regex    = "solution(\d{2})"+ext_code
 year_regex        = "(\d{4})"
-input_filename    = "input{day:02d}"+ext_data
-example_filename  = "example{day:02d}"+ext_data
-input_folder      = "inputs"
 year_folder       = "aoc_{year:04d}"
 
 _now = datetime.datetime.now()
