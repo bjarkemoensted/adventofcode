@@ -134,8 +134,6 @@ def solve(data: str):
 
 def main():
     year, day = 2024, 10
-    from aoc.utils.data import check_examples
-    #check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)
