@@ -49,14 +49,14 @@ def initialize():
 
     solution_draft = make_solution_draft(year=year, day=day, has_examples=has_examples)
 
-    _here = pathlib.Path(os.getcwd())
+    path = config.make_path(year=year, day=day)
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-    solution_file = _here / config.solution_filename.format(day=day)
-    if pathlib.Path(solution_file).exists() and not args.force:
-        print(f"Solution file {solution_file} already exist and --force is not set. Aborting.")
+    if pathlib.Path(path).exists() and not args.force:
+        print(f"Solution file {path} already exist and --force is not set. Aborting.")
         return
 
-    with open(solution_file, "w") as f:
+    with open(path, "w") as f:
         f.write(solution_draft)
     #
 

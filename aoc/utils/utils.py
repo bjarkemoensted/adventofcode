@@ -66,32 +66,12 @@ def get_day_and_year():
     Looks at existing solution files and tries to determine the next day from those.
     Attempts to determine the year from the solution files and their parent directories."""
 
-    cwd = os.getcwd()
-    code_files = glob.glob(os.path.join(cwd, f"*{config.ext_code}"))
+    if config.tis_the_season and config.current_day in config.days_range:
+        return config.current_day, config.current_year
+    
+    raise RuntimeError("Could not automatically determine year and day.")
 
-    year_day_tuples = []
-    for fn in code_files:
-        yd = _infer_year_day_from_filename(fn)
-        if yd is not None:
-            year_day_tuples.append(yd)
-        #
 
-    year = day = None
-    if year_day_tuples:
-        # If year and day could be inferred form solution files, bump by 1 day
-        year, day = max(year_day_tuples)
-        day += 1
-    else:
-        try:
-            # Otherwise, attempt to determine year and just go with the first possible day (e.g. if starting a new year)
-            year = int(re.findall(config.year_regex, str(cwd))[-1])
-            day = config.day_min
-        except IndexError:
-            pass
-        #
 
-    # Throw an error on invalid values for year/day, or if neither could be determined
-    if any(val is None for val in (day, year)) or not _day_year_valid(day=day, year=year):
-        raise RuntimeError("Could not automatically determine year and day.")
-
-    return day, year
+if __name__ == '__main__':
+    pass
