@@ -5,6 +5,7 @@
 
 
 from collections import defaultdict
+from functools import cache
 
 
 def parse(s):
@@ -16,6 +17,7 @@ def parse(s):
     return res
 
 
+@cache
 def update_single_stone(number: int):
     """Given a stone number, returns a list of the stone(s) which will result from blinking."""
 
