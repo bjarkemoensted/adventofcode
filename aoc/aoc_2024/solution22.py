@@ -4,7 +4,9 @@
 #   ꞏ. ⸳`  .+   ⸳ꞏ⸳*.ꞏ     ⸳`ꞏ+   ꞏ  •    * `⸳ .     *⸳ ꞏ  .*   ꞏ⸳  •  ꞏ+ • ⸳ꞏ` 
 
 
-from collections import Counter, deque
+from collections import Counter
+import math
+import numba
 
 
 def parse(s):
@@ -12,6 +14,7 @@ def parse(s):
     return res
 
 
+@numba.njit()
 def next_secret(secret: int):
     """Takes a 'secret' integer and returns the next pseudorandom secret."""
     res = secret^(secret * 64) 
@@ -34,36 +37,42 @@ def crunch(seeds, n_generations=2000, n_hist=4):
     
     final_secrets = []
     totals_by_history = Counter()
+    
+    # Determine the number of bits needed to represent history in an integer
+    max_change = 9
+    n_bits_needed = math.ceil(math.log2(2*max_change)) 
+    mod = 2**(n_hist*n_bits_needed)
+    
     for seed in seeds:
         d = dict()  # Maps historical price changes to prices for this monkey
         
         # Determine the initial secret, price, and history for this monkey
         secret = seed
         price = secret % 10
-        history = deque(maxlen=n_hist)
+        hist = 0
         
-        for _ in range(n_generations):
+        for i in range(n_generations):
             # Update secret and price data
             secret = next_secret(secret)
             new_price = secret % 10
             change = new_price - price
             price = new_price
             
-            # Update history
-            history.append(change)
-            key = tuple(history)
+            # Update history - shift n bits left, then take module to keep only 4 most recent changes
+            hist = (hist << n_bits_needed) + (change + max_change)
+            hist %= mod
             
             # Only add to mapping if history has sufficient length and occurs for the first time
-            if len(history) < n_hist or key in d:
+            if i+1 < n_hist or hist in d:
                 continue
             
-            d[key] = price
-        
+            d[hist] = price
+
         # Update final results
         final_secrets.append(secret)
-        for hist, price in d.items():
-            totals_by_history[hist] += price
-        #
+        for k, v in d.items():
+            totals_by_history[k] += v
+        
     
     return final_secrets, totals_by_history
 
