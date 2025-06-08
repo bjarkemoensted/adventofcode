@@ -6,7 +6,7 @@ authors = ["Bjarke Moensted <nope@nope.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.10, <4.0, !=3.11.0"
+python = ">=3.12, <4.0, !=3.11.0"
 numpy = "^2.0.0"
 networkx = "^3.3"
 sympy = "^1.13.0"
@@ -20,9 +20,14 @@ numba = "^0.60.0"
 scipy = "^1.14.0"
 aococr = "^0.2.0"
 scalene = "^1.5.45"
+line-profiler = "^4.2.0"
 [tool.poetry.group.dev.dependencies]
 advent-of-code-data = "^2.0.1"
 browser-cookie3 = "^0.19.1"
+mypy = "^1.16.0"
+
+[tool.mypy]
+ignore_missing_imports = true
 
 [build-system]
 requires = ["poetry-core"]

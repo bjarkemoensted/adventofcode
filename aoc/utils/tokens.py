@@ -165,7 +165,7 @@ def fix_tokens():
     print(f"An overview of the tokens is presented below")
     print(f"The current default user is indicated with a '{default_sym}'.")
     print(f"Any tokens found in the browser storage is indicated with '{browser_sym}'.")
-    print(f"Workingive tokens are shown in ", end="")
+    print(f"Working tokens are shown in ", end="")
     cprint("green", color="green", end="")
     print(", and the missing ones in ", end="")
     cprint("red", color="red", end=".\n")
