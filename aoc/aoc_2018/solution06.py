@@ -3,7 +3,7 @@
 #  ⸳⸳ *  . ⸳ ꞏ  `*   ⸳ https://adventofcode.com/2018/day/6 .  ⸳ꞏ+  `ꞏ.     `⸳ꞏ*.
 # ⸳.ꞏ  *   • .` +ꞏ * ꞏ⸳   `  ` *ꞏ.* ⸳ꞏ  *  ⸳ꞏ* `.  ⸳•.   ꞏ⸳ *.     +.` `⸳ꞏ   .⸳ 
 
-from collections import Counter, defaultdict
+from collections import Counter
 import numpy as np
 from typing import TypeAlias
 
