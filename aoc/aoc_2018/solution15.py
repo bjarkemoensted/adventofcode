@@ -4,12 +4,15 @@
 # ꞏ`⸳     . *  `      * ⸳ ꞏ` .⸳ꞏ*⸳  ⸳ꞏ   ` .⸳*ꞏ⸳ .  •      .⸳ ꞏ⸳   ` *` . `⸳*.•⸳
 
 from __future__ import annotations
+from collections import defaultdict
 from functools import cache, partial
 import networkx as nx
 import numpy as np
+import time
 from typing import Any, Callable, Iterable, Iterator, TypeAlias
+from pprint import pprint
 
-coordtype: TypeAlias = tuple[int, int]
+coord: TypeAlias = tuple[int, int]
 
 _goblin_char = "G"
 _elf_char = "E"
@@ -91,7 +94,7 @@ def parse(s) -> np.typing.NDArray[np.str_]:
 
 
 @cache
-def _manhatten_dist(a: coordtype, b: coordtype) -> int:
+def _manhatten_dist(a: coord, b: coord) -> int:
     if a > b:
         return _manhatten_dist(b, a)
     
@@ -99,10 +102,10 @@ def _manhatten_dist(a: coordtype, b: coordtype) -> int:
     return res
 
 
-_directions: list[coordtype] = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+_directions: list[coord] = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
 
-def _get_neighbor_sites(coord: coordtype) -> list[coordtype]:
+def _get_neighbor_sites(coord: coord) -> list[coord]:
     i, j = coord
     res = [(i+di, j+dj) for di, dj in _directions]
     return res
@@ -117,7 +120,7 @@ def make_graph_from_ascii_map(map_: np.typing.NDArray[np.str_]) -> nx.Graph:
     return res
 
 
-def _make_edge_hider(forbidden_nodes: Iterable[coordtype]) -> Callable[[coordtype, coordtype, dict], int|None]:
+def _make_edge_hider(forbidden_nodes: Iterable[coord]) -> Callable[[coord, coord, dict], int|None]:
     """This generates and returns a weighting function which can be used in conjunction with the A* algorithm to
     determine shortest paths in a known graph where a few nodes are 'off-limits', e.g. blocked.
     It works by taking an iterable of 'forbidden nodes' which are blocked.
@@ -126,8 +129,8 @@ def _make_edge_hider(forbidden_nodes: Iterable[coordtype]) -> Callable[[coordtyp
     uses None to denote 'hidden' edges, so hopefully this is more efficient than having to define new graph
     with only the subset of nodes that aren't blocked at any given time step."""
 
-    youmustnevergohere: set[coordtype] = {u for u in forbidden_nodes}
-    def weight(u: coordtype, v: coordtype, _: dict) -> int|None:
+    youmustnevergohere: set[coord] = {u for u in forbidden_nodes}
+    def weight(u: coord, v: coord, _: dict) -> int|None:
         if any(node in youmustnevergohere for node in (u, v)):
             return None
         else:
@@ -142,8 +145,8 @@ class GameOverException(Exception):
 
 
 class Unit: 
-    def __init__(self, coord: coordtype, unit_type: str, cavern: Cavern, hit_points: int=200, attack_power: int=3):
-        self.coord = coord
+    def __init__(self, pos: coord, unit_type: str, cavern: Cavern, hit_points: int=200, attack_power: int=3):
+        self.pos = pos
         if unit_type not in unit_symbols:
             raise ValueError("Invalid unit char")
         
@@ -168,13 +171,13 @@ class Unit:
         other.receive_damage(self.attack_power)
     
     def _in_range(self, other: Unit) -> bool:
-        dist = _manhatten_dist(self.coord, other.coord)
+        dist = _manhatten_dist(self.pos, other.pos)
         return dist == 1
     
-    def _move(self, target: coordtype):
-        if _manhatten_dist(self.coord, target) != 1:
+    def _move(self, target: coord):
+        if _manhatten_dist(self.pos, target) != 1:
             raise ValueError
-        self.coord = target
+        self.pos = target
     
     def _attempt_attack(self) -> bool:
         """Attempts to choose an adjacent enemy and attack them.
@@ -184,17 +187,17 @@ class Unit:
         if not candidates:
             return False
         
-        target = min(candidates, key=lambda c: (c.hit_points, c.coord))
+        target = min(candidates, key=lambda c: (c.hit_points, c.pos))
         assert all(c.hit_points >= target.hit_points for c in candidates)
         self.attack(target)
         return True
     
-    def _sites_in_range_of_enemies(self) -> set[coordtype]:
-        res = set().union(*map(set, (self.cavern.G.neighbors(e.coord) for e in self.enemies)))
+    def _sites_in_range_of_enemies(self) -> set[coord]:
+        res = set().union(*map(set, (self.cavern.G.neighbors(e.pos) for e in self.enemies)))
         return res
     
-    def choose_step_towards(self, targets: Iterable[coordtype]) -> coordtype|None:
-        nearest = self.cavern.determine_nearest(a=self.coord, targets = targets)
+    def choose_step_towards(self, targets: Iterable[coord]) -> coord|None:
+        nearest = self.cavern.determine_nearest(a=self.pos, targets = targets)
         if not nearest:
             return None
         
@@ -231,13 +234,94 @@ class DistanceComputer:
     def __init__(self, G: nx.Graph):
         assert not G.is_directed()
         self.G = G
+        
+        a = time.time()
+        self._free_path_dists = dict(nx.all_pairs_shortest_path_length(self.G))
+        self._free_path_nodes = dict(nx.all_pairs_shortest_path(self.G))  # can be cast as sets immediately?
+        self._heuristic = lambda u, v: self._free_path_dists[u][v]
+        
+        self._time_spent = 0.0
+        
+        self._cache: dict[tuple, int|None] = dict()
+        
+        self._subgraph_astar_cache: dict[tuple, Callable] = dict()
+        self._misc = defaultdict(int)
+        self._n = 0
+        
+        print("SETUP DISTANCE THINGY: !!!", time.time() - a)
+    
+    def _get_astar(self, blocked: tuple[coord]) -> Callable:
+        try:
+            res = self._subgraph_astar_cache[blocked]
+        except:
+            blocked_set = set(blocked)
+            weight = lambda u, v, _: None if v in blocked_set else 1
+            res = partial(nx.astar_path, G=self.G, heuristic=self._heuristic, weight=weight)
+            self._subgraph_astar_cache[blocked] = res
+        return res
+    
+    def _compute_dist(self, u: coord, v: coord, blocked: tuple[coord, ...], cutoff=None) -> int|None:
+        ideal_path = self._free_path_nodes[u][v][1:]
+        path_is_blocked = any(node in blocked for node in ideal_path)
+        
+        meh = v in blocked
+        
+        if meh:
+            self._misc["dumb"] += 1
+            return None
+        
+        if not path_is_blocked:
+            self._misc["simplified"] += 1
+            return len(ideal_path)
+        
+        astar = self._get_astar(blocked)
+        try:
+            
+            p = astar(source=u, target=v, cutoff=cutoff)
+            
+            res = len(p) - 1
+            for i, (up, vp) in enumerate(p):
+                self._cache[(up, vp, blocked)] = i
+            
+        except nx.exception.NetworkXNoPath:
+            res = None
+        
+        
+        return res
+    
+    def compute_dist(self, u: coord, v: coord, blocked: Iterable[coord]|None=None, cutoff=None) -> int|None:
+        blocked = tuple(sorted(blocked)) if blocked is not None else ()
+        key = (u, v, blocked)
+        try:
+            res = self._cache[key]
+            self._misc["lookup_success"] += 1
+        except KeyError:
+            res = self._compute_dist(u, v, blocked, cutoff=cutoff)
+            if cutoff is None:
+                self._cache[key] = res
+        
+        # If we found the shortest path via lookup (in paths with no bound on length), check cutoff
+        if cutoff is not None:
+            if res is not None and res > cutoff:
+                res = None
+            #
+        return res
+    
+    def __call__(self, *args, **kwargs) -> int|None:
+        _now = time.time()
+        self._n += 1
+        res = self.compute_dist(*args, **kwargs)
+        
+        self._time_spent += (time.time() - _now)
+        return res
+
 
 
 class Cavern:
     def __init__(self, map_: np.typing.NDArray[np.str_]):
         """Sets up a cavern representing the battle map"""
         self.G = make_graph_from_ascii_map(map_)
-        self.distcom = DistanceComputer(self.G)  # !!!
+        self.distcom = DistanceComputer(self.G)
         
         # Store the shortest paths between all sites on the map. Can be used as a heuristic distance
         self._cached_shortest_paths = dict(nx.all_pairs_shortest_path_length(self.G))
@@ -253,6 +337,7 @@ class Cavern:
         # Stuff for locating bottlenecks
         self._path_clear_counts = []
         self._blocked_registry = []
+        self._ugh = 0.0
     
     def reset(self, elf_kwargs: dict|None=None, goblin_kwargs: dict|None=None) -> None:
         self._units = []
@@ -261,45 +346,22 @@ class Cavern:
             if kws is None:
                 kws = dict()
             self._units.append(Unit(pos, char, self, **kws))
-            
-    
-    def heuristic_dist(self, u: coordtype, v: coordtype) -> int|float:
-        try:
-            return self._cached_shortest_paths[u][v]
-        except KeyError:
-            return float("inf")
-        #
-    
-    def _setup_astar(self, source: coordtype) -> Callable[..., int]:
-        """Returns a callable which takes a target location, and other arguments for networkx' A* implementation,
-        and returns the shortest distance."""
-        
-        # Occupied sites (except the source node) are blocked off, so hide edges involving them
-        forbidden_nodes = tuple(sorted(n for n in self.occupied_sites if n != source))
-        self._blocked_registry.append(forbidden_nodes)
-        weight = _make_edge_hider(forbidden_nodes)
-        
-        # Return an A* method using the cached heuristic and the weighting that blocks off occupied sites
-        a_star = partial(nx.astar_path_length, G=self.G, source=source, heuristic=self.heuristic_dist, weight=weight)
-        return a_star
-    
-    def determine_nearest(self, a: coordtype, targets: Iterable[coordtype]) -> list[tuple[coordtype, coordtype]]:
+
+    def determine_nearest(self, a: coord, targets: Iterable[coord]) -> list[tuple[coord, coord]]:
         """Takes a starting point and an iterable of target points.
         Returns a list of tuples of (target, first_step), with each element representing
         a target site that's tied for closes, and a legal first step on a shortest path there."""
         
-        res: list[tuple[coordtype, coordtype]] = []
+        _now = time.time()
+        res: list[tuple[coord, coord]] = []
         cutoff = None
-        fun = self._setup_astar(source=a)
-        
+
+        blocked = tuple(sorted(self.occupied_sites))
         #for b in sorted(targets, key = lambda v: self.heuristic_dist(a, v)):
         for b in targets:
-            if cutoff is not None and self.heuristic_dist(a, b) > cutoff:
-                continue
-            try:
-                dist = fun(target=b, cutoff=cutoff)
-                self._path_clear_counts.append(dist == self.heuristic_dist(a, b))  # !!!
-            except nx.exception.NetworkXNoPath:
+            
+            dist = self.distcom(u=a, v=b, blocked = blocked, cutoff=cutoff)
+            if dist is None:
                 continue
             
             # Update cutoff and flush result buffer if we beat the current record
@@ -313,16 +375,17 @@ class Cavern:
             # Determine the valid first steps (that reduce dist by 1) along shortests paths from a -> b
             threshold = max(1, dist-1)
             for u in self.G.neighbors(a):
-                try:
-                    one_step_closer = fun(source=u, target=b, cutoff=threshold) == dist - 1
-                    if one_step_closer:
-                        # Add target and first step coordinates to results buffer
-                        res.append((b, u))
-                    #
-                except nx.exception.NetworkXNoPath:
-                    pass
-                #
-            #
+                if u in blocked:
+                    continue
+                
+                dist_post_step = self.distcom(u=u, v=b, blocked=blocked, cutoff=threshold)
+                if dist_post_step is None or dist_post_step != dist - 1:
+                    continue
+                    
+                res.append((b, u))
+                continue
+                
+        self._ugh += (time.time() - _now)
         
         return res
     
@@ -333,20 +396,25 @@ class Cavern:
         return res
     
     @property
-    def occupied_sites(self) -> set[coordtype]:
-        return {c.coord for c in self.units}
+    def occupied_sites(self) -> set[coord]:
+        return {c.pos for c in self.units}
     
-    def as_string(self, include_units=False):
+    def as_string(self, include_units=False, subs:dict[coord, str]|Iterable[coord]|None=None):
         """Represents the cavern as an ASCII map, similarly to on the web page"""
         m = self._mapchars.copy()
         for c in self.units:
-            m[*c.coord] = c.char
+            m[*c.pos] = c.char
+        
+        if subs is None:
+            subs = dict()
+        if not isinstance(subs, dict):
+            subs = {pos: 'X' for pos in subs}
         
         lines = []
         unit_lines = []
         for i, row in enumerate(m):
-            lines.append("".join(row))
-            chars = sorted([c for c in self.units if c.coord[0] == i], key = lambda c: c.coord)
+            lines.append("".join([subs.get((i, j), c) for j, c in enumerate(row)]))
+            chars = sorted([c for c in self.units if c.pos[0] == i], key = lambda c: c.pos)
             
             unit_lines.append(", ".join([repr(c) for c in chars]))
         
@@ -371,7 +439,7 @@ class Cavern:
         #
     
     def tick(self):
-        order = sorted(range(len(self._units)), key=lambda i: self._units[i].coord)
+        order = sorted(range(len(self._units)), key=lambda i: self._units[i].pos)
         for i in order:
             if not self._units[i].alive:
                 continue
@@ -415,7 +483,7 @@ class Cavern:
         return outcome
 
 
-def determine_attack_power_to_keep_elves_alive(cavern: Cavern, initial_attack=10, verbose = False) -> int:
+def determine_attack_power_to_keep_elves_alive(cavern: Cavern, verbose = False) -> int:
     n_elves = sum(c == _elf_char for c in cavern._initial_unit_positions.values())
     elves_died = lambda cavern_: sum(unit.char == _elf_char for unit in cavern_.units) < n_elves
     
@@ -437,6 +505,7 @@ def determine_attack_power_to_keep_elves_alive(cavern: Cavern, initial_attack=10
         return not elves_died(cavern)
     
     while not elves_survive(high):
+        low = high
         high *= 2
         disp()
         
@@ -452,28 +521,64 @@ def determine_attack_power_to_keep_elves_alive(cavern: Cavern, initial_attack=10
     return res
 
 
+def identify_choke_points(G: nx.Graph, n: int):
+    G = G.copy()
+    res = []
+    fun = partial(nx.approximate_current_flow_betweenness_centrality, kmax=30)
+    
+    fun = partial(nx.current_flow_betweenness_centrality)
+    while len(res) < n:
+        node, cent = max(fun(G).items(), key=lambda t: t[1])
+        res.append(node)
+        break
+    
+    return res
+
+
+def blobs(G: nx.G):
+    print("!!!!!!!!!!!!!!!!!")
+    
+    clustered = (node for node, deg in nx.degree(G) if deg == 4)
+    sg = nx.subgraph(G, clustered)
+    ccs = list(nx.connected_components(sg))
+    
+    import string
+    
+    res = dict()
+    for cluster, char in zip(sorted(ccs, key=len, reverse=True), string.ascii_uppercase):
+        for node in cluster:
+            res[node] = char
+
+    return res
+
+
 def solve(data: str):
     map_ = parse(data)
-    
-    
     cavern = Cavern(map_)
     
     
+    _now = time.time()
+    points = identify_choke_points(cavern.G, n=10)
+    print(cavern.as_string(subs=blobs(cavern.G)))
+    blobs(cavern.G)
+    
+    print(f"CRIT THINGY TOOK {time.time()-_now:.2f}s")
+    
     
     star1 = cavern.play_game()
-    # 268065 too low
-    # 269430
     print(f"Solution to part 1: {star1}")
-    #assert star1 == 27730
-    
 
-    star2 = determine_attack_power_to_keep_elves_alive(cavern=cavern, verbose=True)
+    star2 = determine_attack_power_to_keep_elves_alive(cavern=cavern, verbose=len(data) > 100)
     print(f"Solution to part 2: {star2}")
-    
-    print(sum(cavern._path_clear_counts), len(cavern._path_clear_counts))
     
     print("forbidden nodes:", len(cavern._blocked_registry), len(set(cavern._blocked_registry)))
 
+    desc = lambda n: f"{n}/{cavern.distcom._n} ({100*n/cavern.distcom._n:.1f}%)"
+    
+    print(f"*** TIME SPENT ON DISTS: {cavern.distcom._time_spent:.5f}***")
+    for k, v in cavern.distcom._misc.items():
+        print(f"{k}:", desc(v))
+    print("**********************")
     return star1, star2
 
 
@@ -484,7 +589,14 @@ def main():
     from aocd import get_data
     raw = get_data(year=year, day=day)
     #raw = test2  # !!!
-    solve(raw)
+    a, b = solve(raw)
+    
+    if len(raw) < 100:
+        assert (a, b) == (27730, 4988)
+        print("PHEW")
+    elif len(raw) > 1000:
+        assert (a, b) == (269430, 55160)
+        print("PHEEEEEEW")
 
 
 if __name__ == '__main__':
