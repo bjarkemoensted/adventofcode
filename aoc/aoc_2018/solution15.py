@@ -21,67 +21,6 @@ _wall_char = "#"
 
 unit_symbols = (_goblin_char, _elf_char)
 
-test = """#########
-#G..G..G#
-#.......#
-#.......#
-#G..E..G#
-#.......#
-#.......#
-#G..G..G#
-#########"""
-
-
-test2 = """#######
-#.G...#
-#...EG#
-#.#.#G#
-#..G#E#
-#.....#
-#######"""
-
-test3 = """####### 
-#G..#E#
-#E#E.E#
-#G.##.#
-#...#E#
-#...E.#
-#######"""
-
-test4 = """####### 
-#E..EG#
-#.#G.E#
-#E.##E#
-#G..#.#
-#..E#.#
-#######"""
-
-test5 = """####### 
-#E.G#.#
-#.#G..#
-#G.#.G#
-#G..#.#
-#...E.#
-#######"""
-
-test6 = """####### 
-#.E...#
-#.#..G#
-#.###.#
-#E#G#G#
-#...#G#
-#######"""
-
-test7 = """#########
-#G......#
-#.E.#...#
-#..##..G#
-#...##..#
-#...#...#
-#.G...G.#
-#.....G.#
-#########"""
-
 
 def parse(s) -> np.typing.NDArray[np.str_]:
     """Parse input into array of chars"""
@@ -105,6 +44,7 @@ def _manhatten_dist(a: coord, b: coord) -> int:
 _directions: list[coord] = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
 
+@cache
 def _get_neighbor_sites(coord: coord) -> list[coord]:
     i, j = coord
     res = [(i+di, j+dj) for di, dj in _directions]
@@ -118,26 +58,6 @@ def make_graph_from_ascii_map(map_: np.typing.NDArray[np.str_]) -> nx.Graph:
     res.add_edges_from((u, v) for u in nodes for v in _get_neighbor_sites(u) if v in nodes)
     
     return res
-
-
-def _make_edge_hider(forbidden_nodes: Iterable[coord]) -> Callable[[coord, coord, dict], int|None]:
-    """This generates and returns a weighting function which can be used in conjunction with the A* algorithm to
-    determine shortest paths in a known graph where a few nodes are 'off-limits', e.g. blocked.
-    It works by taking an iterable of 'forbidden nodes' which are blocked.
-    A function is then defined which returns None for edges (u, v) where either node is blocked off. Otherwise,
-    a value of 1 is returned. The A* algorithm in networkx allows specifying a custom weighing function which
-    uses None to denote 'hidden' edges, so hopefully this is more efficient than having to define new graph
-    with only the subset of nodes that aren't blocked at any given time step."""
-
-    youmustnevergohere: set[coord] = {u for u in forbidden_nodes}
-    def weight(u: coord, v: coord, _: dict) -> int|None:
-        if any(node in youmustnevergohere for node in (u, v)):
-            return None
-        else:
-            return 1
-        #
-    
-    return weight
 
 
 class GameOverException(Exception):
@@ -238,25 +158,59 @@ class DistanceComputer:
         a = time.time()
         self._free_path_dists = dict(nx.all_pairs_shortest_path_length(self.G))
         self._free_path_nodes = dict(nx.all_pairs_shortest_path(self.G))  # can be cast as sets immediately?
+        self.centralities = dict(nx.current_flow_betweenness_centrality(self.G))
+        self._high_centrality = sorted(self.centralities.values())[int(len(self.centralities)*0.90)]
         self._heuristic = lambda u, v: self._free_path_dists[u][v]
+
+        self._crits, self._clusters = determine_critical_pints_and_clusters(self.G)
+        self._node2cluster = {node: i for i, c in enumerate(self._clusters) for node in c}
+        self._compact = collapse_graph(self.G, self._node2cluster)
         
         self._time_spent = 0.0
         
         self._cache: dict[tuple, int|None] = dict()
+        self._lower_bound_cache = dict()
         
         self._subgraph_astar_cache: dict[tuple, Callable] = dict()
         self._misc = defaultdict(int)
         self._n = 0
-        
-        print("SETUP DISTANCE THINGY: !!!", time.time() - a)
+        self._runtime_cent = []
     
+    def _snip(self, blocked: Iterable[coord]) -> Callable:
+        blocked_set = set(blocked)
+        weight_fun = lambda u, v, _: None if v in blocked_set else 1
+        return weight_fun
+
+    def lower_bound(self, u: coord, v: coord, blocked: tuple[coord]) -> int|None:
+        uc, vc = (self._node2cluster.get(n, n) for n in (u, v))
+        blocked_non_cluster = {b for b in blocked if b not in self._node2cluster}
+        key = (uc, vc, tuple(sorted(blocked_non_cluster)))
+        try:
+            return self._lower_bound_cache[key]
+        except KeyError:
+            pass
+        
+        # TODO might be faster to cache all pairs hsortest for each distinct blocked signature?
+        weight = self._snip(blocked_non_cluster)
+        try:
+            res = nx.shortest_path_length(G=self._compact, source=uc, target=vc, weight=weight)
+        except nx.exception.NetworkXNoPath:
+            res = None
+        
+        self._lower_bound_cache[key] = res
+
+        return res
+
+
     def _get_astar(self, blocked: tuple[coord]) -> Callable:
         try:
             res = self._subgraph_astar_cache[blocked]
         except:
-            blocked_set = set(blocked)
-            weight = lambda u, v, _: None if v in blocked_set else 1
-            res = partial(nx.astar_path, G=self.G, heuristic=self._heuristic, weight=weight)
+            weight = self._snip(blocked)
+            heuristic = heuristic=self._heuristic
+            res = partial(nx.astar_path, G=self.G, heuristic=heuristic, weight=weight)
+            #res = partial(nx.shortest_path, G=self.G, weight=weight)
+
             self._subgraph_astar_cache[blocked] = res
         return res
     
@@ -264,20 +218,24 @@ class DistanceComputer:
         ideal_path = self._free_path_nodes[u][v][1:]
         path_is_blocked = any(node in blocked for node in ideal_path)
         
-        meh = v in blocked
-        
-        if meh:
+        if v in blocked:
             self._misc["dumb"] += 1
             return None
         
+        noway = cutoff is not None and cutoff < len(ideal_path)
+        if noway:
+            return None
+
         if not path_is_blocked:
             self._misc["simplified"] += 1
             return len(ideal_path)
         
         astar = self._get_astar(blocked)
         try:
-            
-            p = astar(source=u, target=v, cutoff=cutoff)
+            if astar.func is nx.shortest_path:
+                p = astar(source=u, target=v)
+            else:
+                p = astar(source=u, target=v, cutoff=cutoff)
             
             res = len(p) - 1
             for i, (up, vp) in enumerate(p):
@@ -291,7 +249,15 @@ class DistanceComputer:
     
     def compute_dist(self, u: coord, v: coord, blocked: Iterable[coord]|None=None, cutoff=None) -> int|None:
         blocked = tuple(sorted(blocked)) if blocked is not None else ()
+        if v in blocked:
+            return None
         key = (u, v, blocked)
+
+        lower_bound = self.lower_bound(u, v, blocked)
+        if lower_bound is None or (cutoff is not None and lower_bound > cutoff):
+            self._misc["killed w lower bound"] += 1
+            return None
+
         try:
             res = self._cache[key]
             self._misc["lookup_success"] += 1
@@ -307,12 +273,36 @@ class DistanceComputer:
             #
         return res
     
-    def __call__(self, *args, **kwargs) -> int|None:
+    def __call__(self, u: coord, v: coord, blocked: Iterable[coord]|None=None, cutoff=None) -> int|None:
         _now = time.time()
         self._n += 1
-        res = self.compute_dist(*args, **kwargs)
+        res = self.compute_dist(u=u, v=v, blocked=blocked, cutoff=cutoff)
         
-        self._time_spent += (time.time() - _now)
+        
+        dt = time.time() - _now
+        self._time_spent += dt
+
+        cent = 0
+        if blocked:
+            obstructed = [node for node in blocked if node in self._free_path_nodes[u][v][1:]]
+            if obstructed:
+                cent = max(self.centralities[node] for node in obstructed)
+        
+        # !!!
+        len_ideal = len(self._free_path_nodes[u][v][1:])
+        import string
+        cinds = [string.ascii_lowercase[self._node2cluster.get(n, -1)] for n in (u, v)]
+        # !!!!!
+
+        
+        lower_bound = self.lower_bound(u, v, blocked)
+        #print(cinds, lower_bound, len_ideal, res, f"{cutoff=}", any(n in self._crits for n in self._free_path_nodes[u][v][1:]), dt*1_000_000, blocked)
+        #print(f"{lower_bound=}, {res=}")
+        #if res is not None and lower_bound is not None:
+        #    assert res >= lower_bound
+        #print()
+        
+        self._runtime_cent.append((cent, dt))
         return res
 
 
@@ -535,20 +525,56 @@ def identify_choke_points(G: nx.Graph, n: int):
     return res
 
 
-def blobs(G: nx.G):
-    print("!!!!!!!!!!!!!!!!!")
-    
-    clustered = (node for node, deg in nx.degree(G) if deg == 4)
-    sg = nx.subgraph(G, clustered)
-    ccs = list(nx.connected_components(sg))
-    
-    import string
-    
-    res = dict()
-    for cluster, char in zip(sorted(ccs, key=len, reverse=True), string.ascii_uppercase):
-        for node in cluster:
-            res[node] = char
+def determine_critical_pints_and_clusters(G: nx.G):
+    cut_percentile = 95
+    centralities = dict(nx.current_flow_betweenness_centrality(G))
+    cent_arr = np.array(list(centralities.values()))
+    cent_thres = np.percentile(cent_arr, q=cut_percentile)
 
+    critical_points = {node for node in G.nodes() if centralities[node] >= cent_thres}
+    clustered = (node for node, deg in nx.degree(G) if deg == 4 and node not in critical_points)
+    sg = nx.subgraph(G, clustered)
+
+    cluster_minsize = 10
+
+    # Explan clusters with non-critical points from their periphery
+    clusters = [set(nodes) - critical_points for nodes in nx.connected_components(sg)]
+    shells = [c for c in clusters]
+    for _ in range(5):
+        for i, nodesset in enumerate(shells):
+            shell = {nb for n in nodesset for nb in G.neighbors(n) if nb not in critical_points} - nodesset
+            assert len(shell & critical_points) == 0
+            clusters[i] |= shell
+            shells[i] = shell
+    
+    # Join overlapping clusters
+    while True:
+        n_pre = len(clusters)
+        for i in range(len(clusters)-1, -1, -1):
+            for j in range(i-1, -1, -1):
+                if clusters[i] & clusters[j]:
+                    clusters[j] |= clusters.pop(i)
+                    break
+                #
+        if len(clusters) == n_pre:
+            break
+        #
+    
+    clusters = [c for c in clusters if len(c) >= cluster_minsize]
+    clusters.sort(key=len, reverse=True)
+    print("!!!", len(clusters))
+    
+    return critical_points, clusters
+
+
+def collapse_graph(G: nx.Graph, node_cluster_map: dict) -> nx.Graph:
+    res = nx.Graph()
+    for edge in G.edges():
+        u, v = (node_cluster_map.get(n, n) for n in edge)
+        if u == v:
+            continue
+        res.add_edge(u, v)
+    
     return res
 
 
@@ -556,17 +582,23 @@ def solve(data: str):
     map_ = parse(data)
     cavern = Cavern(map_)
     
+    print(cavern.distcom._compact)
     
-    _now = time.time()
-    points = identify_choke_points(cavern.G, n=10)
-    print(cavern.as_string(subs=blobs(cavern.G)))
-    blobs(cavern.G)
     
-    print(f"CRIT THINGY TOOK {time.time()-_now:.2f}s")
+    crits, clusters = determine_critical_pints_and_clusters(cavern.G)
+
+    
+    
+    subs = {node: lab for lab, c in zip("ABCDEFGH", clusters) for node in c}
+    subs.update({n: " " for n in crits})
+
+    print(cavern.as_string(subs=subs))
+    
     
     
     star1 = cavern.play_game()
     print(f"Solution to part 1: {star1}")
+    
 
     star2 = determine_attack_power_to_keep_elves_alive(cavern=cavern, verbose=len(data) > 100)
     print(f"Solution to part 2: {star2}")
@@ -578,6 +610,12 @@ def solve(data: str):
     print(f"*** TIME SPENT ON DISTS: {cavern.distcom._time_spent:.5f}***")
     for k, v in cavern.distcom._misc.items():
         print(f"{k}:", desc(v))
+    
+    cents, dts = zip(*cavern.distcom._runtime_cent)
+    from scipy.stats import pearsonr
+    print(pearsonr(cents, dts))
+
+
     print("**********************")
     return star1, star2
 
@@ -591,6 +629,8 @@ def main():
     #raw = test2  # !!!
     a, b = solve(raw)
     
+    if (a, b) == (None, None):
+        return
     if len(raw) < 100:
         assert (a, b) == (27730, 4988)
         print("PHEW")
