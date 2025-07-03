@@ -131,7 +131,6 @@ class Cache:
         #
 
 
-
 class Grid:
     """Handles logistics, inter-sites distances etc"""
     
