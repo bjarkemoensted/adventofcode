@@ -110,7 +110,6 @@ def solve(data: str):
     
     d = asleep_by_minute(shifts)
     
-    # TODO solve puzzle
     star1 = choose(d)
     print(f"Solution to part 1: {star1}")
 
