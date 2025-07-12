@@ -3,29 +3,20 @@
 # .⸳+`ꞏ ⸳`.  +  ⸳•*` . https://adventofcode.com/2019/day/22  +.   `• ꞏ   *.⸳ꞏ• .
 # `*      ꞏ ꞏ`⸳+ +.⸳ꞏ⸳   .  ⸳•`  ꞏ *. • +ꞏ ` .       ` *ꞏ⸳ *⸳.  `+ꞏ*      ꞏ`.` ⸳
 
-from abc import abstractmethod, ABC
+from __future__ import annotations
 from collections import deque
 from copy import deepcopy
 from functools import singledispatchmethod
-from typing import cast, Generic, get_args, Literal, TypeAlias, TypeVar
+import sympy
+from typing import cast, Literal, TypeAlias, TypeVar
 
 deck: TypeAlias = deque[int]
 # Operation - one of the shuffling operations
 optype: TypeAlias = Literal["new_stack", "cut", "deal_with_increment"]
 # Instruction - an operation along with a tuple of any arguments
 instype: TypeAlias = tuple[optype, tuple[int, ...]]
-
-
-test = """deal into new stack
-cut -2
-deal with increment 7
-cut 8
-cut -4
-deal with increment 7
-cut 3
-deal with increment 9
-deal with increment 3
-cut -1"""
+# Valid type for instantiating a modular scalar
+modtype: TypeAlias = int|sympy.Basic
 
 
 def parse(s):
@@ -41,25 +32,7 @@ def parse(s):
     return res
 
 
-def modinv(n, N) -> int:
-    """Uses Euclid's extended algorithm to determine the inverse module number for n, given N.
-    This is only well-defined if n and N are co-prime (otherwise, the mapping i -> (i*n)%N) is not bijective).
-    If not, an error is raised."""
-    
-    t, new_t = 0, 1
-    r, new_r = N, n
-    while new_r != 0:
-        quotient = r // new_r
-        t, new_t = new_t, t - quotient * new_t
-        r, new_r = new_r, r - quotient * new_r
-    if r > 1:
-        raise ValueError(f"{n} has no inverse mod {N}")
-    
-    return t % N
-
-
-# TODO should probably add sympy vars here if we end up doing that...
-T = TypeVar('T', int, deque[int])
+T = TypeVar('T', int, deque[int], sympy.Basic)
 
 
 class Shuffler:
@@ -91,7 +64,8 @@ class Shuffler:
     def apply_operation(self, obj: T, operation: optype, args: tuple[int, ...]):
         """Dispatch for appying a shuffling operation - specific implementations are provided
         for full decks/indices"""
-        raise NotImplementedError
+        
+        raise NotImplementedError(f"No function registered for type {type(obj)}")
     
     @apply_operation.register
     def _(self, obj: deque, operation: optype, args: tuple[int, ...]) -> deque[int]:
@@ -141,6 +115,22 @@ class Shuffler:
                 raise RuntimeError(f"Unrecognized operation: {operation}")
             #
     
+    @apply_operation.register
+    def _(self, obj: sympy.Basic, operation: optype, args: tuple[int, ...]):
+        """Apply shuffling operation on an algebraic symbol for an index"""
+        
+        match operation:
+            case "new_stack":
+                return -1 - obj
+            case "cut":
+                n = args[0]
+                return (obj - n)
+            case "deal_with_increment":
+                n = args[0]
+                return (obj*n)
+            case _:
+                raise RuntimeError(f"Unrecognized operation: {operation}")
+    
     def reverse_instruction(self, instruction: instype) -> instype:
         """Computes the inverse of a shuffling operation"""
         
@@ -157,7 +147,7 @@ class Shuffler:
                 # Here, we need the inverse modulo of n, for the given n_cards.
                 n = args[0]
                 # Find the correct modulo using Euclid's extended algorithm.
-                revmod = modinv(n, self.n_cards)
+                revmod = pow(n, -1, mod=self.n_cards)
                 return (operation, (revmod,))
             case _:
                 raise RuntimeError(f"Unrecognized operation: {operation}")
@@ -169,35 +159,88 @@ class Shuffler:
         res = [self.reverse_instruction(ins) for ins in reversed(instructions)]
         return res
     
-    def __call__(self, instructions: instype|list[instype], obj: T|None=None, reverse: bool=False) -> T:
+    def determine_recurrence_relation_coefficients(self, instructions: list[instype]) -> tuple[int, int]:
+        """Shuffling follows a recurrence relation where X_n+1 is defined in terms of X_n as
+        X_n+1 = a + b*X_n
+        
+        Here, the n'th term can be shown to be expressed in terms of X_0 as
+        b^n + a*sum_i=0^n-1 b^i
+        Using the formula for finite geometric series sum_i=0^n-1 b^i = (1 - b^n)/(1 - b), the expression simplifies to
+        a/(1 - b) + (X_0 - a/(1-b)*b^n).
+        This method returns the values of a and b for the recurrence corresponding to the input instructions."""
+        
+        x_sym = sympy.Symbol("x")
+    
+        subsequent_expr = self._apply_instructions(instructions, obj=x_sym)
+        coeffs = subsequent_expr.as_coefficients_dict()
+        a, b = map(int, (coeffs[k] for k in (1, x_sym)))
+        assert all(isinstance(val, int) for val in (a, b))
+        
+        return a, b
+    
+    def final_index(self, index_start: int, instructions: list[instype], reverse: bool=False, n: int=1) -> int:
+        """Computes the final position of the card which is initially at index_start, after applying the shuffling instructions
+        n times. If reverse is True, the computation is based instead on the inverse of the provided shuffling instructions,
+        so the result indicates the original position of a card which ends up at index_start after shuffling n times."""
+        
+        # If reverse, compute the inverse shuffling
+        if reverse:
+            instructions = self.reverse_instructions(instructions)
+        
+        # Determine the coefficients of the recurrence relation x -> a + b*x for the shuffling.
+        a, b = self.determine_recurrence_relation_coefficients(instructions=instructions)
+        
+        # The recurrence is a geometric series which evaluates to (x0 - f)*b^n + f, where f = a/(1-b). bc math
+        
+        # Compute f = a/(1-b) as a times the modular inverse of (1 - b)
+        k = self.n_cards
+        modinv = pow(1 - b, -1, k)  # this determines the modular inverse, raising an error if 1-b and k aren't coprime
+        f = a*modinv
+        
+        # Compute b^n mod k (python uses an efficient modular exponentiation algo under the hood here)
+        b_pow_n_mod_k = pow(base=int(b), exp=n, mod=k)
+        
+        # Evaluate the expression for the geometric series modulo n_cards. This is the card's final location.
+        res = ((index_start - f)*b_pow_n_mod_k + f) % k
+        return res
+    
+    def __call__(self, instructions: list[instype], obj: T|None=None, reverse: bool=False, n_times: int = 1) -> T:
         """Apply one or more shuffling instructions to the specified index/deck.
         if reverse is True, applies the inverse of the instructions."""
         
-        if not isinstance(instructions, list):
-            instructions = [instructions]
+        # If we're operating on a single index, compute the final idex analylitically
+        if isinstance(obj, int):
+            return self.final_index(index_start=obj, instructions=instructions, reverse=reverse, n=n_times)
+        
         if reverse:
             instructions = self.reverse_instructions(instructions=instructions)
         
-        if obj is None:
-            obj = cast(T, self.new_deck())
+        # If object isn't specified, create a fresh deck of cards to shuffle
+        new_obj = obj if obj is not None else cast(T, self.new_deck())
         
-        res = self._apply_instructions(instructions=instructions, obj=obj)
-        return res
-
-
+        # Otherwise, repeatedly shuffle until we're done
+        new_obj = deepcopy(new_obj)
+        for _ in range(n_times):
+            new_obj = self._apply_instructions(instructions=instructions, obj=new_obj)
+        
+        return new_obj
+    
 
 def solve(data: str):
     instructions = parse(data)
     n_cards = 10007
     shuffler = Shuffler(n_cards=n_cards)
     
-    star1 = shuffler(instructions, obj=2019)
+    start = 2019
+    star1 = shuffler(instructions, obj=start)
     print(f"Solution to part 1: {star1}")
-    
+
     n_large = 119_315_717_514_047
     n_shuffles = 101_741_582_076_661
-
-    star2 = None
+    shuffler2 = Shuffler(n_cards=n_large)
+    target = 2020
+    
+    star2 = shuffler2(instructions, target, reverse=True, n_times=n_shuffles)
     print(f"Solution to part 2: {star2}")
 
     return star1, star2
@@ -207,7 +250,6 @@ def main():
     year, day = 2019, 22
     from aocd import get_data
     raw = get_data(year=year, day=day)
-    #raw = test
     solve(raw)
 
 
