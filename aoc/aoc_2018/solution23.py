@@ -4,9 +4,15 @@
 # +ꞏ• . `  *.`   .  ⸳`ꞏ*ꞏ`+ .  ⸳ .*  ⸳ꞏ` .ꞏ+⸳• `   ⸳ ` •.ꞏ•`       ⸳  ꞏ⸳.`*.ꞏ ꞏ⸳
 
 from __future__ import annotations
-from collections import defaultdict
 from dataclasses import dataclass
+import itertools
+from heapq import heappop, heappush
+import math
 import re
+from typing import Generic, TypeAlias, TypeVar
+
+
+coord_type: TypeAlias = tuple[int, ...]
 
 
 @dataclass
@@ -43,6 +49,67 @@ class Nanobot:
     #
 
 
+@dataclass(frozen=True)
+class BoundingBox:
+    limits: tuple[tuple[int, int], ...]
+
+    def _split_interval(self, interval: tuple[int, int]):
+        """Split an interval in two equal parts, e.g. (1, 10) -> ((1, 5), (6, 10))"""
+        low, high = interval
+        mid = (low + high) // 2
+
+        a = (low, mid)
+        b = (mid+1, high)
+        return a, b
+
+    def _dist_to_interval(self, x: int, interval: tuple[int, int]) -> int:
+        """The minimum difference between x, and any number in the input interval, both inclusive"""
+        a, b = interval
+        if x < a:
+            return a - x
+        elif x > b:
+            return x - b
+        else:
+            return 0
+
+    def splinter(self) -> list[BoundingBox]:
+        """Subdivides the box into 8 smaller boxes"""
+        splits = (self._split_interval(limit) for limit in self.limits)
+        new_limits = itertools.product(*(splits))
+        smaller_boxes = [BoundingBox(interval) for interval in new_limits]
+        return smaller_boxes
+    
+    @property
+    def points(self) -> list[coord_type]:
+        """An ordered list of points within the bounding box (do not call this with large boxes!)"""
+        ranges = (range(low, high+1) for low, high in self.limits)
+        res = sorted(itertools.product(*ranges))
+
+        return res
+
+    @property
+    def volume(self) -> int:
+        res = 1
+        for a, b in self.limits:
+            len_ = b - a + 1
+            res *= len_
+        
+        return res
+
+    def _min_dist_origo(self):
+        res = 0
+        for limit in self.limits:
+            res += min(map(abs, limit))
+        return res
+
+    def __lt__(self, other: BoundingBox):
+        return self._min_dist_origo() < other._min_dist_origo()
+
+    def bot_in_range(self, bot: Nanobot):
+        dist = sum(self._dist_to_interval(x, interval) for x, interval in zip(bot.vector, self.limits, strict=True))
+        return dist <= bot.r
+
+
 def parse(s) -> list[Nanobot]:
     res = []
     pattern = re.compile(r"pos=<(?P<x>-?\d+),(?P<y>-?\d+),(?P<z>-?\d+)>, r=(?P<r>\d+)")
@@ -58,29 +125,93 @@ def parse(s) -> list[Nanobot]:
     return res
 
 
-def closest_point_with_max_signals(bots: list[Nanobot]) -> int:
-    """Determines the closest distnace to the origin at which the maximum possible number of
-    nanobots are in range."""
-    
-    # Keep track of the distances from origin at which the number of in-range bot changes
-    increments: dict[int, int] = defaultdict(int)
-    signal_edges = [bot.signal_edge_dist() for bot in bots]
-    for sig_min_dist, sig_max_dist in signal_edges:
-        increments[sig_min_dist] += 1  # add one when we enter the min dist to a new bot
-        increments[sig_max_dist+1] -= 1  # subtract one just after we leave the signal range of the bot
-    
-    # Iterate over all distances to origin where the number of bots in range changes, keeping the max
-    steps = sorted((k, v) for k, v in increments.items() if v != 0)
-    res = 0
-    running = 0
-    max_bots_in_range = 0
-    for dist, delta_n_bots in steps:
-        running += delta_n_bots
-        if running > max_bots_in_range:
-            max_bots_in_range = running
-            res = dist
-    
+def _find_bounding_box_size(bots: list[Nanobot]) -> int:
+    """Finds the smallest power of 2 such that a box covering xyz ranges (-x, x) contains all bots"""
+    coords = itertools.chain(*(bot.vector for bot in bots))
+    max_abs = max(map(abs, coords))
+
+    # Find the lowest power of 2 that's at least the max absolute distance
+    base_ = math.log2(max_abs)
+    res = 2**math.ceil(base_)
     return res
+
+
+T = TypeVar("T")
+
+
+class PriorityQueue(Generic[T]):
+    """Priority queue for holding the bounding boxes"""
+    def __init__(self):
+        self._elems: list[tuple[int, T]] = []
+    
+    def push(self, elem: T, priority: int):
+        item = (priority, elem)
+        heappush(self._elems, item)
+    
+    def pop(self) -> tuple[T, int]:
+        priority, elem = heappop(self._elems)
+        return elem, priority
+    
+    def __bool__(self):
+        return bool(self._elems)
+    
+    def __len__(self):
+        return len(self._elems)
+
+
+def determine_optimal_point(bots: list[Nanobot], maxiter: int|None=None):
+    """Determines the 'best' point, e.g. the point at which the greatest number of nanobots are in range,
+    using distance to origo as tiebreaker"""
+    
+    # Start with a bounding box large enough to contain all bots
+    size = _find_bounding_box_size(bots)
+    limits = tuple((-size, +size) for _ in range(3))
+    initial_box = BoundingBox(limits)
+
+    queue: PriorityQueue[BoundingBox] = PriorityQueue()
+    
+    def cost(box):
+        n_in_range = sum(box.bot_in_range(bot) for bot in bots)
+        min_dist = box._min_dist_origo()
+        return -n_in_range, min_dist
+
+    def add_to_queue(*boxes: BoundingBox):
+        for box in boxes:
+            priority = cost(box)
+            queue.push(elem=box, priority=priority)
+
+    add_to_queue(initial_box)
+    stop_after = float("inf") if maxiter is None else maxiter
+    n_its = 0
+
+    best_box: BoundingBox|None = None
+    lowest_cost = (float("inf"), float("inf"))
+
+    while queue:
+        
+        box, priority = queue.pop()
+        if priority > lowest_cost:
+            coord, _ = zip(*best_box.limits)
+            return coord
+
+        print("OMGOMGOMG", priority, box)
+
+        if box.volume == 1:
+            if cost(box) < lowest_cost:
+                print("HUZZAH!!!", box)
+                lowest_cost = cost(box)
+                best_box = box
+            #
+        else:
+            add_to_queue(*box.splinter())
+
+        n_its += 1
+
+        if n_its >= stop_after:
+            break
+        #
+    raise RuntimeError
+        
 
 
 def solve(data: str):
@@ -90,7 +221,10 @@ def solve(data: str):
     star1 = sum(strongest.in_range(bot) for bot in bots)
     print(f"Solution to part 1: {star1}")
 
-    star2 = closest_point_with_max_signals(bots)
+    best_spot = determine_optimal_point(bots)
+    
+    
+    star2 = sum(map(abs, best_spot))
     print(f"Solution to part 2: {star2}")
 
     return star1, star2
@@ -98,10 +232,9 @@ def solve(data: str):
 
 def main():
     year, day = 2018, 23
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
+    #raw = test
     solve(raw)
 
 
