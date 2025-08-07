@@ -9,7 +9,7 @@ import functools
 import itertools
 from typing import Iterable, TypeAlias
 
-coord: TypeAlias = tuple[int, int]
+coord: TypeAlias = tuple[int, ...]
 
 
 class symbols:
@@ -139,7 +139,7 @@ class Stream:
         self.reservoir = reservoir
         self.ylim = self.reservoir.y_bounds
         
-        self.children = []
+        self.children: list[Stream] = []
         # Keep a stack of positions visited, so if we hit water, we can backtrace
         self._positions = [pos]
 
