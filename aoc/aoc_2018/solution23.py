@@ -103,7 +103,8 @@ class BoundingBox:
         return res
 
     def __lt__(self, other: BoundingBox):
-        return self._min_dist_origo() < other._min_dist_origo()
+        """Just using the limits as tie breaker when sorting. Shouldn't matter, but avoid errors from heap ops"""
+        return self.limits < other.limits
 
     def bot_in_range(self, bot: Nanobot):
         dist = sum(self._dist_to_interval(x, interval) for x, interval in zip(bot.vector, self.limits, strict=True))
@@ -111,6 +112,7 @@ class BoundingBox:
 
 
 def parse(s) -> list[Nanobot]:
+    """Parses the input into a list of instances of nanobot dataclasses"""
     res = []
     pattern = re.compile(r"pos=<(?P<x>-?\d+),(?P<y>-?\d+),(?P<z>-?\d+)>, r=(?P<r>\d+)")
     for line in s.splitlines():
@@ -137,18 +139,21 @@ def _find_bounding_box_size(bots: list[Nanobot]) -> int:
 
 
 T = TypeVar("T")
+# Type alias for the priority (- bots in range, + distance to origo)
+priority_type: TypeAlias = tuple[int, int]
 
 
 class PriorityQueue(Generic[T]):
     """Priority queue for holding the bounding boxes"""
-    def __init__(self):
-        self._elems: list[tuple[int, T]] = []
     
-    def push(self, elem: T, priority: int):
+    def __init__(self) -> None:
+        self._elems: list[tuple[priority_type, T]] = []
+    
+    def push(self, elem: T, priority: priority_type):
         item = (priority, elem)
         heappush(self._elems, item)
     
-    def pop(self) -> tuple[T, int]:
+    def pop(self) -> tuple[T, priority_type]:
         priority, elem = heappop(self._elems)
         return elem, priority
     
@@ -159,57 +164,77 @@ class PriorityQueue(Generic[T]):
         return len(self._elems)
 
 
-def determine_optimal_point(bots: list[Nanobot], maxiter: int|None=None):
+def determine_optimal_point(bots: list[Nanobot], maxiter: int|None=None) -> coord_type:
     """Determines the 'best' point, e.g. the point at which the greatest number of nanobots are in range,
-    using distance to origo as tiebreaker"""
+    using distance to origo as tiebreaker.
+    Works by starting with a bounding box large enough to contain all bots, then repeatedly, splits a
+    box into 8 equal parts. Boxes are poppe from a priority queue, with a priority tuple consisting of
+    the number of bots whose signals touch the box, and the distance between the box and origo.
+    This priority is an upper bound on the number of signals that can be in range at any point
+    inside the bounding box. Therefore, once we have found a box of volume one, and pop from the queue
+    a box with a greater upper bound, we have found the cell with the maximum number of signals, using
+    distance as tiebreaker.
+    bots: list of nanobots.
+    maxiter (int, optional) - optional number of max iterations, after which the algorithm terminates.
+        if the algorithm stops this way, a RuntimeError is raised."""
     
     # Start with a bounding box large enough to contain all bots
     size = _find_bounding_box_size(bots)
     limits = tuple((-size, +size) for _ in range(3))
     initial_box = BoundingBox(limits)
-
-    queue: PriorityQueue[BoundingBox] = PriorityQueue()
     
-    def cost(box):
+    def cost(box) -> priority_type:
+        """Helper method for computing the priority of a box"""
         n_in_range = sum(box.bot_in_range(bot) for bot in bots)
         min_dist = box._min_dist_origo()
+        # heapq is min-queue, so we need minus for n in range
         return -n_in_range, min_dist
 
-    def add_to_queue(*boxes: BoundingBox):
+    # Priority queue for holding the boxes
+    queue: PriorityQueue[BoundingBox] = PriorityQueue()
+    # Running tally of the current 'best' box (of volume one) and its priority
+    best_box = None
+    lowest_cost = (0, 0)
+
+    def add_to_queue(*boxes: BoundingBox) -> None:
+        """Helper method for adding one or more boxes to the queue,
+        computing priority before inserting."""
         for box in boxes:
             priority = cost(box)
             queue.push(elem=box, priority=priority)
+        #
 
+    # Put the starting box on the queue.
     add_to_queue(initial_box)
     stop_after = float("inf") if maxiter is None else maxiter
     n_its = 0
 
-    best_box: BoundingBox|None = None
-    lowest_cost = (float("inf"), float("inf"))
-
     while queue:
-        
+        # Get the 'most promising' box from the queue
         box, priority = queue.pop()
+        
+        # If current best is better than upper bound on remaining, we're done
         if priority > lowest_cost:
+            assert best_box is not None
             coord, _ = zip(*best_box.limits)
             return coord
 
-        print("OMGOMGOMG", priority, box)
-
+        # If we reach a box of volume one, check if it improves the current best
         if box.volume == 1:
             if cost(box) < lowest_cost:
-                print("HUZZAH!!!", box)
                 lowest_cost = cost(box)
                 best_box = box
             #
         else:
+            # If not, split it into sub-boxes
             add_to_queue(*box.splinter())
 
+        # Stop if maxiter is exceeded
         n_its += 1
-
         if n_its >= stop_after:
             break
         #
+
     raise RuntimeError
         
 
@@ -221,9 +246,9 @@ def solve(data: str):
     star1 = sum(strongest.in_range(bot) for bot in bots)
     print(f"Solution to part 1: {star1}")
 
+    # Find the 'best spot' (most bots in range, closest to origin)
     best_spot = determine_optimal_point(bots)
-    
-    
+    # Compute its distances to the origin
     star2 = sum(map(abs, best_spot))
     print(f"Solution to part 2: {star2}")
 
@@ -234,7 +259,6 @@ def main():
     year, day = 2018, 23
     from aocd import get_data
     raw = get_data(year=year, day=day)
-    #raw = test
     solve(raw)
 
 
