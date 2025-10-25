@@ -1,10 +1,8 @@
 import argparse
-import os
 import pathlib
 
 from aoc.utils.template_tools import make_solution_draft
 from aoc.utils import config
-from aoc.utils.data import read_data_and_examples
 from aoc.utils import tokens
 from aoc.utils.utils import get_day_and_year
 
@@ -44,10 +42,7 @@ def initialize():
         year = args.year
 
     print(f"Initializing solution for year {year}, day {day}...")
-    data, examples = read_data_and_examples(year=year, day=day)
-    has_examples = len(examples) > 0
-
-    solution_draft = make_solution_draft(year=year, day=day, has_examples=has_examples)
+    solution_draft = make_solution_draft(year=year, day=day)
 
     path = config.make_path(year=year, day=day)
     path.parent.mkdir(parents=True, exist_ok=True)

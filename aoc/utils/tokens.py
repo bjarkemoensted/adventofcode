@@ -2,7 +2,7 @@ from aocd.cookies import get_working_tokens
 from aocd.utils import get_owner
 from aocd.exceptions import DeadTokenError
 from aocd.models import AOCD_CONFIG_DIR
-
+import functools
 import json
 from termcolor import cprint
 
@@ -21,7 +21,7 @@ def token_works(token: str) -> bool:
         return False
 
 
-def read_tokens():
+def read_tokens() -> dict[str, str]:
     try:
         with open(_tokens_file, "r") as f:
             d = json.load(f)
@@ -40,7 +40,7 @@ def read_tokens():
     return res
 
 
-def add_tokens_from_current_session():
+def add_tokens_from_current_session() -> None:
     """Checks for AoC tokens and updates"""
     token2owner = get_working_tokens()
 
@@ -62,7 +62,7 @@ def add_tokens_from_current_session():
     #
 
 
-def save(user2token, default_user=None):
+def save(user2token, default_user=None) -> None:
     # Can't have nulls because aocd attempts some string ops
     user2token = {k: "" if v is None else v for k, v in user2token.items()}
     if default_user:
@@ -70,17 +70,14 @@ def save(user2token, default_user=None):
         txt = f"{default_token} <- {default_user}"
         _token.write_text(txt, encoding="utf-8")
     
-    json_kwargs = dict(
-        indent=4,
-        sort_keys=True
-    )
+    dumper = functools.partial(json.dump, indent=4, sort_keys=True)
 
     with open(_tokens_file, "w") as f:
-        json.dump(user2token, f, **json_kwargs)
+        dumper(obj=user2token, fp=f)
 
     with open(_token2id, "w") as f:
         d = {token: user for user, token in user2token.items() if token is not None}
-        json.dump(d, f, **json_kwargs)
+        dumper(obj=d, fp=f)
 
 
 def fix_tokens():
