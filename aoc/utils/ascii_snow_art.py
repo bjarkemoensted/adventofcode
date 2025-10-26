@@ -5,10 +5,14 @@ from numpy.typing import NDArray
 import typing as t
 
 
+# Some special characters mess up the line widths as displayed in VSCode
+_forbidden_ords = (42895, 11827)
+
+
 # Symbols to use for ascii snow art, and their weights (proportional to expected frequency)
 _default_symbols: dict[str, float] = {
-    " ": 5,
-    "⸳": 2,
+    " ": 4.5,
+    "·": 2,
     ".": 1,
     "`": 1,
     "*": 0.7,
@@ -116,6 +120,10 @@ class Annealer:
         self.symbols = symbols if symbols is not None else _default_symbols
         if not set(large_symbols).issubset(self.symbols.keys()):
             raise ValueError
+        
+        bad_syms = [c for c in self.symbols.keys() if ord(c) in _forbidden_ords]
+        if bad_syms:
+            raise ValueError(f"Attempted to use glyphs that don't monospace well: {', '.join(bad_syms)}")
         
         self.rs = np.random.RandomState(seed=seed)
     
