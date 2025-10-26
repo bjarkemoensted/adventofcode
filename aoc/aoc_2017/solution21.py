@@ -8,7 +8,7 @@ import numpy as np
 
 
 def get_initial():
-    """Make ths starting state"""
+    """Make the starting state"""
     res = np.array([list('.#.'), list('..#'), list('###')])
     return res
 
@@ -135,8 +135,9 @@ def simulate_growth(rules: dict, n_steps: int = 5, verbose=False, state=None):
     return state
 
 
-def solve(data: str, iterations=5):
+def solve(data: str):
     rules = parse(data)
+    iterations=5
     endstate = simulate_growth(rules=rules, n_steps=iterations)
 
     star1 = sum(char == "#" for char in endstate.flat)

@@ -72,10 +72,11 @@ def count_unique_combinations(combinations):
     return round(res)
 
 
-def solve(data: str, liters=150):
+def solve(data: str):
     containers_puzzle = parse(data)
+    target_volume = 150
     # Find the number of combinations of containers that have a combined volume of 150L.
-    combinations = brute_force(containers_puzzle, target_volume=liters)
+    combinations = brute_force(containers_puzzle, target_volume=target_volume)
     star1 = count_unique_combinations(combinations)
     print(f"Solution to part 1: {star1}")
 

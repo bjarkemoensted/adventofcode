@@ -62,8 +62,9 @@ def densify(vals: list) -> str:
     return res
 
 
-def solve(data: str, n=256):
+def solve(data: str):
     lengths = parse(data)
+    n=256
     vals = emulate_knot(lengths, n=n)
     star1 = vals[0] * vals[1]
     print(f"Solution to part 1: {star1}")

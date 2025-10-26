@@ -74,7 +74,8 @@ def iterate(arr, n, corners_stay_on=False):
     return res
 
 
-def solve(data: str, iterations=100):
+def solve(data: str):
+    iterations=100
     m = parse(data)
     m = iterate(m, n=iterations)
     star1 = sum(m.flat)

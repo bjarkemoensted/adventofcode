@@ -1,3 +1,8 @@
+# ⸳` . ⸳  ` ⸳.  `   •⸳⸳     `.      . `* +.   ⸳ `⸳.  ⸳`      `⸳      ⸳  *.⸳`.` ⸳
+# ⸳ . ⸳       `.  ⸳⸳          Chronospatial Computer ` ⸳     ⸳`  .   +⸳    ⸳`. ⸳
+# *.⸳`  ⸳ .⸳   ⸳  .*`  https://adventofcode.com/2024/day/17 `   ⸳` .• `⸳ ⸳ .⸳*⸳ 
+# `⸳ ⸳+ `⸳ .        ⸳ . ⸳`* ⸳      • ` ⸳ .   ⸳  *` ⸳ .⸳   ⸳  •.  ⸳  ` + ⸳`   ⸳..
+
 from __future__ import annotations
 from copy import copy
 from dataclasses import dataclass

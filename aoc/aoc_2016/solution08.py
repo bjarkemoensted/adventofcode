@@ -58,9 +58,7 @@ def run_instructions(instructions):
     return display
 
 
-def solve(data: str, **kwargs):
-    for k, v in kwargs.items():
-        print(k, type(v), v)
+def solve(data: str):
     instructions = parse(data)
 
     final_display = run_instructions(instructions)

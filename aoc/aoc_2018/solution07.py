@@ -88,8 +88,10 @@ def traverse_dag(G: graph_type, workloads: dict[str, int], n_workers: int=1) -> 
             yield elapsed, char
         
 
-def solve(data: str, delay: int=60, n_workers: int=5):
+def solve(data: str):
     edges = parse(data)
+    delay = 60
+    n_workers = 5
     
     G = build_dag(edges)
     
@@ -108,14 +110,8 @@ def solve(data: str, delay: int=60, n_workers: int=5):
 
 def main():
     year, day = 2018, 7
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve, extra_kwargs_parser=lambda d: d)
     from aocd import get_data
-    
-    
     raw = get_data(year=year, day=day)
-    #raw = test
-    # 947 too low!!!
     solve(raw)
 
 
