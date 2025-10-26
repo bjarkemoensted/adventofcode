@@ -1,19 +1,20 @@
-#  +  ⸳.•ꞏ * `  ⸳.ꞏ    .* ꞏ*  +ꞏ⸳ `*.  *.   .`⸳ꞏ  •*.`      .   ⸳+ꞏ `⸳ ` ꞏ * ⸳⸳ꞏ
-#  `ꞏ⸳  •  ⸳ +.*  ` ꞏ. ⸳ ꞏ• .• Timing is Everything ꞏ .*     +     .* +ꞏ ⸳* ` ꞏ.
-# .   ꞏ•  . +    .⸳+*  https://adventofcode.com/2016/day/15  `     ⸳.* ꞏ *ꞏ⸳ ` •
-#  ꞏ*` ⸳ * `ꞏ ⸳`.• ꞏ • *⸳  ꞏ⸳  * ` ꞏ• ꞏ. ⸳⸳.    ⸳` ꞏ•*`.  *  ꞏ*⸳ꞏ  + .`*. .  * ⸳
+# `·.· *   ·. •· `  ·.` +.* ·.·` · .+  ·  · * `.+·`   ·   ·+. * ·* ·.`   ·· * `·
+#   *.··  ·* `.·   *`    ·  •· Timing is Everything ·*·`  `· ·. *·  · . `  +` ·.
+# ··`*`.·  .·· + *`. · https://adventofcode.com/2016/day/15 · `·.+` *· ` ·+ ·.*.
+# . ·`+  ·· `     ·`* · ` ·  ·  `. • · * · `   · ` ·. +· · *`     · `   · .· ·.`
 
 
 import math
 import re
 
 
-def parse(s):
+def parse(s: str):
     res = []
 
     for line in s.split("\n"):
         pattern = r"Disc #(\d*) has (\d*) positions; at time=0, it is at position (\d*)."
         m = re.match(pattern, line)
+        assert m is not None
         res.append(tuple(map(int, m.groups()[1:])))
 
     return res
@@ -60,7 +61,7 @@ def determine_wait_seconds(discs, maxiter=None):
         n_its += 1
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     discs = parse(data)
 
     star1 = determine_wait_seconds(discs)
@@ -75,10 +76,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 15
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

@@ -1,7 +1,7 @@
-# *ꞏ` . *  `ꞏ* ⸳ `  ꞏ⸳•`    ꞏ` ⸳ * • ꞏ``⸳  . ⸳` *   ꞏ  ꞏ`     ꞏ ⸳ *` .`ꞏ  `.ꞏ`ꞏ•
-# ⸳   ` .⸳    ꞏ•`ꞏ    ꞏ+⸳ *   `. The Stars Align      ꞏ+.`⸳    ꞏ•   . ꞏ  ⸳ꞏ   ⸳.
-# `⸳   ꞏ ` .*⸳     . • https://adventofcode.com/2018/day/10 ꞏ     `ꞏ ⸳ +.  ⸳⸳  `
-#  *`ꞏ  ⸳.ꞏ  •` ꞏ⸳    . +ꞏ ꞏ    ` ⸳  ⸳.ꞏ  `*⸳ꞏ ⸳ ` `+      * ` .ꞏ ⸳ +`   ⸳  ꞏ *⸳
+# · `.`·*.+  .`·*`·.      `·   *.    `·   • *.`+·  `   * . ·•·.  *   . ·`* .  .`
+# +· `.*     ·•. *`· `.   + * .  The Stars Align *    .`  · . *  .· `   .· *`   
+# ·`  ·.   •` ·  ·     https://adventofcode.com/2018/day/10 `*`*  .· · +  . *. ·
+# . · *`   ·    . •`· `*.· *.   ·` .    • · .·  * . • * · `* `·. ` *   .   ·.`·*
 
 import aococr
 import numpy as np
@@ -11,7 +11,7 @@ from typing import TypeAlias
 statetype : TypeAlias = tuple[tuple[int, int], tuple[int, int]]
 
 
-def parse(s) -> list[statetype]:
+def parse(s: str) -> list[statetype]:
     states = []
     pattern = re.compile(r"position=<\s*(-?\d+),\s*(-?\d+)>\s+velocity=<\s*(-?\d+),\s*(-?\d+)>")
     
@@ -63,7 +63,7 @@ def decipher(states: list[statetype]) -> tuple[int, str]:
     #
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     initial_states = parse(data)
     n_seconds, message = decipher(initial_states)
     star1 = message
@@ -75,7 +75,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 10
     from aocd import get_data
     raw = get_data(year=year, day=day)

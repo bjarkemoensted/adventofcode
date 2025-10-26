@@ -1,10 +1,10 @@
-# ꞏ•  ꞏ⸳ •.    ꞏ⸳  •.  ꞏ⸳ `   +ꞏ   .*   ⸳ꞏ*`⸳       ꞏ.`+⸳ꞏ   .*  •   ⸳ ꞏ ⸳ꞏ*⸳.  
-# ` ꞏ⸳  `. .+   ꞏ  ⸳`*ꞏ⸳•`  ꞏ.⸳   Crossed Wires `ꞏ  `ꞏ⸳      ` * ꞏ⸳ •  `   ⸳.•`ꞏ
-# ⸳  ꞏ• .`ꞏ ⸳   .*     https://adventofcode.com/2024/day/24 * ꞏ.   ⸳  .  `+ ⸳+ `
-# .  ` ꞏ  •*`.ꞏ⸳  .`   +⸳ .    .⸳ .  ꞏ  ꞏ `*    ⸳ ꞏ.   ⸳*ꞏ ꞏ`  +ꞏ⸳.    * ꞏ  `ꞏ..
+# ·` · ` +· · * .  · * ·.`• `·*•.· + · `·*  . · • ·* · ·  *`  `   .+·     ·+`* ·
+#  *+`·· · .   .`  + · *·  `·     Crossed Wires `  · •· `..*·    * · ·  .·+` `*.
+# .··*     · .` ·*·    https://adventofcode.com/2024/day/24 .`   · `  ·.* `· •· 
+# ·`*.·+·`  .  ·*·.` ·  · *.  · `+  `·  •`·.·*  +  .`·   ·`  *· ·`   ` · •*.··`·
 
 
-def parse(s):
+def parse(s: str):
     """Parses input into 2 dicts - one mapping variables to their starting value, another mapping variables
     to a tuple like (a, operator, b), indicating how the variable's value is computed from 2 inputs,
     e.g. ('x', "AND", "y")"""
@@ -221,7 +221,7 @@ def identify_swaps(initial_values: dict, rules: dict):
     return mon._swapped
     
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     initial_values, rules = parse(data)
     
     monitor = MonitoringDevice(initial_values=initial_values, rules=rules)
@@ -237,7 +237,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 24
     from aocd import get_data
     raw = get_data(year=year, day=day)

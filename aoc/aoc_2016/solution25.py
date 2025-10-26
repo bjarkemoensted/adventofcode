@@ -1,18 +1,18 @@
-#    ꞏ⸳ .*  `+  ⸳`  *      ⸳*.`  •⸳   .ꞏ *  ⸳`     ⸳*`ꞏ  *.⸳    `•ꞏ⸳.  ⸳ *    .+
-# ⸳  .    *`ꞏ ⸳*     •ꞏ  `⸳     ⸳. Clock Signal ⸳  ꞏ. ⸳ ꞏ.    ꞏ *`       ⸳ꞏ•.*⸳`
-#  •ꞏ*  ⸳`  +  ⸳`+ꞏ    https://adventofcode.com/2016/day/25 ⸳.•`⸳.    .ꞏ*   `ꞏ .
-# .  +ꞏ   ⸳.⸳   •⸳.ꞏ`   *⸳    +`    ꞏ⸳• ⸳`   .•`   +⸳  .    *ꞏ     *ꞏ `*⸳. .+ `ꞏ
+# *·.`·  *  · .` ·    •  · ·.*   `·  +     *.`·     .*·   `·*·.    .·•`   ·  ``*
+# . · ` ·`*· •·.   ·       `*·. ·  Clock Signal ·+` ·.   ·    `·  · `   .· *`· `
+# ·*`. *`·   ·  ·.  ·` https://adventofcode.com/2016/day/25   • · `* ·. * `· ·.·
+# *·  ·` .· `     · *` ·   .· ·+` ·   .*+.` ·     ·      `· ·. *   ·   `·*.`·.•·
 
 
-def parse(s):
+def parse(s: str) -> list[tuple[str|int, ...]]:
     res = []
     for line in s.split("\n"):
-        ins = line.strip().split()
-        for i in range(len(ins)):
+        ins: list[str|int] = []
+        for elem in line.strip().split():
             try:
-                ins[i] = int(ins[i])
+                ins.append(int(elem))
             except ValueError:
-                pass
+                ins.append(elem)
             #
         res.append(tuple(ins))
     return res
@@ -124,7 +124,7 @@ class Registry:
 
 
 class Interpreter:
-    def __init__(self, registry: Registry, instructions, verbose=False):
+    def __init__(self, registry: Registry, instructions, verbose=False) -> None:
         """Optimized interpreter which handles multiplication."""
 
         self.registry = registry
@@ -135,11 +135,12 @@ class Interpreter:
         self.verbose = verbose
         self.n_its = 0
         self.counts = [0 for _ in self.instructions]
-        self.beeps = []
-        self.seen_states = set([])
+        self.beeps: list[int] = []
+        self.seen_states: set[tuple[int, ...]] = set([])
 
-    def _state(self):
-        return (self.pointer,) + self.registry.as_tuple()
+    def _state(self) -> tuple[int, ...]:
+        res = (self.pointer,) + self.registry.as_tuple()
+        return res
 
     def _debug(self):
         """Prints details about current instruction and registry values"""
@@ -239,7 +240,7 @@ def brute(instructions: list):
         a += 1
 
 
-def solve(data: str):    
+def solve(data: str) -> tuple[int|str, None]:
     raw_instructions = parse(data)
     optimized_instructions = peephole_optimize(raw_instructions)
 
@@ -251,7 +252,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 25
     from aocd import get_data
     raw = get_data(year=year, day=day)

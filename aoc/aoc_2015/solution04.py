@@ -1,13 +1,13 @@
-# ꞏ** `.`        ` ꞏ*`  +ꞏ⸳ *  `  .  +  ꞏ   +* ` ⸳ ꞏ +   `ꞏ  *.•ꞏ .+ *   ` .⸳`• 
-# `⸳.ꞏ * `ꞏ  .•*   ` ⸳ *    The Ideal Stocking Stuffer `+. ꞏ  *  ` . ⸳ * ꞏ `   *
-# .ꞏ`⸳  •     . *ꞏ  `* https://adventofcode.com/2015/day/4 .*      ꞏ  *⸳`.     ꞏ
-#   +.  ꞏ*.`•  ⸳     ꞏ *ꞏ`*       .⸳ꞏ*`  ⸳• `    .  ` +ꞏ  .+⸳    ꞏ*`⸳   .*.ꞏ  `⸳
+# · *`·`.·  · *+ ·  ·.   `+  ·.  +··*` · .·*  · · + ·    .`. * ··  *.+` ·    ·.·
+# ` ·  ·     · · .    ·*`·  The Ideal Stocking Stuffer ·**  ·  `   .·*· * ··` ·.
+# ·.··`       . ·*·  ` https://adventofcode.com/2015/day/4 ·*. * · `+·· .·* ·``·
+# .·`*· *. ·  ·.` .+ ·  ·•  ` *··  ·   *· `.·  +   ·*    ··*  ·  .· *.  ·` + .·`
 
 
 from hashlib import md5
 
 
-def parse(s):
+def parse(s: str):
     res = s  # TODO parse input here
     return res
 
@@ -29,7 +29,7 @@ def find_first_hash(startstring, data: str):
     return n
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     star1 = find_first_hash(5 * "0", data)
     print(f"Solution to part 1: {star1}")
 
@@ -39,10 +39,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 4
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

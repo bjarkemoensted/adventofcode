@@ -1,13 +1,13 @@
-#  *⸳ꞏ    •`  .+⸳ `  * *. • *ꞏ⸳ꞏ .* +`       .ꞏ* +.    ` ꞏ+ ⸳.`*       ` +. .` ⸳
-# `   *  `     ꞏ`.+ *⸳* ꞏ ⸳*. Wizard Simulator 20XX     ꞏ*`.   ⸳  +   • `ꞏ ⸳  .`
-# •.ꞏ`   . *     *ꞏ. ⸳ https://adventofcode.com/2015/day/22 .ꞏ `      ` ⸳  *⸳ *.
-# ⸳. *`     *• .    ⸳ `.`*.  .ꞏ* ` *   *  ꞏ`. •   *`+ꞏ⸳ ⸳.  *`  ꞏ* . *⸳ *. ꞏ•`  
+# `. ·.*·. `·+ `·  *· ·  `   .·   ` *   +·`·.   ·*  ·· .      ··.  *· .  ··`  .·
+# . ` ·   ·* ·.·  ·     .· `+ Wizard Simulator 20XX · `·  .• ·    ··. `··.* ·.· 
+# ··•`*  ·    ·.    ·· https://adventofcode.com/2015/day/22 ·*`. ·`.  ·  · · `.·
+# .·· `. •*·.`   · ·` ·* .·  `· •.· · `+. · ·  .·•`· `.  ··.*·   `  ··.*     ·`·
 
 
 import heapq
 
 
-def parse(s):
+def parse(s: str):
     raw = {}
     for line in s.split("\n"):
         k, v = line.split(": ")
@@ -102,50 +102,50 @@ class Game:
         if self.verbose:
             print(*args, **kwargs)
 
-    def make_initial_state(self):
-        res = [0 for _ in range(6)]
-        res[self.player_hp_ind] = self.player_hp
-        res[self.player_mana_ind] = self.player_mana
-        res[self.boss_hp_ind] = self.boss_hp
-        res = tuple(res)
+    def make_initial_state(self) -> tuple[int, ...]:
+        vals = [0 for _ in range(6)]
+        vals[self.player_hp_ind] = self.player_hp
+        vals[self.player_mana_ind] = self.player_mana
+        vals[self.boss_hp_ind] = self.boss_hp
+        res = tuple(vals)
         return res
 
-    def magic_missile(self, state):
+    def magic_missile(self, state: list[int]) -> None:
         state[self.boss_hp_ind] -= self.spell_damage["magic_missile"]
         state[self.player_mana_ind] -= self.spell_costs["magic_missile"]
 
-    def drain(self, state):
+    def drain(self, state: list[int]) -> None:
         state[self.boss_hp_ind] -= self.spell_damage["drain"]
         state[self.player_hp_ind] += self.spell_damage["drain"]
         state[self.player_mana_ind] -= self.spell_costs["drain"]
 
-    def poison(self, state):
+    def poison(self, state: list[int]) -> None:
         if state[self.poison_timer_ind] != 0:
             raise InvalidMoveError
         state[self.player_mana_ind] -= self.spell_costs["poison"]
         state[self.poison_timer_ind] = self.spell_duration["poison"]
 
-    def shield(self, state):
+    def shield(self, state: list[int]) -> None:
         if state[self.shield_timer_ind] != 0:
             raise InvalidMoveError
         state[self.player_mana_ind] -= self.spell_costs["shield"]
         state[self.shield_timer_ind] = self.spell_duration["shield"]
 
-    def recharge(self, state):
+    def recharge(self, state: list[int]) -> None:
         if state[self.recharge_timer_ind] != 0:
             raise InvalidMoveError
         state[self.player_mana_ind] -= self.spell_costs["recharge"]
         state[self.recharge_timer_ind] = self.spell_duration["recharge"]
 
-    def game_over(self, state):
+    def game_over(self, state: list[int]|tuple[int, ...]) -> bool:
         """Returns whether the game is over (player or boss is dead)"""
         return any(state[ind] <= 0 for ind in (self.player_hp_ind, self.boss_hp_ind))
 
-    def won(self, state):
+    def won(self, state: list[int]|tuple[int, ...]) -> bool:
         """Returns whether the game is won"""
         return state[self.boss_hp_ind] <= 0 and state[self.player_hp_ind] > 0
 
-    def _apply_effects(self, state: list):
+    def _apply_effects(self, state: list[int]) -> None:
         """Applies all effects currently in play, and decrements their timers"""
 
         if self.game_over(state):
@@ -170,11 +170,12 @@ class Game:
             self.vprint(f"Recharge gives {self.recharge_effect} mana. Timer now at {state[self.recharge_timer_ind]}.")
         #
 
-    def boss_turn(self, state: list):
+    def boss_turn(self, state: list[int]) -> None:
         """Runs the boss turn - attack taking any shield effect into consideration"""
 
         if self.game_over(state):
             return
+        
         self.vprint(f"-- Boss turn --")
         self.vprint(f"- State: {state}")
 
@@ -186,7 +187,7 @@ class Game:
         self.vprint(f"Boss attacks for {dmg} damage.")
         self.vprint(f"State after turn: {state}")
 
-    def player_turn(self, state: list, spell: str):
+    def player_turn(self, state: list[int], spell: str) -> None:
         """Runs the player turn"""
 
         if self.hard_mode:
@@ -206,24 +207,24 @@ class Game:
 
         self.vprint(f"State after turn: {state}")
 
-    def turn(self, state: tuple, spell: str | list):
+    def turn(self, state: tuple[int, ...], spell: str|list[str]) -> tuple[int, ...]:
         """Run one or multiple spell casts"""
 
         if isinstance(spell, list):
-            res = state
+            running = state
             for spell_ in spell:
-                res = self.turn(state=res, spell=spell_)
-            return res
+                running = self.turn(state=running, spell=spell_)
+            return running
 
-        res = [val for val in state]
-        self.player_turn(state=res, spell=spell)
-        self._apply_effects(state=res)
+        new_state = [val for val in state]
+        self.player_turn(state=new_state, spell=spell)
+        self._apply_effects(state=new_state)
         self.vprint()
-        self.boss_turn(state=res)
-        self._apply_effects(state=res)
+        self.boss_turn(state=new_state)
+        self._apply_effects(state=new_state)
         self.vprint()
 
-        res = tuple(res)
+        res = tuple(new_state)
         return res
 
     def neighbors(self, state: tuple):
@@ -262,8 +263,8 @@ def play(game: Game):
     open_ = Queue()
     open_.push(initial_state, priority=f_initial)
 
-    last_spell = dict()  # Keep track of the spells cast
-    camefrom = dict()
+    last_spell: dict[str, tuple[int, ...]] = dict()  # Keep track of the spells cast
+    camefrom: dict[tuple[int, ...], tuple[int, ...]] = dict()
 
     while open_:
         current = open_.pop()
@@ -296,7 +297,7 @@ def play(game: Game):
     #
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     boss_stats = parse(data)
     game = Game(**boss_stats)
 
@@ -313,7 +314,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 22
     from aocd import get_data
     raw = get_data(year=year, day=day)

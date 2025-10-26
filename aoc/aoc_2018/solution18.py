@@ -1,7 +1,7 @@
-#   .    .• ⸳  . •⸳`ꞏ  *  ⸳`ꞏ ꞏ • .ꞏ    +`  `.*•ꞏ⸳⸳ +. ꞏ  ⸳ `  ꞏ•  *ꞏ  .`*⸳    .
-# `+⸳ꞏ   *.    ` ꞏꞏ. ` ⸳  + Settlers of The North Pole +  +⸳ .ꞏ⸳ .          ꞏ ⸳*
-# *`*.     ⸳  `•⸳.•  . https://adventofcode.com/2018/day/18 .+⸳   .ꞏ     `ꞏ+ `. 
-# *.ꞏ`ꞏ   * . ⸳ꞏ`   .  ꞏ ⸳ ⸳+ꞏ   . `• ⸳ ꞏꞏ+. `    ꞏ•  .   ꞏ.⸳ +ꞏ   ⸳` ꞏꞏ+ • ` ꞏ⸳
+# ·` * .`+· · ·  *·`·    ·+   · `*.  `  *   ·.* `·`   ·* · .·`  .+ ·`·*      *·.
+# .*·  ·*`  `·  +·`     ·•· Settlers of The North Pole  *.`    ·+    ` ·* ·`*· ·
+# +·• ·`.·  ·.*    ·   https://adventofcode.com/2018/day/18  . *·  ` .`+ · ··.`*
+#  ·`·.*   ·  `··.  +·. `*   ·.  ·`  ·*·•`   ·    .· *.`· +·.·   ·`*  · ·. *`  ·
 
 import numpy as np
 from numpy.lib.stride_tricks import sliding_window_view
@@ -112,12 +112,12 @@ class Woodland:
         res = np.equal(m, symbols.tree).sum() * np.equal(m, symbols.lumberyard).sum()
         return res
     
-def parse(s) -> arrtype:
+def parse(s: str) -> arrtype:
     res = np.array([list(line) for line in s.splitlines()], dtype="<U1")
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     map_ = parse(data)
     woodland = Woodland(map_)
     
@@ -130,10 +130,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 18
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

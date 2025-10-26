@@ -1,12 +1,12 @@
-# ꞏ    . ⸳•    •` *   ` ⸳*`. + • ⸳•.   ⸳ `* . ꞏ` . •*⸳⸳   .`     ` *⸳   ꞏ*. ⸳  .
-# .*  ` • ⸳. +     + ⸳ꞏ  .*   * Historian Hysteria   . **⸳  `   .•       . ⸳•`  
-# .  `*           ⸳ .  https://adventofcode.com/2024/day/1   ⸳      * ⸳`ꞏ  + ⸳ +
-# +⸳.     `.*  .⸳   +`  . ⸳ *`  .   * `*  .   •.ꞏ•⸳ `   . *     ⸳ * . ꞏ.  `  *⸳ 
+# ·.` ··   * `. ·  +·      ·.`·*   `·    ·`  . ·  `·. *  ·     ·` `  ·  .  · · .
+# . ·  .  ` *·  •· ·   `.··.  ` Historian Hysteria  *. `·  .·  ` ·     *·   ·`.·
+# `·  .`· ·.  +·  ·`   https://adventofcode.com/2024/day/1   ·  ·* .` ·  ·  .·`·
+# ·`  •·`  ·.*·     ·.  ·`   ·    ` ` .*· · `·    ·.   ·  ` .*·   · •` · . ·`.·`
 
 from collections import Counter
 
 
-def parse(s):
+def parse(s: str):
     pairs = [tuple(int(part) for part in line.split()) for line in s.splitlines()]
     a, b = zip(*pairs)
     return a, b
@@ -25,7 +25,7 @@ def similarity(left, right):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     left, right = parse(data)
 
     star1 = dist(left, right)
@@ -37,10 +37,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 1
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

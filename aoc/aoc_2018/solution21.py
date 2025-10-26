@@ -1,7 +1,7 @@
-# *⸳ꞏ  `ꞏ⸳.ꞏ         ꞏ `. ꞏ  `+⸳.+ ꞏ ⸳*ꞏ.    ꞏ  . ꞏ ꞏ  •⸳.⸳ •`.ꞏ     ꞏ +  ⸳ꞏ.  ꞏ
-# . `  ꞏ.    ⸳ꞏ+ *   `ꞏ `  ⸳  ꞏ Chronal Conversion   ꞏ⸳`. +ꞏ*⸳  . ꞏ  *`ꞏ   • ꞏ⸳ 
-# ⸳ꞏ.•⸳+⸳   `. ꞏ ꞏ.⸳•  https://adventofcode.com/2018/day/21 .+ꞏ `⸳.⸳•.    ꞏ. ⸳`.
-# ꞏ.⸳    ꞏ+.ꞏ`.⸳ ⸳  ` *.ꞏ   . `ꞏ⸳⸳ꞏ  .ꞏ`+ *ꞏ⸳. +⸳ꞏ.     ꞏ⸳   .`  +*ꞏ  ꞏ.` +`ꞏ.⸳ 
+# `· . • .·*`·    *·` .· •  `.·    `+*  · . *· .*`      *··`   ·*    .`+ ·*.*`· 
+# · `· *    ·  *.   +·`*.·   ·  Chronal Conversion .*··`. *·.*·•  `    *·` ·+. *
+# *+·`·   *  +. · ` *  https://adventofcode.com/2018/day/21  ` . ·*· ` .   •`· ·
+# .`* +·  .·*` · *·*·  ·* .+ ` ·*`.·* ·.*`  .*· `+. ·.* · ` *·. `  .·· `+*  ·*`·
 
 from __future__ import annotations
 import functools
@@ -21,7 +21,7 @@ class LoopExecption(Exception):
     pass
 
 
-def parse(s) -> tuple[int, list[instructiontype]]:
+def parse(s: str) -> tuple[int, list[instructiontype]]:
     """Parses the input program."""
 
     ip_line, *lines = s.splitlines()
@@ -310,7 +310,7 @@ def bsri(_reg: list[int], _a: int, _b: int, _c: int):
     return None
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     data = peephole(data)
     
     # We assume the comparison controls exit from program flow, so ensure there's only one
@@ -330,7 +330,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 21
     from aocd import get_data
     raw = get_data(year=year, day=day)

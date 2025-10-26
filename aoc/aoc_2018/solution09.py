@@ -1,13 +1,13 @@
-# ꞏ+`*.⸳ + ꞏ `*.⸳+  .⸳ *. ⸳ꞏ `  ⸳ *+    ꞏ . `  •     .*`     ꞏ⸳ • .``ꞏ⸳.   •`⸳ꞏ.
-#  .⸳`+ .  •`•.     `  ꞏ ⸳*.•⸳` *  Marble Mania   ⸳  `  ꞏ `+.`+  . ꞏ     `ꞏ.  ⸳*
-# `⸳*.•ꞏ     .⸳      ꞏ https://adventofcode.com/2018/day/9 ꞏ +`⸳ ⸳ *ꞏ  `  .⸳ . .
-# ` .*  `.⸳    +⸳`.ꞏ* `    • .   *⸳ꞏ ` .*`   •⸳ .ꞏ+ ⸳ `  ꞏ⸳ +  .`*  ` .⸳ .  ⸳ *ꞏ
+# ·*.`·      ·  `··  * .   .·* ·• ·`.· +·   . · ·` ·*·    .·` +   ·`*·.  · ·`  ·
+# ``·*.+·  · .` ·  ·.· `·  *.· ` · Marble Mania .··  .` ·.*  · *   ` .·   ·•·.·`
+# *. · · . ·`• ·. `  · https://adventofcode.com/2018/day/9  · ` .* ·  ` · .·.·  
+# .··` ` · .· ·  `  · *·` . • · · *  ·.`    •· +·.·     * ··.. ·*` .·`  *··. +`·
 
 from collections import defaultdict, deque
 import re
 
 
-def parse(s):
+def parse(s: str):
     m = re.match(r"(\d+) players; last marble is worth (\d+) points", s)
     n_players, max_points = map(int, m.groups())
     return n_players, max_points
@@ -45,7 +45,7 @@ def play_marble_game(n_players: int, n_marbles: int) -> dict[int, int]:
     return points
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     n_players, max_points = parse(data)
     
     n_marbles = max_points + 1
@@ -62,10 +62,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 9
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     

@@ -1,13 +1,13 @@
-# `. ꞏ  ⸳ꞏ* `   . • ⸳ꞏ     `*.ꞏ⸳  `ꞏ.• *`  ꞏ         +ꞏ⸳`  ꞏ .`  *ꞏ`    `*⸳ •ꞏ ꞏ
-# *⸳  `    *+⸳ ` •.    +        ` Code Chronicle * ⸳ꞏ.    + *` .⸳  ꞏ`     * ꞏ .+
-#  + •⸳`ꞏ  + ꞏ ⸳ . ꞏ + https://adventofcode.com/2024/day/25 `⸳ꞏ*ꞏ⸳`   •⸳  . +ꞏ `
-#  `+. ꞏ* ⸳.`  *ꞏ ⸳`    ꞏ.*⸳ `• ꞏ.  +ꞏ`  ⸳   . ꞏ* `ꞏ+    .` ꞏ    ꞏ. ⸳⸳.* `  ⸳  .
+# ·.`· .+*   .·.  ·  ` ·*.·  •.·       ·*`·    .+`·· .·    •· . ·     .*`·.  ·`*
+# . · *`· * .·  `·.· ·     ·+`*   Code Chronicle .  ·`+*·  `  ·  *    ·· `*.+.·`
+#  *   ·. ·  ` ·.•· .* https://adventofcode.com/2024/day/25    `+ ·.`·  · · `•·.
+# `·.*·• `.·   *·.  ·   ` •.  ·   ·` *  · .·*   `· .+· .   · *`·.   ·   +* `· .·
 
 
 import numpy as np
 
 
-def parse(s):
+def parse(s: str):
     locks = []
     keys = []
     
@@ -41,7 +41,7 @@ def count_fitting_key_lock_paris(locks: list, keys: list, pinsize=5):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     locks, keys = parse(data)
 
     star1 = count_fitting_key_lock_paris(locks=locks, keys=keys)
@@ -53,7 +53,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 25
     from aocd import get_data
     raw = get_data(year=year, day=day)

@@ -1,7 +1,7 @@
-# .+. ⸳`⸳ꞏ ` ꞏ.•  *  . `⸳.*      .⸳ ꞏ•  *ꞏ.⸳     ⸳`.ꞏ ⸳`*  .. •ꞏ ⸳ `. +.⸳  *   `
-#    ..•ꞏ `ꞏ * `  •⸳ꞏꞏ* ` .`   ⸳  Particle Swarm +.`    `  ꞏ ` .⸳+ ꞏ⸳.   *.` • ꞏ
-#  .ꞏ⸳ꞏ*.   ⸳     .`*⸳ https://adventofcode.com/2017/day/20    ꞏ⸳. ⸳   ꞏ` *ꞏ  ⸳.
-# ⸳ *`⸳ꞏ+     •.  ` .•   ꞏ`⸳• ꞏ*`⸳ .  ⸳ꞏ*.ꞏ`        `.•. *⸳ ⸳ꞏ  .`ꞏ *   ⸳  .ꞏ.*•
+# .`·.·   *  . ·.· ` *· `  ··.*`.   ·    ` .· •`*.·`·   .`•·. ·*`.·    +· .``*··
+# *  ·  .+· · .`  * ·.`·   . `·   Particle Swarm   .   `*·  `·*.•·`  +.· `·  ·`.
+# · `* · ·`·.   `*.    https://adventofcode.com/2017/day/20 ·* `     ·   . *·.·`
+# ` · +.`    ·  · ·.*` ·   · +  ·` ·   *` ·   ` .  · *.· `   `.··*  ·`  . · .`*·
 
 
 from collections import defaultdict
@@ -9,7 +9,7 @@ import numba
 import re
 
 
-def parse(s):
+def parse(s: str):
     res = []
     for line in s.splitlines():
         hits = re.findall(r"<(.*?)>", line)
@@ -178,7 +178,7 @@ def count_remaining(states):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     states_raw = parse(data)
     states = [_parametrize_state(state) for state in states_raw]
 
@@ -191,10 +191,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 20
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

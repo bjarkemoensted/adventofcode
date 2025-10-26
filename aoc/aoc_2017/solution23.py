@@ -1,13 +1,13 @@
-# ⸳. `.ꞏ    ⸳    `*ꞏ. * `⸳  ꞏ  .`  *ꞏ    ⸳ *.  `ꞏ    ⸳  ` ꞏ  .*ꞏ`•      ⸳`  ⸳.ꞏ*
-# +ꞏ*.   `⸳•.  ⸳*ꞏ   ⸳.`  + Coprocessor Conflagration ` ⸳ ⸳.`     •ꞏ • ⸳   ꞏꞏ*  
-# `ꞏ    .⸳• *.⸳   `  ꞏ https://adventofcode.com/2017/day/23 .*` ⸳ꞏ + .    ꞏ•. ⸳`
-#  ⸳• ꞏ      `•ꞏ.  ⸳  `*  ⸳ꞏ* `.    .⸳ꞏ   •⸳. ꞏ. `  *     `ꞏ  ⸳•ꞏ.       ꞏ⸳ `⸳*.
+# .·`•· `.* · *`   ·    ·` * .·` ·*.·  ·` *    ·     * .  `•·`  *·.    +`   ·`·.
+# ·.   · *     · *``.·.     Coprocessor Conflagration ·   ·`+  .   ·`    * `.·* 
+# •* ·`.  ·` ·+  `  *. https://adventofcode.com/2017/day/23 .* ·   + . ` `··*· .
+#  · `*    .` · .· ` *·+`  ·.• *·     .`*· . ·*`·    ·* .`*  ·  . · *`··   . •`·
 
 
 from collections import defaultdict
 
 
-def parse(s):
+def parse(s: str):
     """Parses input to a list of instructions like [(operation, arg1, arg2, ...)]"""
     res = []
     for line in s.splitlines():
@@ -232,7 +232,7 @@ def match_template_and_run(instructions: list) -> int:
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     instructions = parse(data)
 
     star1 = run_instructions(instructions)
@@ -244,7 +244,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 23
     from aocd import get_data
     raw = get_data(year=year, day=day)

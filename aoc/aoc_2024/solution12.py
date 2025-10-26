@@ -1,14 +1,14 @@
-# .•. ꞏ*`ꞏ⸳  *.      ꞏ• `⸳ꞏ     •**ꞏ   ꞏ   ⸳  *`. ꞏ⸳*.`  ⸳+   ⸳• . ⸳ꞏ*ꞏ⸳`.  * ⸳ꞏ
-# *  ꞏ .ꞏ .* `*  ⸳.  +ꞏ    ⸳ ꞏ .ꞏ Garden Groups ` ⸳.ꞏ*.  `*ꞏ⸳ .ꞏ*      .⸳*` ⸳.`⸳
-# ⸳ *.  +.ꞏ    ꞏ  ⸳ •. https://adventofcode.com/2024/day/12    .⸳+•+` .*ꞏ ꞏ`   *
-# `.`•ꞏ. *     ⸳*ꞏ+  ⸳ ꞏ . •⸳. • ꞏ. +` ꞏ.  `⸳* . ⸳ •ꞏ.•   ꞏ.` *    ⸳. *ꞏ .*⸳` •.
+# ·+` · .·*·`  +·.`  ·*`·     ·` · .·• `` ·.· *  ·* · `  · ·`    ·` +*. ··` . +·
+# ·`·.  +*`· ·.`+··    * `··`   · Garden Groups `   ·  ·.  +   ··•  .·`·* •· ·.·
+# .· ` · `+*·  · *  ·+ https://adventofcode.com/2024/day/12 ·` ` .·   · .+ `·`·*
+# `.··*`·.    ··`    ·· ·*.  ·+· `.*`· + ··`     *·`  ·.  ·    *`·+.· * `··*· •`
 
 
 from collections import defaultdict
 import numpy as np
 
 
-def parse(s):
+def parse(s: str):
     m = np.array([list(line) for line in s.splitlines()])
     return m
 
@@ -161,7 +161,7 @@ def fence_price(regions, segment_price=False):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     m = parse(data)
     regions = get_regions(m)
     
@@ -174,7 +174,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 12
     from aocd import get_data
     raw = get_data(year=year, day=day)

@@ -1,14 +1,14 @@
-# *`ꞏꞏ . * .⸳ꞏ    ⸳ ++ ꞏ` * .*⸳ .•ꞏ.  +  `   .⸳*   ` . ꞏ *+ .* .  `⸳ . *    *⸳ꞏꞏ
-#   *. `+. ⸳  ⸳ +ꞏ *`.ꞏ     *ꞏ` Plutonian Pebbles  +  ꞏ⸳`      ꞏ+⸳  *`   .⸳+ꞏ` *
-# ꞏ ⸳ ` ꞏ⸳ *  +   *.   https://adventofcode.com/2024/day/11 ⸳  +.   ꞏ⸳+⸳.*  ꞏ  .
-# ⸳•` *⸳.   +.ꞏ ꞏ   ⸳  *•. .` **ꞏ⸳  ꞏ⸳  *ꞏ•. •`⸳     •.   ` +⸳*⸳ꞏ +   ⸳ꞏ` *  * ⸳
+# ·+··.*  ·`*.·    ··*.`·  `*·     ·•  `·· +.   *  ` ·· `· ·  .·* ·`+·   `+.··•·
+# ·*`  `·+`.·   ·*`  ·· `• ·    Plutonian Pebbles `·    ·`·*.    ··*`+ ·  ·· .`·
+# *··+` . ·*`· ·` ·    https://adventofcode.com/2024/day/11 ·*  ·` ·. · *·.+` ·`
+# .·  ·  ·*·   ` ·*  ·  .·· * ·.`·· ·*   . ·   ·  · .* · *·  `·+  . · ` ··*`· ·.
 
 
 from collections import defaultdict
 from functools import cache
 
 
-def parse(s):
+def parse(s: str):
     """Parses into a dict where each number is mapped to the number of stones it appears on"""
     res = defaultdict(lambda: 0)
     for stone in map(int, s.strip().split()):
@@ -51,7 +51,7 @@ def blink(stones: dict, n: int=1):
     return stones
     
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     stones = parse(data)
     
     n_steps = 25
@@ -68,7 +68,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 11
     from aocd import get_data
     raw = get_data(year=year, day=day)

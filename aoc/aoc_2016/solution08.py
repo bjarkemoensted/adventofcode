@@ -1,7 +1,7 @@
-# +.*⸳ꞏ `*.⸳  • ⸳` ꞏ.      ⸳.+ ⸳*    `.•⸳  `•.ꞏ   ⸳ `.  `⸳`⸳* + .` *  ꞏ⸳    ꞏ .+
-# ꞏ+⸳`    ⸳•*`  .⸳.`*   ` ⸳ Two-Factor Authentication ⸳`  ⸳  • ꞏ . `* ⸳   + .`⸳ꞏ
-# • ꞏ ⸳+ .  `  ⸳ꞏ*     https://adventofcode.com/2016/day/8      `    ⸳ `  ⸳  • .
-#  ⸳ *`⸳ꞏ ` ꞏ⸳.   *⸳  ꞏ .   ⸳`*   . ⸳ • + +`⸳  ꞏ.  ꞏ*   •   ` ꞏ  • ⸳.`. *ꞏ  • `⸳
+# `·*   ·`  .· · ` .·· ` *.  ·`··+ `.  `  ·•`·    . ·*   .• ·` ·*` .   ·`·*· .·`
+# · .`·*    ·  ` ··   `* .· Two-Factor Authentication     ·  · `     ·* . ``·.·+
+# · ` *·  .·•`.·   ·`* https://adventofcode.com/2016/day/8 •  ·.  `· . `·*. `·  
+#  *··.` *·  .  •· `  · `  ·.  +`·  ·*   `.· ·`*.+ ·  · ` .·  *   · `·  *`··.*`·
 
 
 from aococr import aococr
@@ -9,7 +9,7 @@ import numpy as np
 import re
 
 
-def parse(s):
+def parse(s: str):
     """Parses input into a list of tuples like [(command, (arg1, arg2)), ...]"""
     lines = s.split("\n")
     res = []
@@ -24,6 +24,7 @@ def parse(s):
         for command, pattern in regexps.items():
             if line.startswith(command):
                 m = re.match(pattern, line)
+                assert m is not None
                 args = list(map(int, m.groups()))
                 res.append((command, args))
 
@@ -58,7 +59,7 @@ def run_instructions(instructions):
     return display
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     instructions = parse(data)
 
     final_display = run_instructions(instructions)
@@ -72,10 +73,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 8
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

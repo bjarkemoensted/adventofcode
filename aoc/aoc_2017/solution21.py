@@ -1,7 +1,7 @@
-#    +ꞏ`⸳    .*     .⸳+`   `ꞏ*. .ꞏ  • ⸳  ꞏ  +.ꞏ**      +  ꞏ` ꞏ⸳     *` .•⸳ `ꞏ•* 
-# `*⸳     ꞏ *•⸳ .⸳ꞏ       ` . ꞏꞏ•  Fractal Art .  •  ꞏ⸳ `*⸳  * .`.   ꞏ* ⸳   . `⸳
-# ⸳.•` ꞏ • ꞏ⸳  `   .⸳` https://adventofcode.com/2017/day/21 ` ⸳ +     `ꞏ  ⸳   **
-# +⸳ꞏ.  *  *.ꞏ`   .+   ꞏ*`* ⸳` ⸳ * ꞏ.+`**.`     ꞏ *` +  ⸳ + ꞏ.   *      `+`* ꞏ⸳.
+# · .·` ·+ ·` .  ·` * ·   •..  · *    ·  ·`  . +·`  .*  `··   . ` · *·  .+·. `*·
+# .·   .` ·  ·*`·   .· ` ·.`    +· Fractal Art · .   ·+`*   .· `    ·*`  ·  .•·`
+# `.  ·+·  .·` •  ·`+· https://adventofcode.com/2017/day/21 ·. · `   ·  · *` .··
+# *·` ·  `·  . ·   ··*     ·  ·*.`+  · .  * ·· . *·` . ·  `·*`  .·   . · .*·`·`+
 
 
 import numpy as np
@@ -23,7 +23,7 @@ def _tuple_to_numpy(tup: tuple):
     return res
 
 
-def parse(s):
+def parse(s: str):
     """Make a hashable representation of each array to the outputs"""
     res = dict()
     for line in s.splitlines():
@@ -135,7 +135,7 @@ def simulate_growth(rules: dict, n_steps: int = 5, verbose=False, state=None):
     return state
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     rules = parse(data)
     iterations=5
     endstate = simulate_growth(rules=rules, n_steps=iterations)
@@ -155,11 +155,9 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 21
-    from aoc.utils.data import check_examples
 
-    check_examples(year=year, day=day, solver=solve)
 
     from aocd import get_data
     raw = get_data(year=year, day=day)

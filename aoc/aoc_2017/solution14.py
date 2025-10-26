@@ -1,10 +1,10 @@
-#  ꞏ ` ꞏ•  `.  ꞏ`.⸳ ꞏ. `*⸳  •  ⸳ .`  *. `ꞏ .    .   ꞏ+•`⸳•ꞏ   ꞏ`  .     ꞏ`     .
-#  ⸳*    `•.    ꞏ .`+ꞏ*  ꞏ     Disk Defragmentation * ꞏꞏ` ⸳•ꞏ.     ` .+   .ꞏ `ꞏ*
-# ⸳.ꞏ *    ꞏ⸳   `      https://adventofcode.com/2017/day/14 .⸳   ꞏꞏ   `*`  .` ⸳ 
-# `+⸳ꞏ            *ꞏ.⸳  `*   *ꞏ  + ` ꞏ     ꞏ` ⸳ꞏ+ `  .⸳  ` ꞏ ꞏ* ⸳  .  ⸳ꞏ  *`+⸳  
+# ··`.    ·.` ·*  + `   ·.  ·`·*. ·*  .  `*• ·     .· ·   *· `·+.·* `. · *.·`··+
+#   .  *··` *.  · ·  .· `+   . Disk Defragmentation   .  .`* · ·      ·.  +`·. ·
+# ·`·*   • ·.·* `·  +  https://adventofcode.com/2017/day/14 · *.     `• ·· *  .·
+# `  ·· *.  · .` •*· ·. * ·`.·     •·+ ·.     *·    `   ·   *.· ` `+·*.     ·* .
 
 
-def parse(s):
+def parse(s: str):
     res = s
     return res
 
@@ -120,7 +120,7 @@ def determine_groups(used):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     key_string = parse(data)
 
     used = find_used(key_string)
@@ -134,10 +134,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 14
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

@@ -1,16 +1,21 @@
-#  .ꞏ* ⸳. ꞏ.•   .⸳ • ꞏ       ꞏ   ⸳ .`•. ⸳   `    ꞏ  ⸳ . •`⸳`.  ⸳ꞏ *   ` . +*.  *
-#   *⸳.  `   *ꞏ ⸳. ꞏ+ Radioisotope Thermoelectric Generators ⸳ꞏ    ⸳  *. ꞏ ` *ꞏ⸳
-# .*•.       ꞏ` +   .` https://adventofcode.com/2016/day/11      ꞏ ꞏ.` +⸳ .    .
-#  ⸳.`ꞏ• . . `+⸳       ⸳*ꞏ .`+ ⸳. ` ꞏ •  ꞏ.`  +  ⸳ꞏ      .  ⸳ +ꞏ .  `•  ꞏ*⸳    `
+# ·*.+`·   ·*  •`   ·   ·  +. · *   ·`·`•.  ··      `* · ` ·.    ·+    ` ·   .·+
+#  ·`·+ `.  · *  .    Radioisotope Thermoelectric Generators  .    ·    ·*`·`+. 
+# `·  .  ·  ` ·.·    ` https://adventofcode.com/2016/day/11   ·`    .·• + .`·· ·
+# ·`· ·+. ·`   · · * ·•` · . `*·  . `  ·  `   •·.`·   ·`+ .  ·*  +·   · `.·* `·`
 
 
 from functools import cache
 import heapq
 from itertools import combinations
 import re
+from typing import TypeAlias
 
 
-def parse(s):
+floordata: TypeAlias = dict[str, list[str]]
+statetype: TypeAlias = tuple[int, tuple[tuple[int, ...], ...]]
+
+
+def parse(s: str) -> dict[int, floordata]:
     res = dict()
     floor = 1
     for line in s.split("\n"):
@@ -20,11 +25,11 @@ def parse(s):
         res[floor] = floor_data
 
         floor += 1
-
+    
     return res
 
 
-def tuple_from_list(arr):
+def tuple_from_list(arr) -> statetype:
     """Turns a list of lists into a tuple of tuples"""
     el, stuff = arr
     res = (el, tuple(tuple(floor) for floor in stuff))
@@ -81,7 +86,7 @@ def heuristic(state: tuple) -> int:
 
 
 class Graph:
-    def __init__(self, data: dict):
+    def __init__(self, data: dict[int, floordata]) -> None:
         self.floors = sorted(data.keys())
         self.n_floors = len(self.floors)
 
@@ -182,9 +187,10 @@ class Queue:
         return len(self._items)
 
 
-def a_star(data: dict, maxiter=None):
+def a_star(data: dict[int, floordata], maxiter: float|None=None) -> list[statetype]:
     if maxiter is None:
         maxiter = float("inf")
+        
     n_its = 0
     G = Graph(data)
     initial = G.initial_state
@@ -200,7 +206,7 @@ def a_star(data: dict, maxiter=None):
     d_f = {initial: f_initial}  # Maps states to lower bound on path through the state
 
     open_.push(initial, priority=f_initial)
-    camefrom = dict()
+    camefrom: dict[statetype, statetype] = dict()
 
     while open_:
         n_its += 1
@@ -240,38 +246,36 @@ def a_star(data: dict, maxiter=None):
             maxlen = max(maxlen, len(msg))
             msg = msg + (maxlen - len(msg))*" "
             print(msg, end="\r")
-
         if n_its >= maxiter:
             break
         #
-    return
+    
+    raise RuntimeError("No path found!")
 
 
-def solve(data: str):
-    data = parse(data)
+def solve(data: str) -> tuple[int|str, int|str]:
+    floor_contents = parse(data)
 
-    path = a_star(data=data, maxiter=100000)
+    path = a_star(data=floor_contents, maxiter=100000)
     star1 = len(path) - 1
     print(f"It takes a minimum of {star1} steps to bring everything to the top floor")
 
     more_stuff = ["elerium", "dilithium"]
     for k in ("generators", "microchips"):
-        data[1][k] += more_stuff
+        floor_contents[1][k] += more_stuff
 
-    path2 = a_star(data=data)
-    star2 = len(path2) - 1 if path2 else None  # no example for part 2 so just return None
+    path2 = a_star(data=floor_contents)
+    star2 = len(path2) - 1
     print(f"With the extra stuff, it takes a minimum of {star2} steps to bring everything to the top floor")
 
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 11
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
-    #solve(raw)
+    solve(raw)
 
 
 if __name__ == '__main__':

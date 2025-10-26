@@ -1,13 +1,17 @@
-# .      .  .⸳•.` ꞏ  .*  `  ⸳⸳+`.  ꞏ *⸳ `.+⸳      `*     .  *  .• ⸳  .* ⸳ `  .  
-# •`. ꞏ⸳.+   `   ꞏ`* ꞏ.  ⸳ ꞏ.•    Grid Computing  . `•ꞏ    . ꞏ+` ꞏ       .⸳`ꞏ .*
-# `.⸳  `* ⸳ ⸳. * `+  ⸳ https://adventofcode.com/2016/day/22 .+  .   `.ꞏ⸳+`* . •`
-#  + .+  ⸳ꞏ`.*  ⸳    •⸳ꞏ . ⸳+ꞏ .     .`⸳ꞏ⸳   .     ꞏ•` ⸳* .`  . ꞏ.•  * .⸳` .+ ꞏ⸳
+# · ` *·· .·`· ` . ·    `·+ ·`  · +·.· .  ·`    *· ·`• ·. · ·  . · `· • *· `.··*
+# `.··`+ *` · +·.·  ` ·*·` ·  ·.* Grid Computing ·.+ .· ` · `·`  .·  .·` * ·+·`.
+# ·`  ·.`··•    ·`  .· https://adventofcode.com/2016/day/22   ·+··   `.·    ·. ·
+# ·.`  ·  +·  ·.  ·`·  · *` .· ·`    +·   `· .  ·* ` ·   ·   `*·  .··*   ` .·*.`
 
 
 from abc import ABCMeta, abstractmethod
 import heapq
 import networkx as nx
 import re
+from typing import cast, TypeAlias
+
+
+coordtype: TypeAlias = tuple[int, int]
 
 
 def _tuplify(data: list|tuple):
@@ -16,7 +20,7 @@ def _tuplify(data: list|tuple):
     return res
 
 
-def parse(s):
+def parse(s: str):
     """Parses the input data into two 2D-arrays, where the value at coordinate (i, j) represents the used space and
     total space, respectively, at that node. Note that the x-y format of the input data is changed to (i, j) so the
     first and second coordinate denotes the row and column index, respectively."""
@@ -32,8 +36,8 @@ def parse(s):
         vals = [int(ms) for ms in matches]
         node_xy = (vals.pop(0), vals.pop(0))
         node = node_xy[::-1]
-        vals = [node] + vals
-        d = {k: v for k, v in zip(headers, vals)}
+        usevals = [node] + vals
+        d = {k: v for k, v in zip(headers, usevals, strict=True)}
         data.append(d)
 
     ivals, jvals = map(set, zip(*[d["node"] for d in data]))
@@ -44,9 +48,10 @@ def parse(s):
     used_arr = [[0 for _ in range(ncols)] for _ in range(nrows)]
 
     for d in data:
-        i, j = d["node"]
-        size_arr[i][j] = d["size"]
-        used_arr[i][j] = d["used"]
+        i, j = cast(coordtype, d["node"])
+
+        size_arr[i][j] = cast(int, d["size"])
+        used_arr[i][j] = cast(int, d["used"])
 
     size_arr = _tuplify(size_arr)
     used_arr = _tuplify(used_arr)
@@ -105,7 +110,7 @@ class Grid:
     def __init__(self, viable_nodes, shape: tuple, target_node=(0, 0)):
         self.shape = shape
         self.nodes = {(i, j) for (i, j) in viable_nodes}
-        self.neighbors = dict()
+        self.neighbors: dict[coordtype, set[coordtype]] = dict()
         self.target_node = target_node
         G = nx.Graph()
         G.add_nodes_from(self.nodes)
@@ -261,9 +266,9 @@ class Queue:
 def a_star(initial_state: State):
     openset = Queue()
 
-    camefrom = dict()
+    camefrom: dict[State, State] = dict()
 
-    def reconstruct(head: State) -> list:
+    def reconstruct(head: State) -> list[State]:
         nonlocal camefrom
         rev = [head]
         while head in camefrom:
@@ -305,7 +310,7 @@ def a_star(initial_state: State):
     #
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     used_arr, size_arr = parse(data)
     
     viable_pairs = get_viable_pairs(used_arr=used_arr, size_arr=size_arr)
@@ -331,10 +336,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 22
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     
     raw = get_data(year=year, day=day)

@@ -1,14 +1,14 @@
-# *. ꞏ⸳  `+.⸳  ꞏ  *   *`⸳.ꞏ  +.  ` ⸳  •*  ꞏ*.   `•ꞏ  .⸳ *+⸳   ꞏ .+ ⸳`  *• ⸳ ꞏ.⸳*
-#  ⸳⸳  +.ꞏ`   *  `⸳⸳.   .ꞏ ⸳•      One-Time Pad  .* ꞏ   `   •⸳   ⸳ `   .  .ꞏ*⸳•⸳
-# `ꞏ      ꞏ⸳• ` ⸳.ꞏ` * https://adventofcode.com/2016/day/14 ` ꞏ.*    .•    ⸳  . 
-# ꞏ .*  ⸳        *  `  ⸳  .•`    ⸳. ꞏ * . ⸳` • .  ⸳ *ꞏ   ` . • *⸳ ꞏ ⸳ ⸳   • ꞏ+ꞏ⸳
+# ·.` · `` ··*   ·  *`·. `*··  ` *     ·.·     + `. · ·*    ··`*.· .  `*· ·. •·`
+# •·  `·.*·`   ··*.`        *· ·   One-Time Pad +· ·*  .·`     `·*.· .··* `* · .
+# ` ·`* · `  ·  ` ·*   https://adventofcode.com/2016/day/14   · *.·  ` .` *·· `·
+# ·.*··` ·+.  · *`  ·· *    ` *  ·`.   ·     ·`  · *.  ` ·+· ` ·`   · *  · ·` .*
 
 
 from functools import cache
 import hashlib
 
 
-def parse(s):
+def parse(s: str):
     res = s
     return res
 
@@ -76,8 +76,8 @@ class KeyGen:
         return False
 
 
-def get_first_n_keys(keygen: KeyGen, n: int):
-    keys = []
+def get_first_n_keys(keygen: KeyGen, n: int) -> list[int]:
+    keys: list[int] = []
     ind = 0
     while len(keys) < n:
         if keygen.is_key(ind):
@@ -91,7 +91,7 @@ def get_first_n_keys(keygen: KeyGen, n: int):
     return keys
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     salt = parse(data)
 
     keygen = KeyGen(salt=salt)
@@ -109,10 +109,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 14
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

@@ -1,13 +1,13 @@
-#   ꞏ`   +⸳.   `   ⸳  *`.        `⸳ *.   *     .⸳+• `ꞏ ⸳  *  ` .ꞏ    •⸳ `.⸳* •ꞏ 
-# `  ꞏ  •    .     `⸳. +ꞏ  ` .+ RPG Simulator 20XX   *.`    ⸳+ꞏ*.    .  ⸳ • ꞏ` .
-# ꞏ.•   ` +⸳   ꞏ * .`  https://adventofcode.com/2015/day/21 .    ꞏ ꞏ*    `  `ꞏ+*
-# + .⸳      +ꞏ  ` . + ꞏ.⸳+   `⸳ ꞏ*.       ꞏ*  `   ` . ꞏ•  `      ⸳ *.ꞏ*.     .⸳ꞏ
+# ·. *·  +. · ` . · `    ·  ·   ·+   ·   `  +··. *.`    ·   ·* ·+ `  . · .   ·`*
+# *`· .·` *  ··.    • ·      .· RPG Simulator 20XX   ·.*   ·•`·      · .* ·  .· 
+# ·· `     ·.• `·. • · https://adventofcode.com/2015/day/21 `   ·  ·. · · `   *·
+# ` .·  ·      ·`*  · .· ·`      .··  *`· .•·+`   ··.    ·.   .  · *· .`   *· ·`
 
 
 from copy import deepcopy
 from itertools import combinations
 
-def parse(s):
+def parse(s: str):
     res = {}
     for line in s.split("\n"):
         k, v = line.split(": ")
@@ -171,7 +171,7 @@ def get_gear_combinations_by_outcome(data_boss, must_win=True):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     data_boss = parse(data)
 
     winning_combos = get_gear_combinations_by_outcome(data_boss=data_boss)
@@ -186,7 +186,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 21
     from aocd import get_data
     raw = get_data(year=year, day=day)

@@ -1,7 +1,7 @@
-# ⸳+ꞏ   .` ⸳• ꞏ.*  *   •ꞏ .  ⸳ `ꞏ. *`   ꞏ    ꞏ.* `.*ꞏ⸳ . `• *   ⸳``  +ꞏ⸳.+    ꞏ⸳
-#  .**  ꞏ. ` ⸳   * .+ꞏ`⸳   `•ꞏ + Chocolate Charts  ⸳`  ꞏ  `* `.+   ⸳   ꞏ .•*`ꞏ.•
-# *ꞏ⸳  ``⸳ +⸳ꞏ  ⸳  `.  https://adventofcode.com/2018/day/14  ⸳ꞏ`+*     .  ⸳⸳*  `
-# ꞏ⸳. `. + ⸳  • ` ⸳  +⸳.   *ꞏ   .  `ꞏ`+ ⸳ ⸳ꞏ* `   *ꞏ.  ⸳ .⸳*    `. *⸳`⸳ ꞏ .`⸳ *ꞏ
+# .`· .·* `·     · ` · .*·` · ` · ·.    `.·•·*+ .·`  ` ··. ·* `  • ·.· •` .*··+·
+# `*`.· ·  *·. ·  `.    ·.   ·*` Chocolate Charts ·` +. `·  . · •    * ·.·` `.·*
+# ··.·*.•`··* ·  . *   https://adventofcode.com/2018/day/14  *  `   ·.  ·.*· `·.
+# .  · *` •` ·* .`··  ·*  ·`.  ·`+.·     *  `·    *·    ·`. ·•  ·`   +·. *· .·`·
 
 import numba
 import numpy as np
@@ -82,7 +82,7 @@ def brew_until_sequence(
     #
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     n_recipes = int(data)
     scores = np.array([3, 7], dtype=score_dtype)
     elf1, elf2 = 0, 1
@@ -103,7 +103,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 14
     from aocd import get_data
     raw = get_data(year=year, day=day)

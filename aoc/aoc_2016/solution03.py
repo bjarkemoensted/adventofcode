@@ -1,10 +1,10 @@
-# ꞏꞏ `  ⸳` .•   ⸳•ꞏ* ⸳`+ꞏ    `.ꞏ .⸳•⸳   `ꞏ    ⸳ •   `  ⸳ .ꞏ   . ` + `     ꞏ`  * 
-# ..⸳ꞏ *  +ꞏ`     *⸳`ꞏ  *⸳   Squares With Three Sides  • ⸳. ` +ꞏꞏ   ⸳ `•ꞏ*⸳ .*`.
-#   `⸳ꞏ     ꞏ.*     ⸳  https://adventofcode.com/2016/day/3   ꞏ ⸳     *.`  +.`ꞏ⸳*
-# ⸳`• . ꞏ*` .•   ꞏ    `*  •⸳ .  ꞏ•. ꞏ  `⸳*     .ꞏ*`.  `ꞏ .   •   *ꞏ`ꞏ    ⸳`    ⸳
+# ·. ·`` .·*·  + · * .  `· +. `  ·•·   . `  ··    *`•` .·  *· `  .* ··`.    ··.•
+#  · `*+.`    · ·. ` ·   +.  Squares With Three Sides ·     * ·`.  ·    ·.  *`·.
+# `+· .·• `  *.·•` ··  https://adventofcode.com/2016/day/3   ·+   `.* · .` · * ·
+# +·.·  ` *.·`    ·  `·*.· .     `·.    ·   *  · .`  ·   ·+ `. · `·•   ·+ ·.. `·
 
 
-def parse(s):
+def parse(s: str):
     res = []
     for line in s.split("\n"):
         sides = [int(x) for x in line.split()]
@@ -18,7 +18,7 @@ def triangle_is_possible(sides):
     return sum(ordered[:-1]) > ordered[-1]
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     parsed = parse(data)
 
     star1 = sum(triangle_is_possible(sides) for sides in parsed)
@@ -36,10 +36,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 3
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

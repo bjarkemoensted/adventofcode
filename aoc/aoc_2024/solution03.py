@@ -1,12 +1,12 @@
-# ⸳ •` `  ⸳  * * `⸳⸳ꞏ .*⸳ *     ꞏ  + .`*⸳ .ꞏ `  • ⸳`. ⸳ ꞏ   + `.⸳    *ꞏ `  .*⸳ꞏ.
-#   ⸳.• ⸳`ꞏ     ꞏ*•*`⸳ `ꞏ. ` ⸳     Mull It Over ⸳   • `  .⸳`  * ꞏ+ ꞏ ⸳      `.`+
-#  •`*.⸳* `ꞏ ⸳ ⸳•.   ꞏ https://adventofcode.com/2024/day/3    ⸳* .` •   * ` .`⸳ꞏ
-# +ꞏ. ⸳* ⸳+ `. ꞏ ꞏ  *`  .⸳`   •   ⸳ ꞏ .  ⸳  ⸳ꞏ * * ⸳`    ꞏ`•     `. ⸳.*   *⸳ꞏ •⸳
+# .·``   ·`+ ·  . `· +    *` `· ·+ *  .`·*·   ` .· ` · ·  * ·`  .·  · `.·*  .`·•
+# ·`.  · +.`· . · * .`  ·  .*· `+. Mull It Over   `     ·.·`    · ` .+· .·` *·`·
+#  +· .`· *· `    · +  https://adventofcode.com/2024/day/3  • `·  +·` *·   .·+·`
+#  `*·· .`·*   ` ·  ·· `* .·`  ·  *`·. + `··   ` .     ` *.· .· ` ·     * ·``. ·
 
 import re
 
 
-def parse(s):
+def parse(s: str):
     res = s
     return res
 
@@ -55,7 +55,7 @@ def scan(s, include_conditionals=False):
     return commands
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     parsed = parse(data)
     commands = scan(parsed)
 
@@ -69,7 +69,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 3
     from aocd import get_data
     raw = get_data(year=year, day=day)

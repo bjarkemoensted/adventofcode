@@ -1,7 +1,7 @@
-# ⸳   ꞏ    *. ꞏ   `.*•⸳`    . *⸳ꞏ  . `+⸳ .  ꞏ   * .⸳` .      .⸳ *ꞏ   `  ꞏ . .ꞏ⸳+
-# .*  `ꞏ  ⸳.      ⸳+ ⸳  `   +.  Reservoir Research  *ꞏ .    `  •ꞏ.⸳     ⸳` ꞏ+  ꞏ
-# . ⸳   *  ꞏ* .  ⸳.⸳ ` https://adventofcode.com/2018/day/17   *.`+  . ⸳  ꞏ  ⸳⸳` 
-# *.`ꞏꞏ .   ⸳`   * .`ꞏ ⸳  `. ⸳ꞏ+  ꞏ *.   ꞏ⸳  ⸳       * ⸳ꞏ.`.ꞏ  ⸳   +`  ⸳+.ꞏ   *.
+# · `•·    .·* ·+. `· * `·.·     .  `·       · *    · `.*·  · ·  +   `. *·· .` ·
+# ··+ ··   * `  ·· *       . ·  Reservoir Research  *`· `  ·+ .·• `   · ·.* · `.
+# .+··`  *.· ·  `*·. · https://adventofcode.com/2018/day/17 ` *  ·. · `·  . •··`
+# `.· +`··  * ·       · · ·  * `.·`    •· ·.`   + *· . · *` ·  .·` ·*+ .  · `  ·
 
 from __future__ import annotations
 from collections import defaultdict
@@ -29,7 +29,7 @@ def inc(x: coord, dx: coord) -> coord:
     return res
 
 
-def parse(s) -> set[coord]:
+def parse(s: str) -> set[coord]:
     res = set()
     def determine_range(s: str):
         if ".." in s:
@@ -279,7 +279,7 @@ class Stream:
     #
 
 
-def solve(data: str): 
+def solve(data: str) -> tuple[int|str, int|str]:
     clay_sites = parse(data)
     reservoir = Reservoir(clay_sites)
     reservoir.fill(
@@ -297,10 +297,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 17
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

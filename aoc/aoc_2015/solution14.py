@@ -1,10 +1,10 @@
-# ꞏ.  ꞏ`    `⸳ *    .⸳  ꞏ*⸳    `. *  ꞏ .⸳ .`   * `.     ⸳ ⸳.• *ꞏ.         *  `ꞏ⸳
-# .`  * `ꞏ⸳ꞏ    .    `*ꞏ.     + Reindeer Olympics  . ⸳  `+ ⸳ ꞏ. `  ⸳ •    .ꞏ  .•
-# `ꞏ ⸳.   `   +⸳ꞏ  .   https://adventofcode.com/2015/day/14 .    ⸳ꞏ*`    .`⸳ ꞏ .
-# •+`ꞏ ⸳ .     ꞏ .. *  ⸳⸳    ꞏ  ` `⸳* . *  .  ꞏ  ꞏ•` . ꞏ+. ꞏ⸳•⸳.     `.   ꞏ⸳.+` 
+# . .·* · ·` + · •   * .·.   `+·    ·•·   `* ·..   ·    · ·+ `  ·.   · .+·`·. · 
+#  ·  .`•·   ·     · ·  *+·   · Reindeer Olympics `. ·  * .· ·.·+     `· . `*· ·
+# ·.*` ·   *·.    ·•`  https://adventofcode.com/2015/day/14  *· .+ ·` ·   ·  * .
+# ``·     •·. ·+  *`·    *.  · *  `• . ·        ·`  ·.·•`.+ ·    ·.`·`* ·` *·`. 
 
 
-def parse(s):
+def parse(s: str):
     """Parses reindeer info. Gives a dict mapping reindeer names to properties"""
     res = {}
     for line in s.split("\n"):
@@ -54,7 +54,7 @@ def compute_points(reindeers, n_seconds):
     return points
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     reindeer_stats = parse(data)
 
     n_seconds_for_race = 2503
@@ -71,10 +71,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 14
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

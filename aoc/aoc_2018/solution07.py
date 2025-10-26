@@ -1,7 +1,7 @@
-# .•⸳ꞏ*   ꞏ. `* ꞏ`.ꞏ  ⸳`ꞏ.* . ⸳• + ꞏ⸳* . ` .ꞏ  +   ⸳. ꞏ+ `ꞏ `     .` *ꞏ⸳ ꞏ⸳  .* 
-#  ꞏ.`  ꞏ   *ꞏ.    +ꞏ . ⸳ `⸳ꞏ  The Sum of Its Parts ꞏ.` ⸳ *  ꞏꞏ *    ⸳  +` .  ꞏ•
-# ꞏ⸳  `⸳ .• `    ꞏ ⸳•  https://adventofcode.com/2018/day/7 ꞏ+   . ⸳   *ꞏ`⸳. +ꞏ.`
-# ⸳+ .  ``     ꞏ.*  ꞏ⸳     *ꞏ⸳ .    * ` ꞏ.    `⸳ꞏ* .    •ꞏ`*⸳ .  ꞏ   . `⸳ꞏ ⸳`* .
+# · `*. ·  ` ·`  *.·+ ·   ·+`* .+   `· ·  ` * ·`+· • .· `·.+  ·  ·`.    ·• * `.·
+# . *·  +· . *·`· + ·* .` +· · The Sum of Its Parts +   .+· .` •·  * ·`· `· . ·`
+# ` ·  *` ·•.  .  ·*`  https://adventofcode.com/2018/day/7 ·+  ` · ·+ ·. * · .`·
+#  ·+`··  ` *. · ·`. · *   *·  `·+. ·    ··.·*  .`·  ·•  `  ·.      ·` •··`.·*· 
 
 
 import re
@@ -20,7 +20,7 @@ Step D must be finished before step E can begin.
 Step F must be finished before step E can begin."""
  
  
-def parse(s):
+def parse(s: str):
     res = []
     p = r"Step (\S) must be finished before step (\S) can begin."
     for line in s.splitlines():
@@ -88,7 +88,7 @@ def traverse_dag(G: graph_type, workloads: dict[str, int], n_workers: int=1) -> 
             yield elapsed, char
         
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     edges = parse(data)
     delay = 60
     n_workers = 5
@@ -108,7 +108,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 7
     from aocd import get_data
     raw = get_data(year=year, day=day)

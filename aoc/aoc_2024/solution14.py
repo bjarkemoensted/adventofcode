@@ -1,14 +1,14 @@
-# ⸳ ꞏ ꞏ ⸳``⸳*   ꞏ  .⸳` `•   ⸳ꞏ*. `   . •ꞏ .⸳* ꞏ•`  ⸳`  *⸳    ꞏ +  .`⸳ꞏ`  *⸳  + ⸳
-#  ꞏ⸳ *`  ⸳.`` * ꞏ   ꞏ    •⸳` ꞏ  Restroom Redoubt    ⸳ `•⸳ ꞏ  `  ꞏ  ꞏ  *  ꞏ. ⸳ꞏ*
-# ꞏ*•`   ⸳  ꞏ  *` .ꞏ   https://adventofcode.com/2024/day/14 ꞏ⸳   .⸳ *  ꞏ   ⸳` +.
-#  +.` ⸳  .   •ꞏ   `• ⸳   `    ꞏ⸳ *ꞏ * `•. ꞏ*⸳  ⸳ . ꞏ * ` ꞏ.⸳  ⸳ * ꞏ `   ⸳.ꞏ•  `
+#  `·+ ·.  * ·`.   ·`* +·. ` *   ·`* . ·  ·  ·* .` .*·    ·`  .·*  `·* .  •`·. ·
+# `·`.  ·`  *• ·   `·  .*· • .   Restroom Redoubt  ·   * ·+ `  •.  . ·` ·    *.`
+# •.+· ` *· ·. •·*` +  https://adventofcode.com/2024/day/14  `·*  ·  ` •  .·`+·.
+# · ·`+*`· . *`     .·     ·+ `·   `.•   ·`.·*  ·   ·`*·   `· *.`· `*.··`  . ·`*
 
 
 from collections import Counter
 from functools import cache
 
 
-def parse(s):
+def parse(s: str):
     """Parses into list of dicts mapping 'p' and 'v' to position and velocity."""
     res = []
     
@@ -143,7 +143,7 @@ class Swarm:
         return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     data = parse(data)
     
     # Set the shape (use a small one for small numbers of robot, as in the example)
@@ -162,7 +162,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 14
     from aocd import get_data
     raw = get_data(year=year, day=day)

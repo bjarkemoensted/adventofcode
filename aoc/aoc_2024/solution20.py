@@ -1,7 +1,7 @@
-# .⸳+ ꞏ`        .`  *.   ꞏ ⸳•   ꞏ. *  `⸳*ꞏ `.* `* ꞏ ⸳   .ꞏ •     *⸳`.  ꞏ *  ⸳  ꞏ
-# ⸳`    ꞏ⸳*  .ꞏ `•  .     `*ꞏ  ⸳. Race Condition ⸳ ⸳ •.ꞏ  ꞏ.`**  ꞏ   .  ⸳*  `. ⸳
-#  *ꞏ.⸳.*` ꞏ     ꞏ⸳ `  https://adventofcode.com/2024/day/20 ⸳  *⸳.   .* `ꞏ   `**
-# `ꞏ +*   `..+     * `.⸳* .  .* ꞏ``⸳ . + .ꞏ.  ⸳*  . *`ꞏ  .    .⸳ ⸳ *`     ꞏ•.+⸳`
+# .··*`  ·  .· + *· `·.  ·+   ·   ` · .·`+ *· ·`. ·  .+  ·`     ·  ·. · +*· ·.`·
+# ·`.· `  · ·*      ·+·`• ·  ·`.  Race Condition `*   ·.    ·` ·  . ·  *· `·+ .·
+# ·.   ·     · ·  ` *  https://adventofcode.com/2024/day/20  ·   · . ·•`.·*  ··.
+# `· .  +·*· .·`   ·.` ·  *·     .  ·`• .·· *   ·   · `· * ·+.·   ·+ .`·  ·`.*·`
 
 
 from functools import cache
@@ -28,7 +28,7 @@ raw = """###############
 ###############"""
 
 
-def parse(s):
+def parse(s: str):
     #s = raw  # !!!
     res = np.array([list(line) for line in s.splitlines()])
     return res
@@ -126,7 +126,7 @@ class RaceGraph:
     #
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     m = parse(data)
     race_track = RaceGraph(m)
     min_save = 100 if len(m) > 20 else 1
@@ -141,7 +141,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 20
     from aocd import get_data
     raw = get_data(year=year, day=day)

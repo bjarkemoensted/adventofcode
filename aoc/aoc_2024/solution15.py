@@ -1,7 +1,7 @@
-# ⸳  `. *`⸳ꞏ*      ` `.  *    ⸳` *` ꞏꞏ ⸳*.`   `    *   . ꞏ⸳ꞏ • ⸳`  . ꞏ   `ꞏ⸳ꞏ•. 
-# `.+       ꞏ*.⸳ `  +.• ꞏ .⸳`  *ꞏ Warehouse Woes ⸳ `ꞏ.    `• ⸳. ꞏ` *⸳  •`. +.ꞏ`⸳
-# .ꞏ`  *ꞏ +  ⸳  `*.  ꞏ https://adventofcode.com/2024/day/15     .`*ꞏ*`⸳.    `  `
-#  ⸳. ꞏ`*    .`+ꞏ ⸳ `+ ⸳ ꞏ.• ꞏ. . ⸳  *ꞏ`     `⸳  ꞏ. •  ` •  ꞏ `*⸳   ꞏ `⸳   .*` *
+# . `·•+.   *· ` · . +*`· . ·  ·`  *.`· + `·   ·.`  ·  ·`  .  ·  .· + `.·   *·`·
+# *.·`   ·.    .· *  ·.·`• ·      Warehouse Woes     ·  .· `*.•·  · `.· +· .  ·.
+# ·.  ··*`  · ·  `   . https://adventofcode.com/2024/day/15 ··   •  · .+ `· . .`
+# ··..*`· ·  * ·  ` ·.  +·`* · .·` .   *·   ·*   ·` .+ .·*     `.·* .· `.•`· ·*.
 
 
 from functools import cache
@@ -16,7 +16,7 @@ dirs = {
 }
 
 
-def parse(s):
+def parse(s: str):
     map_part, move_part = s.split("\n\n")
     moves = [move for move in move_part.replace("\n", "")]
     
@@ -181,7 +181,7 @@ class Widehouse(Warehouse):
     #
 
     
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     m, moves = parse(data)
 
     warehouse = Warehouse(m)
@@ -199,7 +199,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 15
     from aocd import get_data
     raw = get_data(year=year, day=day)

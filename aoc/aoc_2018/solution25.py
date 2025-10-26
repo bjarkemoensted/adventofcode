@@ -1,13 +1,13 @@
-# ⸳`* ꞏ  ⸳.⸳`+  `. ⸳`  •⸳ ꞏ        •⸳ꞏ•` +. ⸳ꞏ⸳.ꞏ*   ` ⸳+` .`⸳* ꞏ    • ⸳ꞏ•` . ꞏ 
-# *  ꞏ ⸳+`   ⸳ .+ꞏ* ⸳   ` • Four-Dimensional Adventure . ꞏ+ .     ꞏ`⸳   • ꞏ. `.⸳
-# ꞏ⸳` + .*   `• .⸳   ⸳ https://adventofcode.com/2018/day/25 ꞏ`   ⸳`   ⸳+ꞏ  ` ꞏ*`
-#  `  .+`   ꞏ ⸳ *    ꞏ⸳. ` + `ꞏ +  ` ⸳. •  `ꞏ . *⸳ ꞏ+  `•ꞏ . •ꞏ ⸳     . +` * ⸳⸳ꞏ
+#  .·*`+·`·.   `·    •  .   `·*· .·+  · .` *   · ·.*  · `  ` ·*. ·  `·+ *. `·* `
+# ·`.` · * + ·   `.   ·  ·· Four-Dimensional Adventure  ··`.   +`*. ·  ·`  .·.  
+# `·· *`. +·`.· `  ` · https://adventofcode.com/2018/day/25 * `·  `·. * ··` +`·.
+#  ·`.·*`      ·.·`+   ·  .·*   ` ·.`  . ·  ` ·.* `  ··    *·`·   •* `· . ·*` .·
 
 from collections import defaultdict
 import numpy as np
 
 
-def parse(s) -> np.ndarray:
+def parse(s: str) -> np.ndarray:
     res = np.array([[int(v) for v in line.split(",")] for line in s.splitlines()])
     return res
 
@@ -56,7 +56,7 @@ def count_constellations(coords, max_dist: int=3) -> int:
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     coords = parse(data)
 
     star1 = count_constellations(coords)
@@ -68,7 +68,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 25
     from aocd import get_data
     raw = get_data(year=year, day=day)

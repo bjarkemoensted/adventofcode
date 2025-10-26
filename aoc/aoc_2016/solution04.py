@@ -1,7 +1,7 @@
-# ꞏ• ⸳ +     ꞏ`•⸳  .⸳` ⸳+  `*ꞏ   ` +  ꞏ.  ⸳   ꞏ*` . ⸳ ` +.+ ꞏ ⸳.`  . ꞏ  .+  ꞏ ⸳•
-# * .` `ꞏ     +.  *  ꞏ +    Security Through Obscurity   ꞏ +⸳..ꞏ  ⸳`ꞏ .  `+  ⸳ꞏ.
-# ⸳ꞏ +.*⸳  ⸳` . *  `   https://adventofcode.com/2016/day/4 . ` + ⸳    *` ꞏ ⸳`.+ 
-# ꞏ •. . ⸳ +  ꞏ⸳ .`+  . ꞏ`    `*ꞏ⸳+ . .ꞏ *   ꞏ   *.ꞏ  +ꞏ.`⸳*.ꞏ     •⸳.`      *`ꞏ
+# `·  ·`·+ .· +  ·      ·•`.  ·· .*` · ·    * `·   ·.*· ` · +.  ·* · .`·` ·  .·+
+# ·`*·.+`  · ··   * ` · * . Security Through Obscurity   * · ·.  `* · •.·   ·`+·
+# .·`  ·  +    ·.`  ·* https://adventofcode.com/2016/day/4 * `  *·`.  · .· ··  .
+# ·.·`+·*·`.*   ·. ·  +  `·· · +.  `  · •     ·.     ·.*·`  ·+  . ·      *.·`·  
 
 
 from collections import Counter
@@ -9,16 +9,12 @@ import re
 import string
 
 
-def parse(s):
-    res = s  # TODO parse input here
-    return res
-
-
-def parse(s):
+def parse(s: str):
     res = []
     for line in s.strip().split("\n"):
         # parse into a tuple of (text stuff, section ID, checksum)
         m = re.match(r"(.*)-(.*)\[(.*)\]", line)
+        assert m is not None
         room = tuple(int(m.group(i)) if i == 2 else m.group(i) for i in range(1, 4))
         res.append(room)
 
@@ -46,7 +42,7 @@ def decrypt_room_name(code, id_):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     parsed = parse(data)
 
     real_rooms_ids = []
@@ -65,16 +61,15 @@ def solve(data: str):
 
     
     north_pole_room = [t for t in decrypted_data if "north" in t[0]]
-    star2 = north_pole_room[0][1] if len(north_pole_room) == 1 else None
+    assert len(north_pole_room) == 1
+    star2 = north_pole_room[0][1]
     print(f"Solution to part 2: {star2}")
 
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 4
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

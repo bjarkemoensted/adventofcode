@@ -1,10 +1,10 @@
-#  +* ``ꞏ.`+⸳  `ꞏ⸳.     ` ⸳  ꞏ*⸳ `*ꞏ `.  +  ` .ꞏ ⸳ꞏ*`   ⸳•  ` *`⸳       ⸳*`     
-# ⸳ `.ꞏ⸳`+ ꞏ ⸳•  `*.ꞏ Doesn't He Have Intern-Elves For This?  ⸳ `   *  `. ⸳• ꞏ ⸳
-# ꞏ.ꞏ ⸳ +`   `   *ꞏ `+ https://adventofcode.com/2015/day/5    . •   `   ꞏ  ⸳.*⸳`
-# .⸳.*  •    ꞏ+⸳.  ꞏ⸳    ꞏ `  ` ꞏ⸳  •⸳ `+•`     ꞏ   * ⸳  ꞏ⸳` `+ . `ꞏ  *⸳+ꞏ*`ꞏ   
+# · ..*` ·  · *.  ·` . * · `*.•·  · `   + ·*.  ··`.`·  * ·      ·  .+` ·*  . ·`+
+#  .·` *·.`  `· .*    Doesn't He Have Intern-Elves For This? · * •· . *.·`   *·.
+# `*  ·   .·  + `·.· • https://adventofcode.com/2015/day/5 +* ··    `+. `.` · *`
+# .·`  ·  *.`·  •  . `  .`·*     ·`+.   · *`·+·.. `*   .·•`·  +  ·.` .·  *· `. ·
 
 
-def parse(s):
+def parse(s: str):
     res = [line for line in s.split("\n")]
     return res
 
@@ -35,7 +35,7 @@ def string_is_nice2(s):
     return True
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     strings = parse(data)
 
     star1 = sum(string_is_nice(s) for s in strings)
@@ -47,10 +47,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 5
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

@@ -1,18 +1,22 @@
-#  ` . ꞏ⸳⸳   `*ꞏ ⸳   *  ⸳  .`  ꞏ  *` ꞏ⸳  .* ⸳.      *  ⸳`      ꞏ⸳ꞏ` . + .`  *.⸳ 
-# .⸳`  *    ꞏ  .       .ꞏ *⸳  ꞏ    Balance Bots . ꞏ  ` ꞏ *⸳      .ꞏ. ꞏ*.`ꞏ+ ⸳ꞏ  
-# `+* ꞏ   ⸳.+ `* ꞏ ⸳.` https://adventofcode.com/2016/day/10        ꞏ *`⸳  ꞏ.ꞏ+  
-#  .⸳`+ ꞏ   `     .* ⸳ꞏ `+   *⸳.⸳   •`ꞏ⸳   .⸳    * `⸳ ꞏ ꞏ    `    *.`⸳ `  .ꞏ` ꞏ⸳
+# `• .·* ·   `.  ·` * · ·     . ·*` ·.+·   ·*`       •  ·*   .` +· .  ·*·`  ·.·.
+# .·`*.·  `·.  ·*   ·.  .  + ·`    Balance Bots    · +· `·.  +    · * .   · . ·+
+# •. ·`.   `    ·*· +` https://adventofcode.com/2016/day/10   · ·   .·`  *.    ·
+# ·`. * `+·    · .*  +    ·   ·.` * •· . · `.  ·•     .·  · *`. ` •· . ·` *  ·.`
 
 
 from collections import defaultdict
 from copy import deepcopy
 import re
+from typing import TypeAlias
 
 
+assigntype: TypeAlias = tuple[int, int]
+swaptype: TypeAlias = tuple[int, tuple[str, int], tuple[str, int]]
 
-def parse(s):
-    assign = []
-    swap = []
+
+def parse(s: str) -> tuple[list[assigntype], list[swaptype]]:
+    assign: list[assigntype] = []
+    swap: list[swaptype] = []
 
     for line in s.split("\n"):
         m = re.match(r"bot (\d+) gives low to (bot|output) (\d+) and high to (bot|output) (\d+)", line)
@@ -21,23 +25,18 @@ def parse(s):
         if m is None:
             raise ValueError(f"Couldn't parse line: {line}.")
 
-        parsed = []
-        for elem in m.groups():
-            try:
-                parsed.append(int(elem))
-            except ValueError:
-                parsed.append(elem)
-
-        if len(parsed) == 2:
-            # Parse assignments like (a, b) means assign value a to bot b
-            assign.append(tuple(parsed))
-        elif len(parsed) == 5:
-            # Parse value swaps like (bot number, (bot/output, index), (...))
-            n_bot, reg1, ind1, reg2, ind2 = parsed
-            parsed = (n_bot, (reg1, ind1), (reg2, ind2))
-            swap.append(parsed)
+        matches = m.groups()
+        if len(matches) == 2:
+            a, b = matches
+            assigment = (int(a), int(b))
+            assign.append(assigment)
+        elif len(matches) == 5:
+            n_bot, reg1, ind1, reg2, ind2 = matches
+            swap_ = (int(n_bot), (reg1, int(ind1)), (reg2, int(ind2)))
+            swap.append(swap_)
         else:
             raise ValueError
+        #
 
     return assign, swap
 
@@ -85,9 +84,12 @@ def run_instructions(assign, swap, target_comparison):
     return state, bot_making_target_comparison
 
 
-def solve(data: str):    
+def solve(data: str) -> tuple[int|str, int|str]:
     chips = [17, 61] if len(data) > 500 else [5, 2]
     instructions = parse(data)
+    a, b = instructions
+    
+    print(b[0])  # !!!
 
     end_state, bot = run_instructions(*instructions, target_comparison=chips)
     star1 = bot
@@ -103,10 +105,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 10
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve, extra_kwargs_parser="ignore")
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

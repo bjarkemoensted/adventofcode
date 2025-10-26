@@ -1,10 +1,10 @@
-#  *`.`ꞏ  .⸳     `   +ꞏ`⸳•`*  ꞏ.  .`•⸳  *`ꞏ ꞏ   . ⸳*ꞏ`   *ꞏ`  ꞏ.⸳ `+`    .`+⸳ +`
-#  ꞏ * .⸳ `      *` .ꞏ . `*ꞏ  ⸳ .*   Aunt Sue .    ⸳  +  ꞏ`   +    `. * ꞏ  `.⸳  
-# ꞏ⸳.   ꞏ ..`ꞏ• `      https://adventofcode.com/2015/day/16 .  `+   ⸳`⸳. `*ꞏ   .
-# `.* ꞏ *⸳   • .⸳.ꞏ ` •ꞏ     . ꞏ`   `*     ⸳  ꞏ+    `•⸳ +  ⸳ .`ꞏꞏ •.•  `  ⸳ ꞏ`  
+# .·.*· ·`  ·.  *   ·`.   .·*.`    ·   ·   . · • * .· · + `·  *  .+`   .·· *`.· 
+# `.*·`. •   * ` ·  .*· ·.*`·   .    Aunt Sue  ·. .+  `·  + ·    • .` ·  *.   .·
+# ·*  .` ·    .*·  ·   https://adventofcode.com/2015/day/16   .·`·   •   .`·  +`
+# •.·`*·. ·+·  ·.• . ·+·* `    .*··.  *.` +·`·     ·  * .·  + ·.   `*·  .   ..`*
 
 
-def parse(s):
+def parse(s: str):
     res = {}
     for line in s.split("\n"):
         sue = int(line.split(":")[0][4:])
@@ -58,7 +58,7 @@ def determine_sue2(d, forensics):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     d = parse(data)
 
     forensic_analysis_str = \
@@ -84,7 +84,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 16
     from aocd import get_data
     raw = get_data(year=year, day=day)

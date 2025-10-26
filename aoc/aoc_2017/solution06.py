@@ -1,10 +1,10 @@
-# `.⸳.*       ⸳`   `*.    ⸳ꞏ`*   ..⸳ ꞏ  `• ⸳.*`ꞏ`.     `ꞏ.•     *   . ⸳  `ꞏ`*  ⸳
-# .ꞏ `⸳    `* .     ⸳  *       Memory Reallocation  `  *` ⸳   ꞏ     ⸳`ꞏ*.     ⸳.
-# ⸳` •`` ꞏ* .   +⸳     https://adventofcode.com/2017/day/6   *    `  * `  `.⸳+  
-#  ⸳.+  ⸳  .`ꞏ*⸳ꞏ `    . `   ⸳    ``  .•  ⸳ ꞏ  +.`*   `⸳    .` *ꞏ*⸳     ⸳ꞏ.•  `*
+# `  · .•`· .· `*.   · ·  .    ` ·. ·`  ·  .  *··   ` .+  ·   .`·.  ·  ` *·.  · 
+# ·.      .·+•  .`· ·    .`·*  Memory Reallocation     ·   `·.      .·    . · `·
+#  `. ·  .`    ·    .* https://adventofcode.com/2017/day/6 ·+   `·*`    .·*` ·. 
+# .·  .`· +  `·  *.· `.  ·     ·.  ·  .* ·`  .·      .* ` · . ·  `.  *· ·  •.` ·
 
 
-def parse(s):
+def parse(s: str):
     res = [int(elem) for elem in s.split()]
     return res
 
@@ -33,7 +33,7 @@ def count_redistributions(blocks):
         n += 1
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     blocks = parse(data)
 
     n_steps, loop_size = count_redistributions(blocks)
@@ -46,10 +46,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 6
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

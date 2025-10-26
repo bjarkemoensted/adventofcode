@@ -1,13 +1,13 @@
-# .⸳ꞏ `*`     ꞏ  ꞏ.` *⸳ꞏ•.    +.`  *+ ꞏ`+.  ⸳ꞏ *ꞏ`   +⸳ .ꞏ•    . ⸳ `  .⸳ꞏ+.⸳ ꞏ•*
-# `. •ꞏ   `⸳  ⸳.+  ꞏ*` .      Permutation Promenade `⸳ +  ꞏ• .`  . ⸳   ꞏ.⸳ *  ꞏ`
-#  `+ꞏ  ⸳`⸳ꞏ` .*   ⸳`  https://adventofcode.com/2017/day/16  ꞏ`   ⸳+ ꞏ   ``  ꞏ⸳.
-# ⸳*.   +⸳ꞏ`ꞏ   .+*.. ⸳*⸳ꞏ *.   ꞏ .` ⸳  ꞏ  .ꞏ • *⸳` •ꞏ `.⸳    .⸳.+ꞏ    *  ⸳`  .⸳
+# ··* .·`  · `·*  . `*· · •·` * ·. `   ·*·+.` ··    *·  ·•.*·    ·`•·*+.··`·+ `.
+# ·. ·``.+* ··    ·.  +  ·` . Permutation Promenade      ·* `·.*· ·  .· ` * ·. ·
+# `*·`•.+·     .· +`   https://adventofcode.com/2017/day/16   ·`.  ·* ` .   ·`·*
+# .`·    ·. *  · ` ·* .·`   *` .+ · `·.  ·.*   · .     ··  .*` ·   +.  ·*`·. `·•
 
 
 from string import ascii_lowercase
 
 
-def parse(s):
+def parse(s: str):
     instructions = []
     for part in s.split(","):
         if part.startswith("s"):
@@ -84,7 +84,7 @@ def dance(instructions, n_repeats=1):
     return order
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     instructions = parse(data)
 
     star1 = dance(instructions)
@@ -97,10 +97,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 16
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

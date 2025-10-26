@@ -1,10 +1,10 @@
-# ⸳ ꞏ` ⸳  .*    ` *`  ꞏ      .`  ⸳ꞏ  •.   ``ꞏ   +*ꞏ  `. ⸳ ꞏ• . `  `. `*.ꞏ  ⸳   `
-#  ⸳ • ꞏ.  `+  `  ꞏ     .ꞏ`.   Chronal Calibration    •ꞏ `*⸳         . +. `  ⸳`ꞏ
-# . •⸳ .`ꞏ  ⸳ .  +  .` https://adventofcode.com/2018/day/1  .   +. `      *`ꞏ.⸳*
-# ꞏ⸳`*.   `   ⸳.⸳   •⸳. `  `. ꞏ*   *` ⸳   ꞏ⸳ .  ꞏ   •   ⸳. ꞏ  `⸳ꞏ`• ⸳   `.  `ꞏ*.
+# ·  *. ·.  ·`.   ··  .*` + ·.    .·   ·*.  `  ·+.  ·`+·.   *`. ·    . ·` +.·*` 
+# .·+ •  `·  · .· `    ·* ·*.  Chronal Calibration  .    ·    `.*     ·  ·.·* .`
+# .``· . ·    *·  .    https://adventofcode.com/2018/day/1   ·*` ·.  · `*.·+.` ·
+# * ·.·   `· .·`    ·   •`.· +      ·. ` ·  · ·*   .   · `.·.*·  ` · * .·  `.··+
 
 
-def parse(s):
+def parse(s: str):
     res = [int(part) for line in s.splitlines() for part in line.split(", ")]
     return res
 
@@ -27,7 +27,7 @@ def first_repeated_frequency(numbers: list[int]) -> int:
     #
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     numbers = parse(data)
 
     star1 = sum(numbers)
@@ -39,7 +39,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 1
     from aocd import get_data
     raw = get_data(year=year, day=day)

@@ -1,7 +1,7 @@
-# ꞏ⸳*   `    `  ⸳*  *⸳   ꞏ•`⸳+.     .⸳ `    .⸳*ꞏ  .+ `` ꞏ. +  ⸳⸳`*.      ⸳   ꞏ`⸳
-# ⸳ •. ` • .⸳ꞏ . `ꞏ  • `⸳  ꞏ+.*  Go With The Flow •  *⸳ꞏ.   ⸳`ꞏ         ꞏ*`  +.ꞏ
-# *.ꞏ⸳   `  •. *   `   https://adventofcode.com/2018/day/19 ꞏ + ꞏ ⸳•`. `    .`*⸳
-# ꞏ`⸳*.    +ꞏ  ` .  `⸳`* ꞏ    ⸳ +.`    ⸳ .   + `ꞏ*ꞏ ⸳.  +   `.     .ꞏ   *`  ꞏ⸳`•
+# ·*.·`   + ·`  ` . *·  * · `  · .·`. ·  + ·` +. · * · `   ·`·.  ·   `.•·` * · ·
+# .·*• `  ·  .·`·  . *· `· `  ·  Go With The Flow   .`·* ·   .·+   ·  •` * ·.  ·
+# *`·. · ` · •.·   · + https://adventofcode.com/2018/day/19 ·  ·`*·.  · * ·`·.•`
+# · . ·*·. * ·`  *     ·.* · •`  · .·    ` .  .··  .·*  ` ·     ·`   * ·.·+ ` ·*
 
 from __future__ import annotations
 from collections import defaultdict
@@ -294,7 +294,7 @@ class Emulator:
         return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     ip_reg, instructions = parse(data)
     emulator = Emulator.setup(ip_reg)
     
@@ -308,7 +308,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 19
     from aocd import get_data
     raw = get_data(year=year, day=day)

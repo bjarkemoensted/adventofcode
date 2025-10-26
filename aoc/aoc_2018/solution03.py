@@ -1,7 +1,7 @@
-# •ꞏ ` ⸳ ⸳*.` *⸳. ` +ꞏ`   ⸳  •`   ꞏ `⸳ *⸳.  `⸳ꞏ      .   ` • ꞏ⸳   ` ꞏ  .ꞏ*  .`  
-# . ꞏ `   ꞏ  .  ` * .•ꞏ `ꞏ  No Matter How You Slice It .   .  *`⸳   •.`ꞏ+` .* `⸳
-# .`*     `.⸳      `⸳. https://adventofcode.com/2018/day/3    .⸳`ꞏ   ⸳ •` .  ⸳+ 
-# ꞏ ` ⸳+`ꞏ  *⸳.  + ꞏ   ⸳    ⸳` ⸳.   * •ꞏ  *`   ⸳. .`     ⸳ ꞏ*⸳``+  .  *  ꞏ  ⸳ .•
+# `·*·  `   ·.` ·*.   · `   .* ··   · .    ·*.`· ·   `  .·  * · · .. *`  ·  .·+·
+# ·` + *..·  `   ··*·.   `  No Matter How You Slice It  · ·.`  .`  *.·     ·• `.
+#  *·.`· `.· * ·`    · https://adventofcode.com/2018/day/3  .• ·   ·  · .*`   · 
+# `·`  . ·+  · .·`*· * .·•·  ··`     ` +·.   * ·.`  · .    `·*.  · `   +·  .·`· 
 
 import numpy as np
 from typing import cast, Iterable, TypeAlias
@@ -10,7 +10,7 @@ from typing import cast, Iterable, TypeAlias
 claim: TypeAlias = tuple[tuple[int, int], tuple[int, int]]
 
 
-def parse(s) -> dict[int, claim]:
+def parse(s: str) -> dict[int, claim]:
     res = dict()
     for line in s.splitlines():
         a, _, b, c = line[1:].split()
@@ -35,7 +35,7 @@ def count_overlaps(claims: Iterable[claim], size=1000) -> np.typing.NDArray[np.i
     return m
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     claims = parse(data)
 
     m = count_overlaps(claims.values())
@@ -50,10 +50,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 3
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

@@ -1,10 +1,10 @@
-# ꞏ⸳`•  ꞏ+⸳ꞏ    +  ꞏ  `⸳.*  ꞏ+ .  `  +  ꞏ  ⸳.ꞏ.  ` ⸳ꞏ+ ⸳    + ꞏꞏ  `    .  *ꞏ+⸳ `
-#   ⸳. ⸳   *  ꞏ ..`* `    . ⸳`ꞏ•  Firewall Rules  ꞏ+.   + ꞏ ` .  * ⸳` ꞏ+   *. .ꞏ
-#   *ꞏ.    ꞏ⸳•` ⸳    * https://adventofcode.com/2016/day/20 .   +.ꞏ` ⸳  ..   ꞏ  
-# ⸳ꞏ.`*`.ꞏ+ .`+⸳ +  .ꞏ  ⸳•  `ꞏ*⸳  .  *` .ꞏ⸳ ꞏ*    . ` ⸳ꞏ  . ⸳ `ꞏ.⸳.*+` ꞏ`    + ⸳
+# ·`·..  ·*+ `  ·  · ·.`*·.• `· *·   `·.  ·*•·.  ·`  + ·. · *  .·· `   ·* ·` .*·
+# `.`+·  *· ·.`• *   . ·    ·+ ·. Firewall Rules •  ` · * .·   ·*   · · .` · *·.
+# .* ·`    ·. •  ·  .* https://adventofcode.com/2016/day/20   ·*` ·  ·.• *`· · ·
+# ··. *·`.  ·*  *··   +     ` ·   .·+.··*   ·`   ·*+.·`•· . ·   +    . ·`·* ·   
 
 
-def parse(s):
+def parse(s: str):
     res = []
     for line in s.split("\n"):
         a, b = map(int, line.strip().split("-"))
@@ -58,7 +58,7 @@ def find_allowed_IP_ranges(blacklist, lower: int, upper: int, verbose=False):
     return allowed
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     blacklist = parse(data)
     upper = 9 if len(data) == 11 else 4294967295
 
@@ -72,10 +72,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 20
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve, extra_kwargs_parser="ignore")
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

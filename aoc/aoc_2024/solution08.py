@@ -1,14 +1,14 @@
-# •.ꞏ  `⸳  `  ꞏ ` ** `⸳  + .ꞏ*   .     `• .    `ꞏ `  ꞏ*⸳.    + ⸳   ꞏ.`      ꞏ*⸳ 
-# ⸳*   ꞏ        `*`ꞏ.       . Resonant Collinearity   ꞏ• .    ⸳•     *⸳.     `ꞏ 
-# ꞏ`⸳   ꞏ.`+    *ꞏ.`   https://adventofcode.com/2024/day/8 ⸳``.ꞏ ⸳.    ꞏ    *⸳``
-# . `   .      ⸳  ꞏ ⸳ `.•ꞏ      ꞏ   *.  ⸳  ` •   ꞏ*   . `⸳ •  ꞏ  *`    • ` .⸳ꞏ *
+# `·   • · ·  .· `   .·   `·  •.·   ·  + `· * ` ·+    ·   *· . `* ·.    ·`  .· ·
+# *·` .·· *  .  *·  ` *  ·  · Resonant Collinearity  · `* `  · ·  .   *  ··`  .+
+# ·*. ·. `·*    ·.     https://adventofcode.com/2024/day/8   ` *··    . * `   ·.
+# .`··` .  .+·`   * .·  ` ·  · ·       ·`* ·     .  ·* ·`      .` •· `·+  . · *`
 
 
 from collections import defaultdict
 import numpy as np
 
 
-def parse(s):
+def parse(s: str):
     res = np.array([list(line) for line in s.splitlines()])
     return res
 
@@ -76,7 +76,7 @@ class Grid:
     #
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     parsed = parse(data)
     grid = Grid(m=parsed)
 
@@ -89,7 +89,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 8
     from aocd import get_data
     raw = get_data(year=year, day=day)

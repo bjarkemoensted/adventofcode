@@ -1,13 +1,13 @@
-# + ꞏ`⸳.    `⸳ꞏ•   ⸳*.  *⸳.    • `    ⸳`.ꞏ  . ⸳*      `ꞏ  ⸳*⸳`ꞏ`•  .  ⸳ꞏꞏ `+.  ⸳
-#  *ꞏ   * `ꞏ.•` ꞏ  ⸳⸳•`    + High-Entropy Passphrases ꞏ ⸳` `ꞏ  .⸳        `⸳.+*. 
-# ꞏ⸳ •  `+⸳  .⸳ `+     https://adventofcode.com/2017/day/4    *   . ꞏ⸳ `    ⸳ꞏ*.
-# `ꞏ⸳  • ꞏ.  `   ⸳ * ꞏ*  `   + ꞏ  *⸳` ꞏ    ⸳ .  `  `.  `ꞏ    *⸳ `ꞏ  .  ⸳   `ꞏ⸳ *
+# *`.·.+ •·.   · ` .·+·     . * `·   .`   *·.·    .  ·` *     ·  `*. ·  *·  ·. +
+# ·.`  · . · `·. · *`   `.·  High-Entropy Passphrases  . +·   . · ·`*   ·. `·* .
+# `··*  `·`• .·*     · https://adventofcode.com/2017/day/4   ·` .     ·`  *•. ··
+# · *.• · . ·*.` *·     *   ·.·    * ·`+. ` ·.*  +· · .   `*·. ·*  .·+`   ··*. `
 
 
 from collections import Counter
 
 
-def parse(s):
+def parse(s: str):
     res = [line.split() for line in s.splitlines()]
     return res
 
@@ -19,7 +19,7 @@ def passphrase_is_valid(passphrase: list, include_anagrams=False) -> bool:
     return all(v == 1 for v in c.values())
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     parsed = parse(data)
 
     valid = [elem for elem in parsed if passphrase_is_valid(elem)]
@@ -32,10 +32,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 4
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

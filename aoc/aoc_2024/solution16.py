@@ -1,7 +1,7 @@
-# ⸳` ꞏ.  •⸳  ꞏ⸳    `  ꞏ•` .           •` ⸳ .  ⸳ꞏ    ⸳.ꞏ*       `ꞏ +.*    ⸳ꞏ`.*`ꞏ
-#    *  `.•ꞏ.*`*ꞏ  .   ⸳    ꞏ`⸳   Reindeer Maze   ⸳ꞏ •     •   • ꞏ⸳+   `.  ꞏ`.⸳*
-# * ꞏ.+   ⸳ *` . ꞏ *+  https://adventofcode.com/2024/day/16    ⸳    ` ꞏ ꞏ•`•   ⸳
-# ꞏ *`  + .`⸳    `*ꞏ⸳  .   `*     *  ``  .⸳ ꞏ•.``*   ` ꞏ  * `    `ꞏ. ⸳•   ꞏ`⸳*ꞏ 
+# *.·`. ·  *     ··`   `* . ·+.   ·   `·  *·   ·  .`*·*·   `.··*   ·+  `•. ·*`·.
+# ·`·+   .·   `  .+·`.*·     ·*.` Reindeer Maze     ` . ·+`   . ·   `.··`*  .·  
+# . *·` `·. ·     `+ · https://adventofcode.com/2024/day/16   ` .*  ·   .·  `  ·
+# ·`.*· ·   •. · `  ·   .` *·  · `  .· ·*  .  ·+ .  · + `    `*. ·   ·  ·` *· .`
 
 
 import networkx as nx
@@ -19,7 +19,7 @@ dirs = (
 rotations = {dir_: tuple(dirs[(i+shift) % len(dirs)] for shift in (-1, +1)) for i, dir_ in enumerate(dirs)}
 
 
-def parse(s):
+def parse(s: str):
     m = np.array([list(line) for line in s.splitlines()])
     return m
 
@@ -117,7 +117,7 @@ class Maze:
     #
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     m = parse(data)
     
     maze = Maze(m=m)
@@ -133,7 +133,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 16
     from aocd import get_data
     raw = get_data(year=year, day=day)

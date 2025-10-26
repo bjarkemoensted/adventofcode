@@ -1,10 +1,10 @@
-# ꞏ*.ꞏ.*  ⸳  ꞏ      ⸳*•ꞏ`.`   •  .+ꞏ ꞏ       *`⸳  •ꞏ    ꞏ *⸳  .` •ꞏ *.+ • ꞏ.` .ꞏ
-#  ⸳ꞏ•  *ꞏ`       . ꞏ⸳ `+ ꞏ. ⸳ Corruption Checksum  *⸳+  .      •ꞏ.   ⸳  *`+ . ⸳
-# +  `ꞏ⸳.  *   .ꞏ⸳` +  https://adventofcode.com/2017/day/2 *.`    ⸳   ꞏ*.   ꞏ+  
-# .+ ꞏ ` • ꞏ*`  ⸳.*ꞏ  ` ⸳  *. . ꞏ `    • +.`ꞏ⸳.       ꞏ* `.ꞏ •⸳ ꞏ  .⸳• ꞏ `.`   *
+# ·.·*`+·*·    *· ` +.· *·•  · +`· .  · ·*  ` •.·*   `•·`    · ·*.   ·.*`··* `·•
+# *· .· ·.`  ·   •·.·`+   .·*  Corruption Checksum ·     · *+`·  *.·   ··*  · ` 
+#  ·*  .   * +`·*·.·`  https://adventofcode.com/2017/day/2     *. · * ·    . ·* 
+# ·. · ·* * . ·  ·   ·` *   ··`.•· ` * ·  · .*·  ` +· .  * `·+     +··` .  `* ··
 
 
-def parse(s):
+def parse(s: str):
     res = [[int(elem) for elem in line.split()] for line in s.splitlines()]
     return res
 
@@ -29,7 +29,7 @@ def checksum2(data):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     parsed = parse(data)
 
     star1 = checksum(parsed)
@@ -41,10 +41,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 2
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

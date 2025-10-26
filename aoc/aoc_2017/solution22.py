@@ -1,13 +1,13 @@
-#  `   . ꞏ `     * `ꞏ.      * .    ⸳. .   •   .`ꞏ   .* ` ꞏ     .⸳•ꞏ   ꞏꞏ.    *⸳`
-# •.  ⸳ꞏ   ꞏ  *.ꞏ   ꞏ`•⸳ `     ` Sporifica Virus .   ⸳` ꞏ  .   ꞏ*.   `      .ꞏ ⸳
-# ⸳  .`       ⸳ꞏ* .`   https://adventofcode.com/2017/day/22  ꞏ  .*⸳    `  . ꞏ⸳*ꞏ
-# . `⸳   ꞏ. +•.`       ` *.+ ꞏ⸳. `•  .  ꞏ  `*     ⸳ ꞏ   •`ꞏ  . + ꞏ `ꞏ.  ⸳  ` .`.
+# .· `·. .·      `·   *  .  .`·          ·`*.  · ` +  `·.   .· +`·     ·.` *.  `
+# ` * . ·  .·   ·•` *  .·  ·     Sporifica Virus · .     ·*`·  ·  +  .  ` · · `.
+# ·`. *·.`   ·     · ` https://adventofcode.com/2017/day/22   ·`.     ·`* +`.·*·
+# * ·· `•·* .  ` ·. · .+  ·*`·    +. ·` .    ·*    ·    ·+·   `.·   *·   *`.+`· 
 
 
 import numpy as np
 
 
-def parse(s):
+def parse(s: str):
     """Parse the characters to a numpy array"""
     m = np.array([list(line) for line in s.splitlines()])
     return m
@@ -105,7 +105,7 @@ def tick(infected, pos=(0, 0), n_bursts=10_000, evolved=False, show_final_state=
     return n_transmissions
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     m = parse(data)
 
     infected = numpy_to_xy(m)
@@ -120,10 +120,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 22
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

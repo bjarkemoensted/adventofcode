@@ -1,7 +1,7 @@
-# *   `+⸳  ꞏꞏ*⸳`      ꞏ*.`  .*⸳  .⸳     ⸳  ꞏ  +`⸳` `.  ⸳* `. * ꞏ`⸳     `*⸳   ꞏ•⸳
-# ⸳ꞏ⸳        .` ⸳ꞏ  *.`    ⸳ ` ⸳• . Mode Maze .*` .  ⸳*  ` ꞏ`  ⸳*  ⸳    ⸳ *ꞏ .` 
-# ꞏ     `ꞏ **⸳.•`⸳  `ꞏ https://adventofcode.com/2018/day/22 ꞏ⸳ `⸳+ .+ `   ꞏ`.•⸳+
-# `⸳*` ꞏ .⸳ `ꞏ .*  .⸳  .*    .*ꞏ`   ⸳  *ꞏ`⸳    . ⸳`+ꞏ  .     ꞏ⸳*+`  ꞏ`+⸳   *ꞏ .⸳
+# ··.  `··   *+`·  .  ·•`·.`  · *     · ` ·  .*` ·   ·*.   •·` ·  .  ·  ` *·  ·.
+# .`· *.·• ` ·   ·+ .·`  .*  ·  . ` Mode Maze .+   ·.*` ·   .· `.·•`  ·  ·. `·*·
+# *· `·   `.·. ·  ·    https://adventofcode.com/2018/day/22 +  . *`·.     `*·.`*
+# ·*`·. ` ·   `. . ·` +·. ·  * .`· `   .·+    ·.  *  ·.`  `   . · ·*  .· .  ·*.·
 
 from enum import IntEnum
 from heapq import heappop, heappush
@@ -43,7 +43,7 @@ for region_type in Region:
     valid_switches[region_type.value] = d_
 
 
-def parse(s) -> tuple[int, coord]:
+def parse(s: str) -> tuple[int, coord]:
     a, b = s.splitlines()
     depth = int(a.split("depth: ")[-1])
     target = tuple(int(elem) for elem in b.split("target: ")[-1].split(","))
@@ -200,7 +200,7 @@ class Cave:
         raise RuntimeError
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     depth, target = parse(data)
     cave = Cave(depth=depth, target=target)
     
@@ -213,7 +213,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 22
     from aocd import get_data
     raw = get_data(year=year, day=day)

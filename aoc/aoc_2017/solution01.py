@@ -1,10 +1,10 @@
-# ` ⸳  ⸳+.* ⸳` ꞏ      `.ꞏ•⸳    ꞏ ꞏ`   ⸳ ꞏ.`  ꞏ  *⸳`⸳  .* ꞏ •. ꞏ.`* ⸳     *ꞏ•⸳.ꞏ.
-# ꞏ.*`ꞏ  ` ⸳• + .ꞏ    *⸳ .  ꞏ    Inverse Captcha • .⸳   *  `+    ⸳ .*⸳ ꞏ   ⸳*`•ꞏ
-# .ꞏ +  `*⸳ꞏ.  * ⸳. ꞏ  https://adventofcode.com/2017/day/1  `+⸳ ꞏ   .*  ꞏ⸳*  • ꞏ
-# ⸳ ꞏ•`.. ⸳   ⸳   ⸳ +`⸳  ⸳ .ꞏ+       .ꞏ    ⸳+.ꞏ`    .⸳ ꞏ* .  ⸳ ⸳ .ꞏ         ꞏ⸳`*
+# `.· `·  ·  *·  ` .·  *`  ·`+*  .  `  `·•*    ·*`. ·. *  ·  `  · .+· *·`  * ·.`
+#     · .·+`· *       ·  *·+ · . Inverse Captcha · +   `. *    ` · *  ·`+ ·.+``·
+# ·`.·* *. • ·   ·  `* https://adventofcode.com/2017/day/1 ` +· .•·   ` · *`· ·.
+# .·`  •·  ·*  +   · `  *` ·   `.·  ·*`   ·      *··  . · . *.·    ` ·•+. `·. *·
 
 
-def parse(s):
+def parse(s: str):
     res = [int(char) for char in s]
     return res
 
@@ -19,7 +19,7 @@ def match_halfway(arr):
     return elems
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     parsed = parse(data)
 
     star1 = sum(match_next(parsed))
@@ -31,10 +31,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 1
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

@@ -1,14 +1,14 @@
-# *ꞏ+ .ꞏ`⸳ ⸳ ꞏ *    * +`ꞏ `. •⸳  . `ꞏ.ꞏ ⸳ •  *  ꞏ  ⸳.   ⸳ .`ꞏ    •  ⸳    .ꞏ*  `+
-# `*.ꞏ`.+ ⸳ꞏ ⸳  *..``• ⸳    ꞏ*`  Keypad Conundrum    ⸳`. +  ` ꞏ+   ꞏ+  `.  ꞏ.⸳ꞏ 
-# ꞏ`   ꞏ * `.*  ꞏ •ꞏ ⸳ https://adventofcode.com/2024/day/21 +.⸳    .ꞏꞏ *` ⸳. •.ꞏ
-# .• ` ` ꞏ*    .  ꞏ•⸳.` +ꞏ    .ꞏ +   ` ⸳.* ꞏ*    ` •⸳ ꞏ*+ꞏ      ⸳ꞏ* ` .ꞏ+   ꞏ•⸳ 
+# .•·.*·`·  .   ·*+`.· •   ·+·.*`· .     + .`·*· `*·      ` · +. *.· `  ·`*·  .·
+# · ` ` ·.•· ·  *.   `·+  *·   · Keypad Conundrum    .  * · +* ` .· ·  •`·· ·`+.
+# `· *. + · ·* ·    ·+ https://adventofcode.com/2024/day/21    ·· *  +`·  ·.• `·
+# ·`.· *· · *`·.   ·+   ··`*.`   .··*+  .  ·* .`·   ·•. ·· `.·  `·   *·.+·  `+·`
 
 
 from functools import cache
 import networkx as nx
 
 
-def parse(s):
+def parse(s: str):
     return s.splitlines()
 
 
@@ -166,7 +166,7 @@ def compute_complexity_sum(codes: list, depth=2):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     codes = parse(data)
     
     star1 = compute_complexity_sum(codes=codes, depth=2)
@@ -178,7 +178,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 21
     from aocd import get_data
     raw = get_data(year=year, day=day)

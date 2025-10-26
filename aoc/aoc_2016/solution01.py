@@ -1,13 +1,13 @@
-# +•  .ꞏ  *    .ꞏ⸳  ꞏ . `   `  ꞏ⸳ *.⸳ ꞏ   ⸳`  *    ꞏ  ⸳. `*    ꞏ + .ꞏ   *  +ꞏ⸳  
-#   ꞏ ⸳•  .   ꞏ  +  ⸳ ꞏ    .  No Time for a Taxicab ꞏ +ꞏ     ⸳.*`⸳ꞏ+       .  *•
-# ꞏ⸳  * •   ⸳.  •   ꞏ• https://adventofcode.com/2016/day/1   .`⸳ *   ⸳  . ꞏ ⸳ꞏ.`
-# .ꞏ⸳   ` ⸳.`+⸳    *.  ⸳  ꞏ *⸳ `ꞏ⸳   .    * ꞏ. `⸳   .**+⸳. `  ꞏ .   `* .ꞏ⸳  *.`*
+# `·+. `·*  ··`   · `*·.  · . ·    +.`·  `*·     `.· ·`    *·.    `·     · `·. ·
+# ·  `·  .`· *•· ·  +`.·*  ·  No Time for a Taxicab   ·.`·  ` ·   ·     ·*·  ·.`
+# +`·· .   ·*` .·    · https://adventofcode.com/2016/day/1 .  `*·   * ··` +  •··
+# `·.  ·` *   · ` .·      ·.*   ·   `*`· .·   · *   ·` +  .·  *·   ·• `  . ·*·`.
 
 
 import numpy as np
 
 
-def parse(s):
+def parse(s: str):
     steps = s.strip().split(", ")
     res = []
     for step in steps:
@@ -58,7 +58,7 @@ def get_first_double_visit(path):
 
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     instructions = parse(data)
 
     path = trace_path(instructions)
@@ -66,16 +66,14 @@ def solve(data: str):
     print(f"Solution to part 1: {star1}")
 
     first_doubly_visited = get_first_double_visit(path)
-    star2 = manhatten_dist(first_doubly_visited) if first_doubly_visited is not None else None
+    star2 = manhatten_dist(first_doubly_visited)
     print(f"Solution to part 2: {star2}")
 
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 1
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

@@ -1,7 +1,7 @@
-#   ⸳`ꞏꞏ.*   .*ꞏ⸳ • ⸳`ꞏ `    *⸳ ꞏ•. `ꞏ    *ꞏ . `⸳   +⸳ `    ꞏ*⸳ꞏ.   +.       ⸳.`
-# ꞏ`  ⸳   * ⸳ꞏ      * .` ⸳*ꞏ    Two Steps Forward   ꞏ*`⸳ ⸳ *    ` *   ꞏ  `* .•ꞏ⸳
-# ⸳  ⸳    ` •⸳. .*ꞏꞏ   https://adventofcode.com/2016/day/17     *⸳   .*ꞏ`⸳  • +ꞏ
-# .*  `.⸳ ⸳  •`.  ⸳+ꞏ.` ꞏ.⸳   .   •  ⸳*  `.⸳ *  * ⸳ . .  •`⸳     `⸳ .⸳ + . ⸳ ꞏ.•
+# `· ·*. `· ·*·`. ·* · `*    · `  .  ·.· `*·   .*·  · +`  .·  *`.` ·+   `·  .`·*
+# *.  ··  .·  `    .·` *`·      Two Steps Forward ·     +·  .`· ·*  ·.·`  ` +·.`
+# . ` ` ·  .+  ·•      https://adventofcode.com/2016/day/17    ·   ·   .·` ··+`.
+# ·`·. ·`·+` ·    ` ·· . ` ·*.+ `·    ·.  ·` +  `  ·.  ·` + ·   +·  .` · *  ` ··
 
 
 from functools import cache
@@ -9,7 +9,7 @@ import hashlib
 import heapq
 
 
-def parse(s):
+def parse(s: str):
     res = s
     return res
 
@@ -96,7 +96,7 @@ class Queue:
         return len(self._items)
 
 
-def a_star(G: Graph, start_path="", target_coord=None) -> list|None:
+def a_star(G: Graph, start_path="", target_coord=None) -> int:
     """Standard A* except this uses paths as nodes."""
 
     if target_coord is None:
@@ -130,10 +130,10 @@ def a_star(G: Graph, start_path="", target_coord=None) -> list|None:
                 #
             #
         #
-    #
+    raise RuntimeError("No path found")
 
 
-def longest_path(G: Graph, start_path="", target_coord=None) -> int|None:
+def longest_path(G: Graph, start_path="", target_coord=None) -> int:
     """Just use a brute force approach. Returns the length of the longest path."""
 
     if target_coord is None:
@@ -152,10 +152,13 @@ def longest_path(G: Graph, start_path="", target_coord=None) -> int|None:
                 next_frontier.append(neighbor)
         frontier = next_frontier
 
+    if longest is None:
+        raise RuntimeError("No longest path could be found")
+    
     return longest
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     passcode = parse(data)
 
     G = Graph(passcode=passcode)
@@ -168,10 +171,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 17
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

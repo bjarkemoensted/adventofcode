@@ -1,7 +1,7 @@
-# .ꞏ` *⸳   ꞏ.`+  .⸳*ꞏ⸳    ⸳ .    + ` ⸳.* `. `⸳* `* ꞏ.`  . `  +  ⸳`ꞏ*⸳  .  •  . *
-# ⸳ꞏ ⸳ ` ꞏ•*ꞏ+.⸳       ꞏ ` *ꞏ +⸳ Beverage Bandits  `  ⸳.ꞏ+   ⸳  ` . •  ⸳•   .*⸳ꞏ
-# *⸳ ` . *⸳     ⸳  .+ꞏ https://adventofcode.com/2018/day/15  `⸳     ꞏ *    ꞏ⸳•`.
-# ꞏ`⸳     . *  `      * ⸳ ꞏ` .⸳ꞏ*⸳  ⸳ꞏ   ` .⸳*ꞏ⸳ .  •      .⸳ ꞏ⸳   ` *` . `⸳*.•⸳
+# ·.·` ·  *` ·.  * `·   ·   .·    ·*`     .··   *· ` ·*    ·.·`   ·.·*`• . ` ··*
+# ··*  ..     *·.`·   ·`  *·• ·  Beverage Bandits ·  * ` · .·  *·.`•  ·`. +··`  
+# *`.·  `·.* ··     *  https://adventofcode.com/2018/day/15 *`   ·. .·*·  `*+ `·
+# `.  *`·.·· *   .`·   +•·.`·  .* ` ·  ·   *. ·*   ·  `.· *`   · * `·.  `+·.  *·
 
 from __future__ import annotations
 from collections import defaultdict
@@ -25,7 +25,7 @@ _wall_char = "#"
 unit_symbols = (_goblin_char, _elf_char)
 
 
-def parse(s) -> np.typing.NDArray[np.str_]:
+def parse(s: str) -> np.typing.NDArray[np.str_]:
     """Parse input into array of chars"""
     chars = [[char for char in line.strip()] for line in s.splitlines()]
     cols = len(chars[0])
@@ -445,7 +445,7 @@ def determine_attack_power_to_keep_elves_alive(battle: Battle) -> int:
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     map_ = parse(data)
     
     battle = Battle(map_)
@@ -461,7 +461,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 15
     from aocd import get_data
     raw = get_data(year=year, day=day)

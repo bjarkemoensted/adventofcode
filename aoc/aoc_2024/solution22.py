@@ -1,7 +1,7 @@
-# ⸳ꞏ⸳ +   ꞏ  . ⸳*.  +⸳` ꞏ• `.    • ꞏ. ꞏ•` .*⸳   ꞏ    ⸳*.*      •  ` ꞏ.⸳  ꞏ.⸳•`+ꞏ
-# `+ ꞏ⸳.  ⸳  `     .ꞏ   `⸳ ꞏ `    Monkey Market  .  ⸳+  ⸳.ꞏ    ꞏ  . ⸳ •` .   ⸳  
-#   .⸳` ꞏ   ꞏ       ⸳• https://adventofcode.com/2024/day/22 ⸳*   . ꞏ.` . •ꞏ*ꞏ ⸳`
-#   ꞏ. ⸳`  .+   ⸳ꞏ⸳*.ꞏ     ⸳`ꞏ+   ꞏ  •    * `⸳ .     *⸳ ꞏ  .*   ꞏ⸳  •  ꞏ+ • ⸳ꞏ` 
+# ·` · . ·  • `.·  + · .`  *··.•. * `·    ·*`.· + ·· `*.` ·     +`·   · *   `*··
+# `·*`  . · ·  *` +·.   *·      · Monkey Market  ` * · `·   *  `.·` ·  *·`+ .· *
+# · .  +·  `.·*·+   `. https://adventofcode.com/2024/day/22 .·    +·   ` ·.·* .`
+# . ·*·`      ·`  · *`+ ·. ·     ·`    .·  +*· `·  ·`.·+     * ·  .* ·`   ·.·`·•
 
 
 from collections import Counter
@@ -9,7 +9,7 @@ import math
 import numba
 
 
-def parse(s):
+def parse(s: str):
     res = [int(line) for line in s.splitlines()]
     return res
 
@@ -77,7 +77,7 @@ def crunch(seeds, n_generations=2000, n_hist=4):
     return final_secrets, totals_by_history
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     seeds = parse(data)
     final_secrets, totals_by_history = crunch(seeds=seeds)
     
@@ -90,7 +90,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 22
     from aocd import get_data
     raw = get_data(year=year, day=day)

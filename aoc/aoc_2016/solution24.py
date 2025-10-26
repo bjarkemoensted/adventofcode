@@ -1,7 +1,7 @@
-#  `.⸳   *   ꞏ⸳.   +ꞏ⸳ . ꞏ *  ⸳  ꞏ ⸳•   .⸳  ꞏ.`   ⸳ꞏ  ` +⸳ .     .•.⸳ `   ꞏ+ꞏ*`.
-# *   .`ꞏ  ⸳    +ꞏ. *   ⸳  ꞏ * Air Duct Spelunking  `ꞏ⸳⸳ * `    •⸳  .ꞏ  *⸳  . +`
-# `.ꞏ.⸳  ꞏ      .  ꞏ   https://adventofcode.com/2016/day/24   `⸳ ꞏ `   •   ꞏ   ⸳
-# .  +⸳ꞏ ꞏ⸳+.ꞏ        ⸳*` ꞏ.             *.`•  ⸳ ꞏ .⸳* .  ꞏꞏ⸳•  ⸳*     .⸳`   ⸳*.
+# • ·  `   . ·  *·  .`* ·    ·   *•· · * `+·.` ·  *  `    ` ··.` *·+ `· . `  *·.
+# `*  .· ` ·    · +`       `.  Air Duct Spelunking    .·   ·  * · . `* ·    `·.*
+# .`. * ··· `   .  *·  https://adventofcode.com/2016/day/24    ·`  · · `* ··  *·
+# ··`*· `. +   ·  · *`       ·.`· `*·•.  ·  `    ··       +`  · .   + `.·· +· ` 
 
 
 from functools import cache
@@ -9,7 +9,7 @@ import heapq
 import networkx as nx
 
 
-def parse(s):
+def parse(s: str):
     """Builds a 2D-lattice where all non-wall neighboring sites are connected"""
     G = nx.Graph()
     lines = [list(line.strip()) for line in s.split("\n")]
@@ -106,7 +106,7 @@ def _lower_bounds_from_n_remaining(G: nx.Graph) -> dict:
     return res
 
 
-def ts_solve(G: nx.Graph, startat=0, return_to_starting_point=False, maxiter=None) -> tuple:
+def ts_solve(G: nx.Graph, startat=0, return_to_starting_point=False, maxiter=None) -> int:
     """A* kinda approach to the Traveling Salesman problem."""
     if maxiter is None:
         maxiter = float("inf")
@@ -146,9 +146,11 @@ def ts_solve(G: nx.Graph, startat=0, return_to_starting_point=False, maxiter=Non
                 heapq.heappush(queue, (priority, new_path))
             #
         n_its += 1
+    
+    raise RuntimeError("No path found")
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     lattice = parse(data)
     G = build_shortest_paths_graph(lattice)
 
@@ -161,10 +163,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 24
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

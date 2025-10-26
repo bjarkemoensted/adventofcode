@@ -1,13 +1,13 @@
-# ꞏ`•ꞏ  .  ⸳    `.   `   *.+ `ꞏ  *     .+⸳* .⸳ *ꞏ ꞏ. +   *ꞏ`    . *` . ⸳ꞏ* ⸳  ` 
-# . `⸳*   ꞏ + .⸳   ` A Maze of Twisty Trampolines, All Alike  .`*  ꞏ+      `•. *
-#  *⸳ ꞏ` .    *`.   ꞏ  https://adventofcode.com/2017/day/5   *⸳* .` ⸳ ꞏ    +.⸳•`
-#  ꞏ  .•`ꞏ. ꞏ    ⸳*.`     ⸳ꞏ*`. . ⸳ `•      ` .ꞏ• •⸳ . + ⸳.ꞏ.ꞏ*⸳   . + ⸳ ꞏ.  * .
+# ·*  . ··   `   ·  *· `··.     ·`  .  *·      .·     `·.    · ` .·* `.  *·. ·*`
+#  .`··+  ` ·*  `.·· A Maze of Twisty Trampolines, All Alike `·*      ·  ··* .·+
+# .··*     `+·*·    .· https://adventofcode.com/2017/day/5  .* ·`    ·`.  *··+.·
+# `·+ * ·`.+ .·`·*  ` ·      *· `·.·  ` *.·   · +`· .   *· .· ·    · • `· `  · ·
 
 
 import numba
 
 
-def parse(s):
+def parse(s: str):
     res = [int(elem) for elem in s.splitlines()]
     return res
 
@@ -30,7 +30,7 @@ def steps_to_complete(instructions, max_offset=-1):
     return n
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     instructions = parse(data)
 
     star1 = steps_to_complete(instructions)
@@ -42,10 +42,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 5
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

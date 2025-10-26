@@ -1,7 +1,7 @@
-#  *ꞏ..•⸳* `  ꞏ⸳ .`   ꞏ*  ꞏ⸳.   ꞏ . `⸳  .ꞏꞏ⸳*    ⸳ *ꞏ.     ⸳ꞏ+  `*.   `*  ꞏ ` ꞏ.
-# * ꞏ ⸳  ꞏ+.` .  *  ⸳` ꞏ*  Immune System Simulator 20XX      ꞏ *⸳ ꞏ `      ⸳⸳ . 
-#    ⸳ꞏ ꞏ  •⸳.`  ꞏ   ꞏ https://adventofcode.com/2018/day/24  ꞏ ⸳•. ⸳•  .ꞏ    ꞏ•.
-# ꞏ. `+⸳ .ꞏ⸳ + ꞏ`  ꞏ*.⸳  ꞏ` *  .   ꞏ   ⸳ ꞏ  * .ꞏ*`  .`* +⸳`⸳  ꞏ .ꞏ * ` ꞏ.⸳. * ꞏ⸳
+# `*·+`.· +  ·  ·`·  *     ··.  . *·`  + `·*· .•  ·.+ ` ·   .  ·*`    · ·+`*.`·+
+# · ` ··  ` +* ·.  ·`·  *. Immune System Simulator 20XX     +`·  •· `+ . • · `*·
+# •` ·.` ·  ·` *`·+    https://adventofcode.com/2018/day/24 · .  ·*`+·   ·  *· .
+# .··*  `*·   ·`+  .  `*·+`·.    •` ··  `.    ·+·  *`•.· ·    +     ·.*·•`·  .·*
 
 from __future__ import annotations
 from copy import deepcopy
@@ -150,7 +150,7 @@ class Group:
         return n_dead
 
 
-def parse(s) -> list[Group]:
+def parse(s: str) -> list[Group]:
     parts = s.split("\n\n")
     res = []
     
@@ -378,7 +378,7 @@ def compute_min_boost(battle: Battle) -> int:
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     parsed = parse(data)
     battle = Battle(*parsed, verbose=False)
     
@@ -391,7 +391,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 24
     from aocd import get_data
     raw = get_data(year=year, day=day)

@@ -1,14 +1,14 @@
-# .•ꞏ `  ⸳ *    .⸳ꞏ ꞏ.`⸳      •⸳` +  `ꞏ  .   ꞏ ⸳`  ` . ⸳ + .*`.ꞏ⸳     ⸳  •  .`*ꞏ
-# ꞏ.⸳ *⸳ +  ꞏ.       ` `  ꞏ  ⸳` Dueling Generators  ⸳•*  ꞏ.  ⸳* .   ⸳* `   •` ꞏ⸳
-# ⸳ `ꞏ  * .+.  `⸳    + https://adventofcode.com/2017/day/15 .       ꞏ``•⸳  ⸳*.• 
-# `ꞏ  *+ꞏ. `  .⸳  *    ꞏ• . `  ꞏ   * •.⸳  ⸳*    ꞏ*ꞏ⸳`  ` •    •⸳ꞏ`ꞏ.   ⸳. `.*ꞏ  
+# `.  ·  ·  ` *· ·. ` * · *. ·``    ·+`·.* ·     ·  .+*`··*  ·   · `* ·  .`· *`·
+# ·   .*·`      *·   .    ·   + Dueling Generators · ` *  .+·  .·` ·   `•·.*·`· 
+# ··`·•.     ·`   *·.· https://adventofcode.com/2017/day/15 *.`+    ·· ·`  `.·* 
+# .*· `·.*·`  · ·+`  * ·• . ·  *.·`.   +  *·`   .    ·   *`·  .·`  . *`  *·  .`·
 
 
 import numba
 import re
 
 
-def parse(s):
+def parse(s: str):
     res = dict()
     pat = r"Generator (?P<name>\S+) starts with (?P<value>\d+)"
     for line in s.splitlines():
@@ -47,7 +47,7 @@ def count_matches(a, b, n_its=40_000_000, a_mod=1, b_mod=1) -> int:
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     seeds = parse(data)
 
     star1 = count_matches(**seeds)
@@ -59,10 +59,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 15
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

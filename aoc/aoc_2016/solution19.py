@@ -1,13 +1,13 @@
-# ⸳`  ꞏ ⸳ *` •.   *`⸳  `. •     ꞏ+⸳  `*⸳ꞏ  . •  .+ ꞏꞏ    ⸳ ⸳ .   `  ⸳ . `ꞏ   ⸳*.
-# •.`ꞏ*   . ⸳ ꞏ⸳.  ꞏ`*ꞏ  ⸳ꞏ. An Elephant Named Joseph ꞏ  . * ⸳  ꞏ `   + ꞏ•    ⸳`
-# . ꞏ⸳`•ꞏ  ꞏ.ꞏ *`   ꞏ  https://adventofcode.com/2016/day/19  .`   +.  ꞏ⸳. *`  ` 
-# `*⸳ •. `  ꞏ  . *ꞏ⸳ .⸳+•  `ꞏ ⸳ .  ꞏ.  •.⸳ `    ꞏ.•` *⸳ `ꞏ  . ⸳• ꞏ.`   .•`  ꞏ•.ꞏ
+#  ·`·`  * . · .+ ·    ·.`*+   `·`*.   ·   ·.*  •`·.*· · ` .  .·* ` +.·   `. · *
+# .* ·*.··+ `* ··  .+*   · ` An Elephant Named Joseph . · *    +  · .   *·.· ` .
+# *·  .   · *   `. *·. https://adventofcode.com/2016/day/19 . *.·+   `   .·`·* ·
+# · *.·`*.• ·`   * · · *`.  ·*    `*·   `..·*   . *·` ·+ .  ·`    · ·*  ·`* `·•·
 
 
 import math
 
 
-def parse(s):
+def parse(s: str):
     res = int(s)
     return res
 
@@ -58,7 +58,7 @@ def simulate_new_gift_game(n_participants):
     return winner
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     n_participants = parse(data)
 
     star1 = simulate_gift_game(n_participants)
@@ -70,10 +70,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 19
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

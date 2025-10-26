@@ -1,7 +1,7 @@
-# `ꞏ. .ꞏ*⸳` .⸳  *`     *   +.⸳ꞏ ` + ⸳  .ꞏ⸳`+   `  +.⸳•⸳`   .*  ꞏ.` ⸳* ꞏ ⸳. *• ⸳ꞏ
-# *.`+ ⸳ ꞏ*     .   ⸳` ꞏ+  `ꞏ *⸳ . Slam Shuffle  ⸳` *`.⸳+    ꞏ*   ⸳ .*⸳ꞏ   . ⸳` 
-# .⸳+`ꞏ ⸳`.  +  ⸳•*` . https://adventofcode.com/2019/day/22  +.   `• ꞏ   *.⸳ꞏ• .
-# `*      ꞏ ꞏ`⸳+ +.⸳ꞏ⸳   .  ⸳•`  ꞏ *. • +ꞏ ` .       ` *ꞏ⸳ *⸳.  `+ꞏ*      ꞏ`.` ⸳
+# .·· *   ·.·` ·        ·.·`*  · `·   ·`*.· +    *`.·  ·`+ .·  ·  `.*  ·· · `·.`
+# ·.`.·· ·* `·   ` · *. *·   ·` ·* Slam Shuffle ·.+`    · · *· ` ·. `*·    ·•·`*
+# •·.·`.   * *·   .`·  https://adventofcode.com/2019/day/22   .·* ·`  . `· `·*·.
+# ·`*  •· ·  .`·* `.*· ·`   ·+.  ·.*·   `· · .+  · ·.  *. `·  ·   *·· `  *·· ..·
 
 from __future__ import annotations
 from collections import deque
@@ -19,7 +19,7 @@ instype: TypeAlias = tuple[optype, tuple[int, ...]]
 modtype: TypeAlias = int|sympy.Basic
 
 
-def parse(s):
+def parse(s: str):
     res = []
     for line in s.splitlines():
         if line == "deal into new stack":
@@ -226,7 +226,7 @@ class Shuffler:
         return new_obj
     
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     instructions = parse(data)
     n_cards = 10007
     shuffler = Shuffler(n_cards=n_cards)
@@ -246,7 +246,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2019, 22
     from aocd import get_data
     raw = get_data(year=year, day=day)

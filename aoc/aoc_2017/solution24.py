@@ -1,13 +1,13 @@
-# *ꞏ ⸳  .*ꞏ⸳  ⸳.`   + ` .* ⸳ ꞏ+ `   ⸳⸳ ꞏ*.   *. ⸳*  .`ꞏ  ⸳*  .•` ꞏ  ⸳ . ꞏ+* ⸳•ꞏ 
-# ⸳⸳ꞏ • `  *    . ꞏ*   ⸳⸳ꞏ.    Electromagnetic Moat ꞏ +.⸳*    ꞏ `•   . *. ⸳`ꞏ •⸳
-# ꞏ*  ꞏ  . ꞏ ⸳+`       https://adventofcode.com/2017/day/24     * +ꞏ`  ` ꞏ.*    
-#  .+* ⸳ ꞏ   `.⸳+ * ꞏ` +   `  `ꞏ.⸳   ꞏ⸳.     `+` ⸳     *⸳ ꞏ⸳.     ꞏ  • .⸳`ꞏ   *ꞏ
+# .* ·*` ·  *.· `  ·+· ·  `·*.    `·`·*    *·    · *· ` *· .  ·   `·`* · ·`* ·.•
+# *`.`·.·    * ·     •·.`   *` Electromagnetic Moat  .  ·* `  * ·   +·`*. · .+`·
+# · *. · `*      ·*`.  https://adventofcode.com/2017/day/24 · .·• * ·   ` . ·.· 
+# ··  `*.•  ·`* ·    ·.`• ·` ··  *·    ·•· . ·· `    ·*·`.·+`  *  ·`.   ·* ·*` ·
 
 
 import heapq
 
 
-def parse(s):
+def parse(s: str):
     res = []
     for line in s.splitlines():
         a, b = map(int, line.split("/"))
@@ -147,7 +147,7 @@ def build_bridge(pieces, longer_is_better=False, maxiter=None):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     pieces = parse(data)
 
     bridge = build_bridge(pieces)
@@ -161,10 +161,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 24
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
 

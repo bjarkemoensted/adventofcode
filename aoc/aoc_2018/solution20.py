@@ -1,7 +1,7 @@
-# `⸳•`   ꞏ     .⸳•.`   ⸳ • + .  ⸳.ꞏ* `ꞏ⸳.      ` +   .. ⸳ꞏ   .ꞏ*   .`ꞏ⸳*    .` *
-# * `⸳  .+⸳ ꞏ.  *       .ꞏ*`  ⸳   A Regular Map ⸳   *ꞏ`+.⸳ꞏ `*⸳    ⸳ .•ꞏ   .⸳ ` 
-#  .*+ ꞏ  `ꞏ.* `   .   https://adventofcode.com/2018/day/20    .*. • ⸳`  ꞏ   ••ꞏ
-# `•.ꞏ   .*.  ⸳ꞏ   * + `ꞏ .  ꞏ*⸳  ` *.   ⸳+ .   +`ꞏ⸳      * ⸳ꞏ. ⸳`      ⸳. •  .`
+# ··` . · *`  ·  .*·•  ` · ·    `  · + ··`.·    ··.`  * · ·    + ·.`*·    .· ·``
+# `+.· · . +·. · *     ·  `* .·   A Regular Map . ·+`··.   ·       .·`·  `  ·* ·
+# ·`· ·   `·  .·*`  `· https://adventofcode.com/2018/day/20   ·` • · *  ·· `.· .
+# *··    ` .`· *· · .` +·   ·*.`·   ·   ` •`·.·*  `.+  · · `.·*       `·  ·.•`··
 
 import networkx as nx
 from typing import TypeAlias
@@ -129,7 +129,7 @@ def print_map(G: nx.Graph):
     print(res)
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     # Build graph from the regex and compute all shortest paths from origin
     G = build_graph(data)
     d = nx.single_source_shortest_path_length(G, (0, 0))
@@ -143,10 +143,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 20
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

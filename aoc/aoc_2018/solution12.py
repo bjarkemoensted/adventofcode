@@ -1,7 +1,7 @@
-# +⸳    .⸳+ꞏꞏ  `.•ꞏ  .  `+      ⸳+ꞏ.  .*•   ⸳ꞏ    ꞏ*⸳.`    *`⸳. `• .   ⸳ .ꞏ⸳ꞏ`.*
-#  ꞏ⸳` ꞏ   *`⸳.• ꞏ  ꞏ   •⸳ Subterranean Sustainability ⸳    . ꞏ*   ⸳    .⸳ ꞏ+   
-# ꞏ.`  ⸳ꞏ*    ꞏ.*   `* https://adventofcode.com/2018/day/12 ⸳  `ꞏ +  ⸳      ꞏ `.
-# ꞏ+ꞏ `*⸳. +   ꞏ   `.ꞏ   .*•  ⸳ꞏ .•  `  ꞏ    `⸳.`    ꞏ + *.  +    ꞏ •.⸳  .•    ꞏ
+# · *  .·`· .`*·   .*  .·*  ·+ •  .`·.    · * ` .·     · • *·. *`   ·   *·  `·.·
+#   ·  · .* `    * ··  +   Subterranean Sustainability + ·   ·   .*·*`   •· .·` 
+# `* ·.  · `  · *`  .· https://adventofcode.com/2018/day/12   +`*·· .    *` · .`
+#  ·.•·`*+`··+ .·    +· `  ·  +. ·•*` ·  .  ·*  ·   `·   .* + `·   * ·   `.•·`·*
 
 from collections import defaultdict
 from typing import TypeAlias
@@ -10,7 +10,7 @@ statetype: TypeAlias = dict[int, str]
 hashtype: TypeAlias = tuple[int, ...]
 
 
-def parse(s) -> tuple[str, dict[str, str]]:
+def parse(s: str) -> tuple[str, dict[str, str]]:
     a, b = s.split("\n\n")
     
     initial_state = a.split(": ")[-1]
@@ -126,7 +126,7 @@ class PlantSimulator:
     #
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     initial_state, d = parse(data)
     ps = PlantSimulator(initial_state=initial_state, transitions=d)
 
@@ -140,10 +140,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 12
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     
     raw = get_data(year=year, day=day)

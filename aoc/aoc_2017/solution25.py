@@ -1,7 +1,7 @@
-# ꞏ*⸳`.      ⸳ ꞏ`* ꞏ   +⸳⸳`*. ꞏ+ *` . *  ` ꞏ. ⸳ *  `ꞏ++⸳. ꞏ• `⸳  *ꞏ  +⸳ꞏ⸳`  *⸳ꞏ.
-# `. ꞏ⸳ ⸳* .*• . ꞏ   *      +ꞏ The Halting Problem  `  `⸳   .⸳* ` *.⸳ ꞏ •    *` 
-# *`.   +`   `ꞏ•.⸳ •   https://adventofcode.com/2017/day/25 +* `⸳ ⸳ `ꞏ  `*ꞏ⸳   •
-#  ⸳ꞏ•   ⸳⸳*.•`    ꞏ⸳.*`  +⸳ꞏ   +`  ꞏ*  ꞏ.  *`  `ꞏ⸳ *  ꞏ`. ⸳` ꞏ *  ꞏ ⸳ `+⸳+ .ꞏ ⸳
+# `*·  .·+`   ··*`. · +`.`··       ·  .`·   ·  * `  ·•`.  *. ·· `.•·`    ··`*.`·
+# ·`*·.·+`  ·  `` · *·     +`. The Halting Problem  . .·* `     · · .+  · `*· ·`
+# `·.`·*.·*  ·  . ` ·. https://adventofcode.com/2017/day/25   `· *   ``  · .·+.·
+# ···  ` * `· •.·  ·.` ·  *`.  ·  ·*. ·  •·. `* `·.`* ·    ·`    ·.• ·+·.*··`· .
 
 
 import numba
@@ -55,7 +55,7 @@ def _parse_block(s):
     return state, operations
 
 
-def parse(s):
+def parse(s: str):
     init_, *blocks = s.split("\n\n")
 
     initial_state, n_steps = _parse_init(init_)
@@ -129,7 +129,7 @@ def checksum(instructions: list, initial_state: str, n_steps: int):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     initial_state, n_steps, instructions = parse(data)
 
     star1 = checksum(instructions, initial_state, n_steps)
@@ -141,10 +141,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 25
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)
