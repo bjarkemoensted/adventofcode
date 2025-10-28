@@ -5,31 +5,12 @@
 
 
 from functools import cache
-from itertools import product
 import networkx as nx
 import numpy as np
 import warnings
 
 
-raw = """###############
-#...#...#.....#
-#.#.#.#.#.###.#
-#S#...#.#.#...#
-#######.#.#.###
-#######.#.#...#
-#######.#.###.#
-###..E#...#...#
-###.#######.###
-#...###...#...#
-#.#####.#.###.#
-#.#...#.#.#...#
-#.#.#.#.#.#.###
-#...#...#...###
-###############"""
-
-
 def parse(s: str):
-    #s = raw  # !!!
     res = np.array([list(line) for line in s.splitlines()])
     return res
 

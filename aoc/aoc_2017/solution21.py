@@ -5,6 +5,7 @@
 
 
 import numpy as np
+from numpy.typing import NDArray
 
 
 def get_initial():
@@ -55,11 +56,11 @@ def determine_partsize(state):
     raise ValueError
 
 
-def _iterate_flip_rotate(m: np.array):
+def _iterate_flip_rotate(m: NDArray[np.str_]):
     """Iterates over every rotation/flip of an array"""
     flipped = [np.flip(m.copy(), axis=i).copy() for i in (0, 1)]
 
-    for arr in [m]+flipped:
+    for arr in [m] + flipped:
         for k in range(4):
             res = np.rot90(arr, k=k).copy()
             yield res
@@ -67,7 +68,7 @@ def _iterate_flip_rotate(m: np.array):
 
 def make_lookup(rules: dict):
     """Make lookup dict of all possible reorientations"""
-    res = dict()
+    res: dict[tuple[str, ...], NDArray[np.str_]] = dict()
 
     for k, v in rules.items():
         key_arr = _tuple_to_numpy(k)
@@ -81,6 +82,8 @@ def make_lookup(rules: dict):
                 res[newkey] = v
             #
         #
+    
+    
     return res
 
 
@@ -145,11 +148,9 @@ def solve(data: str) -> tuple[int|str, int|str]:
 
     n_final = 18
     n_left = n_final - iterations
-    if iterations <= 3:
-        star2 = None
-    else:
-        final_state = simulate_growth(rules=rules, n_steps=n_left, state=endstate)
-        star2 = sum(char == "#" for char in final_state.flat)
+
+    final_state = simulate_growth(rules=rules, n_steps=n_left, state=endstate)
+    star2 = sum(char == "#" for char in final_state.flat)
     print(f"Solution to part 2: {star2}")
 
     return star1, star2

@@ -18,7 +18,7 @@ def parse(s: str):
 def connected_component(connections, starting_node: int):
     """Returns the connected component containing the starting node"""
 
-    component = set([])
+    component: set[int] = set([])
     wavefront = {starting_node}
     # Start with the starting node, then repeatedly add neighbors if they're unseen
     while wavefront:

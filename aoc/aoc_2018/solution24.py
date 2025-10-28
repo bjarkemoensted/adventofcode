@@ -7,12 +7,16 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass, field
 import re
-from typing import Any, Literal, TypeAlias
+from typing import Any, get_args, Literal, TypeAlias, TypeGuard
 import uuid
 
 
 _damage_type: TypeAlias = Literal["radiation", "bludgeoning", "fire", "cold", "slashing"]
 _army_type: TypeAlias = Literal["Immune System", "Infection"]
+
+
+def is_army(val: str) -> TypeGuard[_army_type]:
+    return val in get_args(_army_type)
 
 
 test = """Immune System:
@@ -157,6 +161,7 @@ def parse(s: str) -> list[Group]:
     for part in parts:
         lines = part.splitlines()
         army = lines[0].split(":")[0]
+        assert is_army(army)
 
         for i, line in enumerate(lines[1:]):
             kws = _parse_group(line)
@@ -383,6 +388,7 @@ def solve(data: str) -> tuple[int|str, int|str]:
     battle = Battle(*parsed, verbose=False)
     
     star1 = battle.go()
+    assert isinstance(star1, int)
     print(f"Solution to part 1: {star1}")
     
     star2 = compute_min_boost(battle)

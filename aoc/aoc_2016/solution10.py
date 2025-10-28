@@ -85,11 +85,8 @@ def run_instructions(assign, swap, target_comparison):
 
 
 def solve(data: str) -> tuple[int|str, int|str]:
-    chips = [17, 61] if len(data) > 500 else [5, 2]
+    chips = [17, 61]
     instructions = parse(data)
-    a, b = instructions
-    
-    print(b[0])  # !!!
 
     end_state, bot = run_instructions(*instructions, target_comparison=chips)
     star1 = bot

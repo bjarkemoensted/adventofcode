@@ -15,8 +15,6 @@ def parse(s: str):
         k, v = map(int, line.split("|"))
         rules[k].add(v)
     
-    rules = dict(rules)
-    
     updates = [[int(part) for part in line.split(",")] for line in b.splitlines()]
     
     return rules, updates

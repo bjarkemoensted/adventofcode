@@ -6,6 +6,10 @@
 
 from collections import defaultdict
 import numpy as np
+from typing import TypeAlias
+
+
+coordtype: TypeAlias = tuple[int, ...]
 
 
 def parse(s: str):
@@ -25,7 +29,7 @@ class Graph:
     
     def __init__(self, m: np.ndarray):
         # Keep track of edges, and the indices of each value encountered
-        self.edges = dict()
+        self.edges: dict[coordtype, list[coordtype]] = dict()
         self.value_lookup = defaultdict(lambda: [])
         
         # Go over all indices and values in the map

@@ -9,9 +9,9 @@ def parse(s: str):
 
     res = []
     for line in s.splitlines():
-        a, b = line.split(":")
-        a = int(a)
-        b = [int(part) for part in b.strip().split()]
+        a_s, b_s = line.split(":")
+        a = int(a_s)
+        b = [int(part) for part in b_s.strip().split()]
         res.append((a, b))
 
     return res

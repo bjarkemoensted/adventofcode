@@ -6,6 +6,12 @@
 
 from collections import defaultdict
 import numpy as np
+from numpy.typing import NDArray
+from typing import TypeAlias
+
+
+coordtype: TypeAlias = tuple[int, ...]
+statetype: TypeAlias = tuple[coordtype, coordtype]
 
 
 def parse(s: str):
@@ -15,18 +21,19 @@ def parse(s: str):
 
 #Stuff for rotating direction vectors right
 dirs = ((-1, 0), (0, 1), (1, 0), (0, -1))
-rot_dict = {dirs[i]: dirs[(i+1) % len(dirs)] for i in range(len(dirs))}
+rot_dict: dict[coordtype, coordtype] = {dirs[i]: dirs[(i+1) % len(dirs)] for i in range(len(dirs))}
 
 
-def get_initial_pos(map_: np.ndarray) -> tuple:
+def get_initial_pos(map_: NDArray[np.int_]) -> coordtype:
     """Grabs initial position from the array"""
     for pos in np.ndindex(map_.shape):
         if map_[pos] == "^":
             return pos
         #
-    #
+    raise RuntimeError("Couldn't locate starting position")
 
-def _add_tuples(a, b):
+
+def _add_tuples(a: coordtype, b: coordtype) -> coordtype:
     res = tuple(x + y for x, y in zip(a, b, strict=True))
     return res
 
@@ -38,7 +45,7 @@ class Graph:
         self.edges = dict()
         
         # Reverse map to make it easy to look up which states lead to a given state
-        self._reverse = defaultdict(lambda: set([]))
+        self._reverse: dict[statetype, set[statetype]] = defaultdict(lambda: set([]))
         
         # Go over all adjacent states
         for pos in np.ndindex(map_.shape):
@@ -60,10 +67,11 @@ class Graph:
                 
                 self.edges[u] = v
                 self._reverse[v] |= {u}
+                
             #
         #
     
-    def _redirect(self, blocked: tuple):
+    def _redirect(self, blocked: tuple) -> dict[statetype, statetype]:
         """Generates a dict of the state transitions affected by inserting an obstacle at the specified location.
         The dict containts states as keys and 'corrected' subsequent states as values, and so can be used to override
         the graph class' edges to simulate traversal with an extra obstacle."""
@@ -85,7 +93,7 @@ class Graph:
         
         return res
 
-    def traverse(self, initial_state: tuple, blocked: tuple=None):
+    def traverse(self, initial_state: tuple, blocked: tuple|None=None):
         """Traverses the graph starting from the specified state.
         if a blocked coordinate is provided, the traversal will simulate an obstacle there."""
 

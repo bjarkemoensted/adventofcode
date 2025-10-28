@@ -91,6 +91,8 @@ def first_safety_check_val_greater_than(val: int) -> int:
             return square
 
         squares[coord] = square
+    
+    raise ValueError("No valid value found")
 
 
 def solve(data: str) -> tuple[int|str, int|str]:

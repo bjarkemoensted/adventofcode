@@ -37,10 +37,10 @@ def count_overlaps(claims: Iterable[claim], size=1000) -> np.typing.NDArray[np.i
 
 def solve(data: str) -> tuple[int|str, int|str]:
     claims = parse(data)
-
     m = count_overlaps(claims.values())
+    
     # Count the number of cells where one or more claims overlap
-    star1 = sum(v > 1 for v in m.flat)
+    star1 = (m > 1).sum()
     print(f"Solution to part 1: {star1}")
     
     # The completely distinct claim must be where the one where all counts are equal to 1

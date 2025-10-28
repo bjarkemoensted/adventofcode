@@ -7,27 +7,27 @@
 from collections import defaultdict
 
 
-def parse(s: str):
+def parse(s: str) -> list[tuple[str|int, ...]]:
     """Parses input to a list of instructions like [(operation, arg1, arg2, ...)]"""
     res = []
     for line in s.splitlines():
-        parts = line.strip().split()
-        for i, part in enumerate(parts):
+        parts: list[str|int] = []
+        for elem in line.strip().split():
             # Just convert to ints if possible. If that fails, keep as string
             try:
-                parts[i] = int(parts[i])
+                parts.append(int(elem))
             except ValueError:
-                pass
+                parts.append(elem)
             #
         res.append(tuple(parts))
 
     return res
 
 
-class Register(defaultdict):
+class Register(dict):
     """Helper class for registry data, so attempting to look up an int will just return the int"""
     def __missing__(self, key):
-        return self.default_factory(key)
+        return key
 
     def __str__(self):
         s = "{" + ", ".join([f"{k}: {v}" for k, v in self.items() if v != 0]) + "}"
@@ -41,7 +41,7 @@ def _initialize_register(instructions: list, value: int = 0) -> Register:
     # Assume we just need a register for each string argument in the instructions
     keys = sorted(set([elem for elem in sum([list(tup[1:]) for tup in instructions], []) if isinstance(elem, str)]))
 
-    reg = Register(lambda x: x)
+    reg = Register()
     for k in keys:
         reg[k] = value
 
@@ -99,7 +99,7 @@ def run_instructions(instructions: list, verbose=False, max_ins=None, **regvals)
 
     n_muls = 0
     n_run = 0
-    linecounts = defaultdict(lambda: 0)
+    linecounts: dict[int, int] = defaultdict(lambda: 0)
 
     ind = 0
 

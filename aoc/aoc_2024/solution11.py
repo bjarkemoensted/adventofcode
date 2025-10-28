@@ -8,9 +8,9 @@ from collections import defaultdict
 from functools import cache
 
 
-def parse(s: str):
+def parse(s: str) -> dict[int, int]:
     """Parses into a dict where each number is mapped to the number of stones it appears on"""
-    res = defaultdict(lambda: 0)
+    res: dict[int, int] = defaultdict(lambda: 0)
     for stone in map(int, s.strip().split()):
         res[stone] += 1
     
@@ -33,7 +33,7 @@ def update_single_stone(number: int):
     return [number*2024]
 
 
-def blink(stones: dict, n: int=1):
+def blink(stones: dict, n: int=1) -> dict[int, int]:
     """Blinks n times, updating all stones in each iteration.
     Stones is assumed to by a dictionary type, where each number is mapped to the number of times it occurs."""
 
@@ -41,7 +41,7 @@ def blink(stones: dict, n: int=1):
         raise ValueError
     
     for _ in range(n):
-        d_next = defaultdict(lambda: 0)
+        d_next: dict[int, int] = defaultdict(lambda: 0)
         for stone, multiplicity in stones.items():
             for val in update_single_stone(stone):
                 d_next[val] += multiplicity

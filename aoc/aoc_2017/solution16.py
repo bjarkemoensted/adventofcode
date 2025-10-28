@@ -11,13 +11,11 @@ def parse(s: str):
     instructions = []
     for part in s.split(","):
         if part.startswith("s"):
-            ins = ("s", int(part[1:]))
+            ins: tuple[int|str, ...] = ("s", int(part[1:]))
         elif part.startswith("x"):
-            a, b = map(int, part[1:].split("/"))
-            ins = ("x", a, b)
+            ins = ("x", *map(int, part[1:].split("/")))
         elif part.startswith("p"):
-            a, b = part[1:].split("/")
-            ins = ("p", a, b)
+            ins = ("p", *part[1:].split("/"))
         else:
             raise ValueError
         instructions.append(ins)

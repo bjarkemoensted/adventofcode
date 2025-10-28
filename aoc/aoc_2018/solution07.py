@@ -24,7 +24,9 @@ def parse(s: str):
     res = []
     p = r"Step (\S) must be finished before step (\S) can begin."
     for line in s.splitlines():
-        res.append(re.match(p, line).groups())
+        m = re.match(p, line)
+        assert m is not None
+        res.append(m.groups())
     return res
 
 

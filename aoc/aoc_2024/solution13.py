@@ -32,6 +32,7 @@ def parse(s: str):
         buttons = parts[:2]
         for b in buttons:
             m = re.match(button_pattern, b)
+            assert m is not None
             btn = m.group("button")
             d[btn] = xy_from_match(m)
         

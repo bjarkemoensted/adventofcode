@@ -19,16 +19,18 @@ instype: TypeAlias = tuple[optype, tuple[int, ...]]
 modtype: TypeAlias = int|sympy.Basic
 
 
-def parse(s: str):
-    res = []
+def parse(s: str) -> list[instype]:
+    res: list[instype] = []
     for line in s.splitlines():
         if line == "deal into new stack":
-            elem = ("new_stack", ())
+            res.append(("new_stack", ()))
         elif line.startswith("cut"):
-            elem = ("cut", (int(line.split()[-1]),))
+            res.append(("cut", (int(line.split()[-1]),)))
         elif line.startswith("deal"):
-            elem = ("deal_with_increment", (int(line.split()[-1]),))
-        res.append(elem)
+            res.append(("deal_with_increment", (int(line.split()[-1]),)))
+        #
+
+    print(res)
     return res
 
 

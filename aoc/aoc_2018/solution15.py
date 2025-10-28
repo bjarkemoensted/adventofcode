@@ -346,10 +346,10 @@ class Battle:
             unit.tick()
         self._remove_dead()
     
-    def fight(self, display=False, end_condition: Callable[[Battle], bool]|None=None) -> int|None:
+    def fight(self, display=False, end_condition: Callable[[Battle], bool]|None=None) -> int:
         """Fights an elf-goblin battle. end_condition is an optional callable which takes the battle
         instance and returns True if the fight should end.
-        Returns the 'outcome' (n_rounds * sum hit points) if game ends."""
+        Returns the 'outcome' (n_rounds * sum hit points) when game ends."""
 
         if end_condition is None:
             end_condition = lambda _: False
@@ -369,11 +369,12 @@ class Battle:
                 print(self.as_string(include_units=True), end="\n\n")
             
             game_over = game_over or end_condition(self)
-
-        outcome = n_rounds_fought*sum(unit.hit_points for unit in self.units) if game_over else None
+        
+        if not game_over:
+            raise RuntimeError("Fighting stopped but game isn't over. Shouldn't happen.")
+        
+        outcome = n_rounds_fought*sum(unit.hit_points for unit in self.units)
         return outcome
-            
-
     
     def as_string(self, include_units=True, subs:dict[coord, str]|Iterable[coord]|None=None):
         """Represents the cavern as an ASCII map, similarly to on the web page"""
@@ -455,8 +456,6 @@ def solve(data: str) -> tuple[int|str, int|str]:
     
     star2 = determine_attack_power_to_keep_elves_alive(battle=battle)
     print(f"Solution to part 2: {star2}")
-
-    #Cache.display_all()  # Display cache statistics to figure out hwere to optimize
     
     return star1, star2
 

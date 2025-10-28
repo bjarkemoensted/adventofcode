@@ -8,15 +8,15 @@ import heapq
 
 
 def parse(s: str):
-    res = []
+    elems = []
     for line in s.splitlines():
         a, b = map(int, line.split("/"))
         if a > b:
             a, b = b, a
         piece = (a, b)
-        res.append(piece)
+        elems.append(piece)
 
-    res = tuple(sorted(res))
+    res = tuple(sorted(elems))
 
     return res
 

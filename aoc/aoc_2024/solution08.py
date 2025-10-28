@@ -37,7 +37,7 @@ class Grid:
         """Returns a set of the coordinates of antinodes at the given frequency.
         If with_resonance, takes resonant harmonics^tm into account."""
 
-        res = set([])
+        res: set[tuple[int, ...]] = set([])
         coords = sorted(self.d[frequency])
         
         for x1 in coords:
@@ -51,7 +51,7 @@ class Grid:
                 delta = tuple(b - a for a, b in zip(x1, x2))
                 
                 # Step in increments of the displacement vector until falling off the map
-                an = x2
+                an: tuple[int, ...] = x2
                 while self._in_bounds(an := tuple(a + b for a, b in zip(delta, an))):
                     res.add(an)
                     if not with_resonance:

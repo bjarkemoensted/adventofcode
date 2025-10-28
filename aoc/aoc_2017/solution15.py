@@ -13,6 +13,7 @@ def parse(s: str):
     pat = r"Generator (?P<name>\S+) starts with (?P<value>\d+)"
     for line in s.splitlines():
         m = re.match(pat, line)
+        assert m is not None
         d = m.groupdict()
         res[d["name"].lower()] = int(d["value"])
     return res

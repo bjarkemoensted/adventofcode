@@ -6,9 +6,19 @@
 
 from functools import cache
 import numpy as np
+from numpy.typing import NDArray
+from typing import get_args, Literal, TypeAlias, TypeGuard
 
 
-dirs = {
+arrowtype: TypeAlias = Literal[">", "v", "<", "^"]
+coordtype: TypeAlias = tuple[int, ...]
+
+
+def is_arrow_type(s: str) -> TypeGuard[arrowtype]:
+    return s in get_args(arrowtype)
+
+
+dirs: dict[arrowtype, coordtype] = {
     ">": (0, 1),
     "v": (1, 0),
     "^": (-1, 0),
@@ -16,9 +26,13 @@ dirs = {
 }
 
 
-def parse(s: str):
+def parse(s: str) -> tuple[str, list[arrowtype]]:
     map_part, move_part = s.split("\n\n")
-    moves = [move for move in move_part.replace("\n", "")]
+    
+    moves: list[arrowtype] = []
+    for move in move_part.replace("\n", ""):
+        assert is_arrow_type(move)
+        moves.append(move)
     
     return map_part, moves
 
@@ -38,12 +52,12 @@ class Warehouse:
     wall = "#"
     crate_gps_corner_symbol = crate  # The symbol to use for computing locations
 
-    @staticmethod
-    def parse_map(s: str) -> np.ndarray:
+    @classmethod
+    def parse_map(cls, s: str) -> NDArray[np.str_]:
         m = np.array([list(line.strip()) for line in s.splitlines()])
         return m
     
-    def __init__(self, map_ascii: np.ndarray, validate=False):
+    def __init__(self, map_ascii: str, validate=False):
         """Initializes the warehouse. map_ascii is the ASCII representation of the warehouse from the input.
         validate indicates whether we run sanity checks after every move operation."""
 
@@ -96,7 +110,7 @@ class Warehouse:
         
         return [ind]
 
-    def move(self, move_char: str):
+    def move(self, move_char: arrowtype):
         """Attempts to move the robot in the input direction."""
         
         dir_ = dirs[move_char]
@@ -148,7 +162,8 @@ class Widehouse(Warehouse):
     crate = crate_left+crate_right
     crate_gps_corner_symbol = crate_left
 
-    def parse_map(self, s: str) -> np.ndarray:
+    @classmethod
+    def parse_map(cls, s: str) -> NDArray[np.str_]:
         """Extend the map as per the riddle"""
         replacements = [("#", "##"), ("O", "[]"), (".", ".."), ("@", "@.")]
         for old, new in replacements:

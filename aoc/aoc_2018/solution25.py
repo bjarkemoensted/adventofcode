@@ -56,7 +56,7 @@ def count_constellations(coords, max_dist: int=3) -> int:
     return res
 
 
-def solve(data: str) -> tuple[int|str, int|str]:
+def solve(data: str) -> tuple[int|str, None]:
     coords = parse(data)
 
     star1 = count_constellations(coords)

@@ -9,6 +9,7 @@ import re
 
 def parse(s: str):
     m = re.match(r"(\d+) players; last marble is worth (\d+) points", s)
+    assert m is not None
     n_players, max_points = map(int, m.groups())
     return n_players, max_points
 

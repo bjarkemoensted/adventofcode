@@ -18,7 +18,9 @@ def parse(s: str):
             children = tuple(line.strip().split(" -> ")[1].split(", "))
         except IndexError:
             children = tuple(())
-
+        
+        assert m is not None
+        
         name = m.group('name')
         d = dict(
             name=name,
