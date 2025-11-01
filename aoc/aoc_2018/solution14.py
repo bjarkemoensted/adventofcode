@@ -17,7 +17,13 @@ MAX_STEP_SIZE = 2
 
 
 @numba.njit
-def brew(elf1: int, elf2: int, scores: np.typing.NDArray[score_dtype], n_add: int) -> tuple[int, int, np.typing.NDArray[score_dtype]]:
+def brew(
+    elf1: int,
+    elf2: int,
+    scores:
+    np.typing.NDArray[score_dtype],
+    n_add: int
+    ) -> tuple[int, int, np.typing.NDArray[score_dtype]]:
     """Given the current recipes of the two elves, and the current list of scores, adds another n recipes"""
     
     # Allocate a larger array for results

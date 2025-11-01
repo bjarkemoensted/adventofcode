@@ -4,11 +4,13 @@
 # ·`*  •· ·  .`·* `.*· ·`   ·+.  ·.*·   `· · .+  · ·.  *. `·  ·   *·· `  *·· ..·
 
 from __future__ import annotations
+
 from collections import deque
 from copy import deepcopy
 from functools import singledispatchmethod
+from typing import Literal, TypeAlias, TypeVar, cast
+
 import sympy
-from typing import cast, Literal, TypeAlias, TypeVar
 
 deck: TypeAlias = deque[int]
 # Operation - one of the shuffling operations
@@ -181,9 +183,11 @@ class Shuffler:
         return a, b
     
     def final_index(self, index_start: int, instructions: list[instype], reverse: bool=False, n: int=1) -> int:
-        """Computes the final position of the card which is initially at index_start, after applying the shuffling instructions
-        n times. If reverse is True, the computation is based instead on the inverse of the provided shuffling instructions,
-        so the result indicates the original position of a card which ends up at index_start after shuffling n times."""
+        """Computes the final position of the card which is initially at index_start, after applying
+        the shuffling instructions n times.
+        If reverse is True, the computation is based instead on the inverse of the provided shuffling instructions,
+        so the result indicates the original position of a card which ends up at index_start
+        after shuffling n times."""
         
         # If reverse, compute the inverse shuffling
         if reverse:

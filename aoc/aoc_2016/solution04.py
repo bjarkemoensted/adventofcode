@@ -4,9 +4,9 @@
 # ·.·`+·*·`.*   ·. ·  +  `·· · +.  `  · •     ·.     ·.*·`  ·+  . ·      *.·`·  
 
 
-from collections import Counter
 import re
 import string
+from collections import Counter
 
 
 def parse(s: str):

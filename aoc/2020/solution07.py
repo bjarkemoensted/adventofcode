@@ -6,8 +6,9 @@ Created on Mon Dec  7 08:17:22 2020
 @author: ahura
 """
 
-import networkx as nx
 import re
+
+import networkx as nx
 
 with open("input07.txt") as f:
     lines = f.readlines()

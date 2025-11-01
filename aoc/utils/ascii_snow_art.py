@@ -1,9 +1,9 @@
+import typing as t
 from dataclasses import dataclass
 from functools import partial
+
 import numpy as np
 from numpy.typing import NDArray
-import typing as t
-
 
 # Some special characters mess up the line widths as displayed in VSCode
 _forbidden_ords = (42895, 11827)

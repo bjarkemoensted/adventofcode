@@ -1,4 +1,5 @@
 from functools import cache
+
 import networkx as nx
 import numpy as np
 

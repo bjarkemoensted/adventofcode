@@ -4,8 +4,8 @@
 # ·.*··` ·+.  · *`  ·· *    ` *  ·`.   ·     ·`  · *.  ` ·+· ` ·`   · *  · ·` .*
 
 
-from functools import cache
 import hashlib
+from functools import cache
 
 
 def parse(s: str):

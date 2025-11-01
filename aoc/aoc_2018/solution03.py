@@ -3,9 +3,9 @@
 #  *·.`· `.· * ·`    · https://adventofcode.com/2018/day/3  .• ·   ·  · .*`   · 
 # `·`  . ·+  · .·`*· * .·•·  ··`     ` +·.   * ·.`  · .    `·*.  · `   +·  .·`· 
 
-import numpy as np
-from typing import cast, Iterable, TypeAlias
+from typing import Iterable, TypeAlias, cast
 
+import numpy as np
 
 claim: TypeAlias = tuple[tuple[int, int], tuple[int, int]]
 

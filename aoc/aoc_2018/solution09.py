@@ -3,8 +3,8 @@
 # *. · · . ·`• ·. `  · https://adventofcode.com/2018/day/9  · ` .* ·  ` · .·.·  
 # .··` ` · .· ·  `  · *·` . • · · *  ·.`    •· +·.·     * ··.. ·*` .·`  *··. +`·
 
-from collections import defaultdict, deque
 import re
+from collections import defaultdict, deque
 
 
 def parse(s: str):

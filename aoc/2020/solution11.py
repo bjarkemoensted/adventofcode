@@ -7,7 +7,7 @@ Created on Fri Dec 11 08:16:55 2020
 """
 
 from copy import deepcopy
-from itertools import combinations
+
 import numpy as np
 
 with open("input11.txt") as f:

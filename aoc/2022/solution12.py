@@ -1,5 +1,6 @@
-import networkx as nx
 import string
+
+import networkx as nx
 
 
 def read_input():

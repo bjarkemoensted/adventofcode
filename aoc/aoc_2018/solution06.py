@@ -4,8 +4,9 @@
 # · `.·`* .  ·  *  · `   · •` ·.    ·  *·`  ·.·*` · .` ··. *    `  · + ·` .·` · 
 
 from collections import Counter
-import numpy as np
 from typing import TypeAlias
+
+import numpy as np
 
 coordtype: TypeAlias = tuple[int, int]
 

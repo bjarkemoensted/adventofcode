@@ -1,6 +1,6 @@
+import math
 from ast import literal_eval as LE
 from copy import deepcopy
-import math
 
 with open("input18.txt") as f:
     raw = f.read()

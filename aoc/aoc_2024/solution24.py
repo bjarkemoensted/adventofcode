@@ -133,7 +133,7 @@ class MonitoringDevice:
         try:
             k = next((key for key in ((a, op, b), (b, op, a)) if key in self.rules_flipped))
             return self.rules_flipped[k]
-        except StopIteration as e:
+        except StopIteration:
             return None
         #
 

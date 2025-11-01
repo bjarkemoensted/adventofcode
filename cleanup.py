@@ -1,10 +1,8 @@
 import datetime
-import re
 import multiprocessing as mp
 from pathlib import Path
 
 from aoc.utils.template_tools import make_ascii_header
-
 
 _here = Path(__file__).parent
 
@@ -16,7 +14,7 @@ def file_name_good(year, day):
         _ = int(year)
         _ = int(day)
         return True
-    except:
+    except Exception:
         return False
 
 

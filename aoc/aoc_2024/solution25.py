@@ -4,9 +4,9 @@
 # `·.*·• `.·   *·.  ·   ` •.  ·   ·` *  · .·*   `· .+· .   · *`·.   ·   +* `· .·
 
 
-import numpy as np
 from typing import TypeAlias
 
+import numpy as np
 
 shapetype: TypeAlias = tuple[int, int, int, int, int]
 

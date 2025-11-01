@@ -19,6 +19,7 @@ scipy = "^1.14.0"
 aococr = "^0.2.0"
 scalene = "^1.5.45"
 line-profiler = "^4.2.0"
+ruff = "^0.14.3"
 [tool.poetry.group.dev.dependencies]
 advent-of-code-data = "^2.0.1"
 browser-cookie3 = "^0.19.1"
@@ -38,3 +39,12 @@ aoc-fix = "aoc.utils.cli:fix_tokens"
 
 [tool.poetry.plugins."adventofcode.user"]
 omd = "aoc:plugin"
+
+[tool.ruff]
+line-length = 120
+lint.select = [
+  "E",  # pycodestyle (PEP 8)
+  "F",  # pyflakes (unused imports, variables, etc.)
+  "I",  # isort (import sorting)
+]
+lint.ignore = []

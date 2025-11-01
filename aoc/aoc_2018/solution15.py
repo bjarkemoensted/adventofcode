@@ -4,16 +4,17 @@
 # `.  *`·.·· *   .`·   +•·.`·  .* ` ·  ·   *. ·*   ·  `.· *`   · * `·.  `+·.  *·
 
 from __future__ import annotations
+
+import functools
+import time
 from collections import defaultdict
 from copy import deepcopy
-import functools
-import networkx as nx
-import numpy as np
 from pprint import pprint
-import time
 from types import MethodType
 from typing import Callable, Iterable, TypeAlias
 
+import networkx as nx
+import numpy as np
 
 coord: TypeAlias = tuple[int, int]
 
@@ -195,7 +196,12 @@ class Grid:
 
         return shortest_dist, tied
 
-    def get_tied_for_closest(self, source: coord, targets: Iterable[coord], blocked: tuple[coord]) -> None|tuple[int, list[coord]]:
+    def get_tied_for_closest(
+            self,
+            source: coord,
+            targets: Iterable[coord],
+            blocked: tuple[coord]
+        ) -> None|tuple[int, list[coord]]:
         """Returns the shortest distance to any target, and the targets tied at that distance"""
         targets = tuple(sorted(targets))
         res = self._get_tied(source, targets, blocked)
@@ -351,9 +357,6 @@ class Battle:
         instance and returns True if the fight should end.
         Returns the 'outcome' (n_rounds * sum hit points) when game ends."""
 
-        if end_condition is None:
-            end_condition = lambda _: False
-                
         game_over = False
 
         n_rounds_fought = 0
@@ -368,8 +371,10 @@ class Battle:
                 print(f"After {n_rounds_fought} round{'s'*(n_rounds_fought != 1)}:")
                 print(self.as_string(include_units=True), end="\n\n")
             
-            game_over = game_over or end_condition(self)
-        
+            if not game_over and end_condition is not None:
+                game_over = end_condition(self)
+            #
+
         if not game_over:
             raise RuntimeError("Fighting stopped but game isn't over. Shouldn't happen.")
         
@@ -412,8 +417,10 @@ def determine_attack_power_to_keep_elves_alive(battle: Battle) -> int:
     
     # Condition for stopping a battle early
     n_elves = sum(c == _elf_char for c in battle._initial_unit_positions.values())
-    elves_died = lambda battle_: sum(unit.type_ == _elf_char for unit in battle_.units) < n_elves
     
+    def elves_died(battle_: Battle):
+        return sum(unit.type_ == _elf_char for unit in battle_.units) < n_elves
+
     low = 0
     high = 16
     outcomes = dict()

@@ -8,6 +8,7 @@ Created on Sat Dec 12 10:26:19 2020
 
 import numpy as np
 
+
 def parse(s):
     s = s.strip()
     instruction = s[0]

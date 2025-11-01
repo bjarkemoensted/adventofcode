@@ -3,10 +3,11 @@
 # ·`  ·.   •` ·  ·     https://adventofcode.com/2018/day/10 `*`*  .· · +  . *. ·
 # . · *`   ·    . •`· `*.· *.   ·` .    • · .·  * . • * · `* `·. ` *   .   ·.`·*
 
-import aococr
-import numpy as np
 import re
 from typing import TypeAlias
+
+import aococr
+import numpy as np
 
 statetype : TypeAlias = tuple[tuple[int, int], tuple[int, int]]
 

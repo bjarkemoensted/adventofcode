@@ -27,7 +27,8 @@ def _add_tuples(a, b):
 
 
 def get_substring(arr, ind: tuple, direction: tuple, n_chars: int):
-    """Given an array and index, returns the substring consisting of (up to) the n characters in the specified direction."""
+    """Given an array and index, returns the substring consisting of (up to) the n characters
+    in the specified direction."""
     
     # Get the indices containing the substring
     crds = [ind]

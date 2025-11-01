@@ -8,6 +8,7 @@ Created on Tue Dec 22 10:36:09 2020
 
 from copy import deepcopy
 
+
 def parse(s):
     chunks = s.split("\n\n")
     decks = []

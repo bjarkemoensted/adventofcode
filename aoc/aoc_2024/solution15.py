@@ -5,10 +5,10 @@
 
 
 from functools import cache
+from typing import Literal, TypeAlias, TypeGuard, get_args
+
 import numpy as np
 from numpy.typing import NDArray
-from typing import get_args, Literal, TypeAlias, TypeGuard
-
 
 arrowtype: TypeAlias = Literal[">", "v", "<", "^"]
 coordtype: TypeAlias = tuple[int, ...]
@@ -75,7 +75,7 @@ class Warehouse:
 
     def validate(self):
         if not self.m[*self.x] == self.robot:
-            raise RuntimeError(f"Coord error: Robot is not at {self.x}. Correct loc: {np.argwhere(self.m == self.robot)}")
+            raise RuntimeError(f"Coord error: Robot pos: {self.x}. Correct loc: {np.argwhere(self.m == self.robot)}")
         #
     
     def set_values(self, from_to: dict):

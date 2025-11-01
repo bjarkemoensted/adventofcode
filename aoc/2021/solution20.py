@@ -1,4 +1,3 @@
-from copy import deepcopy
 import numpy as np
 
 with open("input20.txt") as f:

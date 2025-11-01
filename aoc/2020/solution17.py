@@ -9,6 +9,7 @@ Created on Sat Dec 19 10:17:34 2020
 from collections import Counter
 from copy import deepcopy
 from itertools import product
+
 import numpy as np
 
 test = '''.#.

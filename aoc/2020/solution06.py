@@ -9,7 +9,6 @@ Created on Sun Dec  6 09:20:36 2020
 
 from collections import Counter
 
-
 with open("input06.txt") as f:
     chunks = f.read().split("\n\n")
 

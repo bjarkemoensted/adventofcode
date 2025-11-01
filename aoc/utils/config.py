@@ -1,7 +1,6 @@
 import datetime
 import pathlib
 
-
 _here = pathlib.Path(__file__).resolve().parent
 root_dir = _here.parents[1]
 package_name = "aoc"

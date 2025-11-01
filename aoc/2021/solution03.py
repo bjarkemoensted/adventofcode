@@ -1,4 +1,5 @@
 from collections import Counter
+
 import numpy as np
 
 # Make a matrix of ones and zeroes from input data

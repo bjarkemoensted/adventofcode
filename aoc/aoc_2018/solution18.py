@@ -3,9 +3,10 @@
 # +·• ·`.·  ·.*    ·   https://adventofcode.com/2018/day/18  . *·  ` .`+ · ··.`*
 #  ·`·.*   ·  `··.  +·. `*   ·.  ·`  ·*·•`   ·    .· *.`· +·.·   ·`*  · ·. *`  ·
 
+from typing import TypeAlias
+
 import numpy as np
 from numpy.lib.stride_tricks import sliding_window_view
-from typing import TypeAlias
 
 arrtype: TypeAlias = np.typing.NDArray[np.str_]
 

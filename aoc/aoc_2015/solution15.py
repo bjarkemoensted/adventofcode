@@ -4,12 +4,13 @@
 # ·.· `+.·`•·` * ·.    ·     ·  · * .·· •` . . · ·*· .  ·    +`  · `·*.·`+·` *` 
 
 
+import math
 from collections import Counter
 from functools import reduce
-import math
+from operator import mul
+
 import numpy as np
 from numpy.typing import NDArray
-from operator import mul
 from scipy.optimize import minimize
 
 
@@ -109,7 +110,8 @@ def opt(ingredients, total_amount=100, n_calories: int|None = None):
     W = np.array([[ingredients[ing][prop] for prop in props_order] for ing in ing_ordered])
     n_ingredients, _ = W.shape
 
-    loss = lambda x_: -reduce(mul, (max(val, 0) for val in W.T.dot(x_)), 1)
+    def loss(x_):
+        return -reduce(mul, (max(val, 0) for val in W.T.dot(x_)), 1)
 
     constraints = [
         {'type': 'ineq', 'fun': lambda x_, fac=sig: fac*(sum(x_) - total_amount)} for sig in (+1, -1)
@@ -122,12 +124,9 @@ def opt(ingredients, total_amount=100, n_calories: int|None = None):
     cals = [ingredients[ing][cal] for ing in ing_ordered]
 
     if isinstance(n_calories, int):
-        w_cal = np.array([ingredients[ing][cal] for ing in ing_ordered])
         constraints += [
             {'type': 'ineq', 'fun': lambda x_, fac=sig: fac*(sum(val * c for val, c in zip(x_, cals)) - n_calories)}
             for sig in (+1, -1)
-            #{'type': 'ineq', 'fun': lambda x_: sig * (w_cal.T.dot(x_) - n_calories} for sig in (+1, -1)
-            #{'type': 'eq', 'fun': lambda x_: w_cal.T.dot(x_) - n_calories}
         ]
 
     x0 = make_x0(n_ingredients=n_ingredients, total_amount=total_amount, loss=loss, seed=42, constraints=constraints)
@@ -135,29 +134,15 @@ def opt(ingredients, total_amount=100, n_calories: int|None = None):
     res = minimize(
         loss,
         x0,
-        #method='SLSQP',
         method='COBYLA',
-        #bounds=bounds,
         constraints=constraints,
         options=dict(maxiter=99999)
     )
 
-    # print(f"{res=}")
-    # print(_constraints_satisfied(res.x, constraints))
     res_float = res.x
     res_int = jitter(x=res_float, loss=loss, constraints=constraints)
     if res_int is None:
         raise RuntimeError
-
-
-    # print(f"{x0=}", f"{_constraints_satisfied(x0, constraints)}")
-    # print(f"{bounds=}")
-    # print(f"{constraints=}")
-    # print(f"{loss=}")
-    # print(f"{W=}")
-    # print()
-    # print(f"{res_float=}")
-    # print(f"{res_int=}")
 
     print(f"Calories: {sum(a*b for a, b in zip(res_int, cals))} ({sum(a*b for a, b in zip(res_float, cals))})")
 

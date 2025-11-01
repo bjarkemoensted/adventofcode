@@ -7,7 +7,6 @@
 from collections import Counter
 from typing import TypeAlias
 
-
 coordtype: TypeAlias = tuple[int, ...]
 
 

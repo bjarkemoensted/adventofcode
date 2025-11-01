@@ -7,7 +7,6 @@ import functools
 from itertools import groupby
 from typing import Callable, TypeAlias
 
-
 functype: TypeAlias = Callable[[list[int], int, int, int], None]
 
 
@@ -24,7 +23,9 @@ def parse(s: str):
     # Parse the tuples of register vals and instructions from the first part
     samples = []
     for part in parts:
-        entries = [line.split(": ")[-1].replace("[", "").replace("]", "").replace(",", "") for line in part.splitlines()]
+        entries = [
+            line.split(": ")[-1].replace("[", "").replace("]", "").replace(",", "") for line in part.splitlines()
+        ]
         regs = tuple(list(map(int, ent.split())) for ent in entries)
         if not regs:
             continue

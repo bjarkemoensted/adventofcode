@@ -6,7 +6,6 @@
 import numpy as np
 from numpy.typing import NDArray
 
-
 char2bool = {"0": False, "1": True}
 bool2char = {v: k for k, v in char2bool.items()}
 

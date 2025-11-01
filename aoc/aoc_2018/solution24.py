@@ -4,12 +4,12 @@
 # .··*  `*·   ·`+  .  `*·+`·.    •` ··  `.    ·+·  *`•.· ·    +     ·.*·•`·  .·*
 
 from __future__ import annotations
+
+import re
+import uuid
 from copy import deepcopy
 from dataclasses import dataclass, field
-import re
-from typing import Any, get_args, Literal, TypeAlias, TypeGuard
-import uuid
-
+from typing import Any, Literal, TypeAlias, TypeGuard, get_args
 
 _damage_type: TypeAlias = Literal["radiation", "bludgeoning", "fire", "cold", "slashing"]
 _army_type: TypeAlias = Literal["Immune System", "Infection"]
@@ -18,14 +18,6 @@ _army_type: TypeAlias = Literal["Immune System", "Infection"]
 def is_army(val: str) -> TypeGuard[_army_type]:
     return val in get_args(_army_type)
 
-
-test = """Immune System:
-17 units each with 5390 hit points (weak to radiation, bludgeoning) with an attack that does 4507 fire damage at initiative 2
-989 units each with 1274 hit points (immune to fire; weak to bludgeoning, slashing) with an attack that does 25 slashing damage at initiative 3
-
-Infection:
-801 units each with 4706 hit points (weak to radiation) with an attack that does 116 bludgeoning damage at initiative 1
-4485 units each with 2961 hit points (immune to radiation; weak to fire, cold) with an attack that does 12 slashing damage at initiative 4"""
 
 _pattern_raw = r"""
 (?P<n_units>\d+) units.*?(?P<hit_points>\d+) hit points.
@@ -131,7 +123,9 @@ class Group:
     def choose_victim(self, *enemies: Group) -> Group|None:
         """Chooses an enemy to attack, from the list of candidates.
         If no enemy can be targeted, returns None."""
-        candidates = (e for e in enemies if e.is_alive and e.estimate_damage(self.effective_power, type_=self.damage_type))
+        candidates = (
+            e for e in enemies if e.is_alive and e.estimate_damage(self.effective_power, type_=self.damage_type)
+        )
         res = max(candidates, key=self.priority_enemy_selection, default=None)
         return res
     

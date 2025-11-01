@@ -61,7 +61,6 @@ def find_quickest_growth(start, replacements, target, maxiter=None):
         extend = paths[:cut]
         keep = paths[cut:]
 
-        distance_to_start = string2shortest.get(start, float("inf"))
         for string in extend:
             # Try extending the shortest string using the inverse transformations
             dist = string2shortest[string]

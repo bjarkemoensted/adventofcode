@@ -4,9 +4,10 @@
 #  *··.` *·  .  •· `  · `  ·.  +`·  ·*   `.· ·`*.+ ·  · ` .·  *   · `·  *`··.*`·
 
 
-from aococr import aococr
-import numpy as np
 import re
+
+import numpy as np
+from aococr import aococr
 
 
 def parse(s: str):

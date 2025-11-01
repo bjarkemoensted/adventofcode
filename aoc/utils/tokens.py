@@ -1,9 +1,10 @@
-from aocd.cookies import get_working_tokens
-from aocd.utils import get_owner
-from aocd.exceptions import DeadTokenError
-from aocd.models import AOCD_CONFIG_DIR
 import functools
 import json
+
+from aocd.cookies import get_working_tokens
+from aocd.exceptions import DeadTokenError
+from aocd.models import AOCD_CONFIG_DIR
+from aocd.utils import get_owner
 from termcolor import cprint
 
 from aoc.utils.utils import nolog
@@ -159,10 +160,10 @@ def fix_tokens():
 
     print(f"Found {len(user2token)} user tokens - {sum(v is None for v in user2token.values())} are dead.")
 
-    print(f"An overview of the tokens is presented below")
+    print("An overview of the tokens is presented below")
     print(f"The current default user is indicated with a '{default_sym}'.")
     print(f"Any tokens found in the browser storage is indicated with '{browser_sym}'.")
-    print(f"Working tokens are shown in ", end="")
+    print("Working tokens are shown in ", end="")
     cprint("green", color="green", end="")
     print(", and the missing ones in ", end="")
     cprint("red", color="red", end=".\n")
@@ -180,7 +181,7 @@ def fix_tokens():
             if ind in allowed:
                 new_default = oneind2user[ind]
             #
-        except:
+        except Exception:
             if not raw_:
                 new_default = default_user
             #

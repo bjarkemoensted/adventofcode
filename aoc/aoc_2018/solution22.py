@@ -3,9 +3,9 @@
 # *· `·   `.·. ·  ·    https://adventofcode.com/2018/day/22 +  . *`·.     `*·.`*
 # ·*`·. ` ·   `. . ·` +·. ·  * .`· `   .·+    ·.  *  ·.`  `   . · ·*  .· .  ·*.·
 
+import math
 from enum import IntEnum
 from heapq import heappop, heappush
-import math
 from typing import TypeAlias
 
 coord: TypeAlias = tuple[int, int]

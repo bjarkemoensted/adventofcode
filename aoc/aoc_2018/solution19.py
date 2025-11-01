@@ -4,10 +4,11 @@
 # · . ·*·. * ·`  *     ·.* · •`  · .·    ` .  .··  .·*  ` ·     ·`   * ·.·+ ` ·*
 
 from __future__ import annotations
-from collections import defaultdict
+
 import functools
 import itertools
 import re
+from collections import defaultdict
 from typing import Callable, TypeAlias
 
 functype: TypeAlias = Callable[[list[int], int, int, int], None]
@@ -125,7 +126,7 @@ def peephole(data: str) -> str:
     # Identify the sloppy sum-of-divisors algo
     match = pattern.search(data)
     if match is None:
-        raise RuntimeError(f"Couldn't locate pattern for optimization")
+        raise RuntimeError("Couldn't locate pattern for optimization")
     
     # Check which values match which free variable in the pattern (might be permutations of my input)
     d = match.groupdict()

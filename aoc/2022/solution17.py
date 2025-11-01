@@ -190,7 +190,7 @@ def simulate_single_fall(occupied, shape, dir_cycle, width=7, verbose=False):
         else:
             shape = updated
             if verbose:
-                print(f"Gravity goes v:")
+                print("Gravity goes v:")
                 display(occupied, shape)
 
 

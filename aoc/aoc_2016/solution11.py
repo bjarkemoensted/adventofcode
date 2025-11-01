@@ -4,12 +4,11 @@
 # ·`· ·+. ·`   · · * ·•` · . `*·  . `  ·  `   •·.`·   ·`+ .  ·*  +·   · `.·* `·`
 
 
-from functools import cache
 import heapq
-from itertools import combinations
 import re
+from functools import cache
+from itertools import combinations
 from typing import TypeAlias
-
 
 floordata: TypeAlias = dict[str, list[str]]
 statetype: TypeAlias = tuple[int, tuple[tuple[int, ...], ...]]

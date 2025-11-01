@@ -4,13 +4,13 @@
 # .·* ` ·  ·`.·      *`· . · *   ·+`.··  `   ·*  ·.` •·`.     ·`  *  · *`.· ·`.·
 
 from __future__ import annotations
-from dataclasses import dataclass
+
 import itertools
-from heapq import heappop, heappush
 import math
 import re
+from dataclasses import dataclass
+from heapq import heappop, heappush
 from typing import Generic, TypeAlias, TypeVar
-
 
 coord_type: TypeAlias = tuple[int, ...]
 

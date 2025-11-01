@@ -4,11 +4,13 @@
 # ·.·*·` `  · .  ·`+ ` · + .· · ·*`· · +. · ·*  ·   ·`.    ·  +·.·*    ·.   ··` 
 
 from __future__ import annotations
+
 from collections import Counter
 from copy import deepcopy
 from functools import cache
-import numpy as np
 from typing import TypeAlias
+
+import numpy as np
 
 # For holding i, j-coordinates
 coordtype: TypeAlias = tuple[int, int]

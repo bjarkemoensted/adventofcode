@@ -1,12 +1,12 @@
-from argparse import ArgumentParser
-from aoc.utils.tokens import read_tokens
-from aocd.utils import get_plugins
-from aocd.runner import run_for
-
 import importlib
 import pathlib
+from argparse import ArgumentParser
+
+from aocd.runner import run_for
+from aocd.utils import get_plugins
 
 from aoc.utils import config
+from aoc.utils.tokens import read_tokens
 from aoc.utils.utils import nolog
 
 

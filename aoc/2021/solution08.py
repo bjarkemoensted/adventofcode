@@ -106,7 +106,8 @@ def decode(digs, mapping):
 
 
 def crack(digs):
-    # Determine most of the mapping from segments on broken display to intended segment from number of digits the segments partake in
+    # Determine most of the mapping from segments on broken display
+    # to intended segment from number of digits the segments partake in
     counts = count(digs)
     char2candidates = {char: count2possible_letters[count] for char, count in counts.items()}
     # This is the part of the mapping which can be identified, e.g. {'a': 'b'} if a maps to b

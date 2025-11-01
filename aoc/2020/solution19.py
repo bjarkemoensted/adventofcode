@@ -6,9 +6,9 @@ Created on Tue Dec 22 17:17:16 2020
 @author: ahura
 """
 
+import re
 from copy import deepcopy
 from itertools import product
-import re
 
 
 def parse(s):

@@ -4,10 +4,10 @@
 # *· · ·.   +·`    · ·`*. ·    .·` +·.  *   · ··* .`   · *   .` ·    + ·*`  · *·
 
 
+import re
 from collections import Counter
 from copy import deepcopy
 from functools import cache
-import re
 
 
 def parse(s: str):

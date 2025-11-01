@@ -7,6 +7,7 @@
 from copy import deepcopy
 from itertools import combinations
 
+
 def parse(s: str):
     res = {}
     for line in s.split("\n"):

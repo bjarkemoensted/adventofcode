@@ -5,10 +5,10 @@
 
 
 from collections import defaultdict
-import numpy as np
-from numpy.typing import NDArray
 from typing import TypeAlias
 
+import numpy as np
+from numpy.typing import NDArray
 
 coordtype: TypeAlias = tuple[int, ...]
 statetype: TypeAlias = tuple[coordtype, coordtype]

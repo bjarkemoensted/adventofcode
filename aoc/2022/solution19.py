@@ -1,5 +1,5 @@
-from copy import deepcopy
 import re
+from copy import deepcopy
 
 
 def read_input():
@@ -12,7 +12,7 @@ def parse(s):
     res = {}
     for line in s.split("\n"):
         d = {}
-        blueprint_m = re.match(f'Blueprint (\d+)(:?.*)', line)
+        blueprint_m = re.match('Blueprint (\d+)(:?.*)', line)
         blueprint = int(blueprint_m.group(1))
 
         prices_m = re.findall(r'Each (.*?) robot costs (.*?)\.', line)

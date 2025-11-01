@@ -5,9 +5,9 @@
 
 
 from collections import defaultdict
-import numpy as np
 from typing import TypeAlias
 
+import numpy as np
 
 coordtype: TypeAlias = tuple[int, ...]
 

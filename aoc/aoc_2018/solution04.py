@@ -3,11 +3,11 @@
 # ·*`.  · `    ` · *·  https://adventofcode.com/2018/day/4    + *  ··. `  ·*.` ·
 # ·`· . +·    ·.+*` .  *·`    + ·*. · `·   *`· .     •· `·*     ·. * ` ·* `· +·`
 
-from dataclasses import dataclass
-import numpy as np
 import re
-from typing import cast, Iterator, Literal, TypeAlias
+from dataclasses import dataclass
+from typing import Iterator, Literal, TypeAlias, cast
 
+import numpy as np
 
 temporal: TypeAlias = tuple[int, ...]
 event: TypeAlias = tuple[temporal, Literal[0, 1]]

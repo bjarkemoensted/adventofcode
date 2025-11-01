@@ -102,7 +102,8 @@ class CupGame:
 
     def play_round(self):
         self.round_no += 1
-        if self.verbose: print("-- move %d --" % self.round_no)
+        if self.verbose:
+            print("-- move %d --" % self.round_no)
         snippet = self.pickup()
         destination = self.select_destination_cup()
         self.place_cups(snippet, destination)

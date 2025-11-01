@@ -4,9 +4,10 @@
 # ` · +.`    ·  · ·.*` ·   · +  ·` ·   *` ·   ` .  · *.· `   `.··*  ·`  . · .`*·
 
 
-from collections import defaultdict
-import numba
 import re
+from collections import defaultdict
+
+import numba
 
 
 def parse(s: str):

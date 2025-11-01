@@ -7,7 +7,6 @@
 import networkx as nx
 import numpy as np
 
-
 dirs = (
     (0, 1),
     (1, 0),

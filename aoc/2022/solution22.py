@@ -1,8 +1,8 @@
 from collections import defaultdict
 from functools import cache
 from itertools import product
-import numpy as np
 
+import numpy as np
 
 _test = """        ...#
         .#..

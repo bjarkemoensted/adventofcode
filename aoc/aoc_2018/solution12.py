@@ -95,7 +95,7 @@ class PlantSimulator:
         recurrences = [k for k, v in self._registry.items() if len(v) > 1]
         recurrence_found = len(recurrences) > 0
         if not recurrence_found:
-            while not (repeated := self.tick()):
+            while not self.tick():
                 if len(self.history) > n:
                     break
                 #

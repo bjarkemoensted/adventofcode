@@ -4,11 +4,11 @@
 # .`* +·  .·*` · *·*·  ·* .+ ` ·*`.·* ·.*`  .*· `+. ·.* · ` *·. `  .·· `+*  ·*`·
 
 from __future__ import annotations
+
 import functools
 import math
 import re
 from typing import Callable, TypeAlias
-
 
 functype: TypeAlias = Callable[[list[int], int, int, int], None]
 instructiontype: TypeAlias = tuple[str, tuple[int,int,int]]
@@ -64,7 +64,7 @@ def peephole(data: str) -> str:
     
     match = pattern.search(data)
     if match is None:
-        raise RuntimeError(f"Couldn't locate pattern for optimization")
+        raise RuntimeError("Couldn't locate pattern for optimization")
     
     # Check which values match which free variable in the pattern (might be permutations of my input)
     d = match.groupdict()

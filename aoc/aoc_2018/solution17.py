@@ -4,9 +4,10 @@
 # `.· +`··  * ·       · · ·  * `.·`    •· ·.`   + *· . · *` ·  .·` ·*+ .  · `  ·
 
 from __future__ import annotations
-from collections import defaultdict
+
 import functools
 import itertools
+from collections import defaultdict
 from typing import Iterable, TypeAlias
 
 coord: TypeAlias = tuple[int, ...]

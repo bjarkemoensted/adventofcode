@@ -1,7 +1,8 @@
 import abc
 import math
-import networkx as nx
 from typing import final
+
+import networkx as nx
 
 test1 = """broadcaster -> a, b, c
 %a -> b

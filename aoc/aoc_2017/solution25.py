@@ -4,11 +4,11 @@
 # ···  ` * `· •.·  ·.` ·  *`.  ·  ·*. ·  •·. `* `·.`* ·    ·`    ·.• ·+·.*··`· .
 
 
-from dataclasses import dataclass
-import numba
 import re
-from typing import cast, get_args, Literal, Self, TypeAlias
+from dataclasses import dataclass
+from typing import Literal, Self, TypeAlias, cast, get_args
 
+import numba
 
 dirtype: TypeAlias = Literal["right", "left"]
 

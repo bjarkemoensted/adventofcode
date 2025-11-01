@@ -1,7 +1,7 @@
 import copy
+
 import networkx as nx
 import numpy as np
-
 
 with open("input15.txt") as f:
     cave = np.array([[int(s) for s in list(line.strip())] for line in f.readlines()])

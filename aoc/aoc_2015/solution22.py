@@ -176,7 +176,7 @@ class Game:
         if self.game_over(state):
             return
         
-        self.vprint(f"-- Boss turn --")
+        self.vprint("-- Boss turn --")
         self.vprint(f"- State: {state}")
 
         dmg = self.boss_damage
@@ -193,7 +193,7 @@ class Game:
         if self.hard_mode:
             state[self.player_hp_ind] -= 1
 
-        self.vprint(f"-- Player turn --")
+        self.vprint("-- Player turn --")
         self.vprint(f"- State: {state}")
         self.vprint(f"Player casts {spell}")
 

@@ -4,8 +4,9 @@
 # `·. *·.*  ·• `` .·+    ··*`.·  .+ `* · ·+. ·`   ·*. `  · .·      · `*+·  . `.·
 
 
-import numpy as np
 from string import ascii_uppercase
+
+import numpy as np
 
 
 def parse(s: str):

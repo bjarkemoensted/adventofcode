@@ -4,11 +4,10 @@
 # ·`. * `+·    · .*  +    ·   ·.` * •· . · `.  ·•     .·  · *`. ` •· . ·` *  ·.`
 
 
+import re
 from collections import defaultdict
 from copy import deepcopy
-import re
 from typing import TypeAlias
-
 
 assigntype: TypeAlias = tuple[int, int]
 swaptype: TypeAlias = tuple[int, tuple[str, int], tuple[str, int]]

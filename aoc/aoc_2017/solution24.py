@@ -140,7 +140,9 @@ def build_bridge(pieces, longer_is_better=False, maxiter=None):
         #
 
     # Whatever the metric for 'best' (strength or length), use the other metric to break ties
-    tiebreaker = lambda state: compute_strength(reconstruct(state)) if longer_is_better else len(reconstruct(state))
+    def tiebreaker(state) -> int:
+        return compute_strength(reconstruct(state)) if longer_is_better else len(reconstruct(state))
+
     best = max(tied, key=tiebreaker)
 
     res = reconstruct(best)

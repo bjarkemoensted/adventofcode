@@ -3,8 +3,9 @@
 # ·`· ·   `·  .·*`  `· https://adventofcode.com/2018/day/20   ·` • · *  ·· `.· .
 # *··    ` .`· *· · .` +·   ·*.`·   ·   ` •`·.·*  `.+  · · `.·*       `·  ·.•`··
 
-import networkx as nx
 from typing import TypeAlias
+
+import networkx as nx
 
 coord: TypeAlias = tuple[int, int]
 edgetype: TypeAlias = tuple[coord, coord]

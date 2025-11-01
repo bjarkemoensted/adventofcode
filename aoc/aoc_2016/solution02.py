@@ -86,6 +86,7 @@ def main() -> None:
     year, day = 2016, 2
     from aocd import get_data
     raw = get_data(year=year, day=day)
+    solve(raw)
 
 
 if __name__ == '__main__':

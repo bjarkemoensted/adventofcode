@@ -6,6 +6,7 @@
 
 from collections import Counter
 
+
 def parse(s: str):
     res = [list(line) for line in s.split("\n")]
     return res

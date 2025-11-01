@@ -4,12 +4,12 @@
 # ·.`  ·  +·  ·.  ·`·  · *` .· ·`    +·   `· .  ·* ` ·   ·   `*·  .··*   ` .·*.`
 
 
-from abc import ABCMeta, abstractmethod
 import heapq
-import networkx as nx
 import re
-from typing import cast, TypeAlias
+from abc import ABCMeta, abstractmethod
+from typing import TypeAlias, cast
 
+import networkx as nx
 
 coordtype: TypeAlias = tuple[int, int]
 
@@ -83,7 +83,7 @@ def _infer_shape(arr: list|tuple):
     nrows = len(arr)
     ncols = len(arr[0])
     if any(len(row) != ncols for row in arr):
-        raise ValueError(f"Got different number of elements in each row.")
+        raise ValueError("Got different number of elements in each row.")
 
     return nrows, ncols
 

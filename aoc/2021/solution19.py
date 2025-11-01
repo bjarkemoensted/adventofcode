@@ -1,6 +1,6 @@
 from copy import deepcopy
-import numpy as np
 
+import numpy as np
 
 example_input = """--- scanner 0 ---
 0,2,0
@@ -17,11 +17,23 @@ example_input = """--- scanner 0 ---
 def make_rotation_matrix(alpha, beta, gamma):
     cos, sin = np.cos, np.sin
 
-    M = np.array([
-        [cos(alpha)*cos(beta), cos(alpha)*sin(beta)*sin(gamma) - sin(alpha)*cos(gamma), cos(alpha)*sin(beta)*cos(gamma) + sin(alpha)*sin(gamma)],
-        [sin(alpha)*cos(beta), sin(alpha)*sin(beta)*sin(gamma) + cos(alpha)*cos(gamma), sin(alpha)*sin(beta)*cos(gamma) - cos(alpha)*sin(gamma)],
-        [-sin(beta), cos(beta)*sin(gamma), cos(beta)*cos(gamma)]
-    ])
+    M = np.array(
+        [
+            [
+                cos(alpha)*cos(beta), cos(alpha)*sin(beta)*sin(gamma) - sin(alpha)*cos(gamma),
+                cos(alpha)*sin(beta)*cos(gamma) + sin(alpha)*sin(gamma)
+            ],
+            [
+                sin(alpha)*cos(beta), sin(alpha)*sin(beta)*sin(gamma) + cos(alpha)*cos(gamma),
+                sin(alpha)*sin(beta)*cos(gamma) - cos(alpha)*sin(gamma)
+            ],
+            [
+                -sin(beta), cos(beta)*sin(gamma),
+                cos(beta)*cos(gamma)
+            ]
+        ]
+    )
+    
     return M
 
 
@@ -95,7 +107,7 @@ def visualize_scan(scan, z=0):
     offset = np.array(mins)
     for coords in scan:
         shifted = coords - offset
-        i, j, l = shifted
+        i, j, l = shifted  # noqa
         # Show 'S' for 'scanner' at origin, otherwise, 'B' for 'beacon'
         char = "S" if (coords == origin).all() else "B"
         map_[i, j, l] = char
