@@ -1,13 +1,13 @@
-# ꞏ •   .  ` + `.⸳ ꞏ.•     .ꞏ*ꞏ  `⸳   * ꞏ      * .⸳  .`   ꞏ*  ⸳      ` •ꞏ ⸳*`.  
-# `⸳ `  +  ꞏ  ⸳ * ꞏ ꞏ+   . ⸳*` ꞏ  ꞏ  Spinlock  ⸳`*   +ꞏ     ꞏ ` . • ꞏꞏ `+    • ꞏ
-#  ` * • ꞏ⸳.*      * . https://adventofcode.com/2017/day/17 . +   ꞏ `*  *.`ꞏ ⸳ *
-# *•⸳  ꞏ `   .    + ⸳ꞏ`.⸳  *   ` ꞏ• .. *   `⸳*ꞏ    ⸳•ꞏ  ` * +ꞏ* `.      ꞏ⸳+ ꞏ ⸳.
+# ·*·   .`  `+•··    . ·`.*+` ·      ·+     ` ·  +·    +.`    ·  · +  ·   `·.*  
+#  ·* ``+.·+      ·  ·` * . ·   * .  Spinlock   ·    ·`  *·.   ·   *· `  .* · *·
+# `.·*  · + ·*·   .· * https://adventofcode.com/2017/day/17    * .  `· ·•`   ··*
+#   `· +· .  ·.`*  +·   .•·  *`.·    +`· .·+   · .`+ ·   ·*`      `·+  .·  *`. ·
 
 
 import numba
 
 
-def parse(s):
+def parse(s: str):
     res = int(s)
     return res
 
@@ -41,7 +41,7 @@ def value_at_pos(steps: int, n_elems: int, ind: int):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     steps = parse(data)
 
     star1 = fill_buffer(steps)
@@ -53,10 +53,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 17
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

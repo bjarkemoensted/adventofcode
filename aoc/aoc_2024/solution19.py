@@ -1,10 +1,10 @@
-# ⸳+.   •⸳    *•ꞏ  ⸳   .⸳+ ꞏ  `⸳*ꞏ    +`.        `*⸳ꞏ` *   ꞏ .  ⸳    *ꞏ⸳      `*
-# .•`⸳ `⸳ ꞏ+    `* .  ⸳   .* + ꞏ`  Linen Layout *.ꞏ    . ⸳+`ꞏ  `.      +ꞏ `  •⸳ꞏ
-#  .ꞏ `ꞏ •`⸳ * ꞏ.⸳ +.• https://adventofcode.com/2024/day/19 •ꞏ   ⸳⸳ *ꞏ    ⸳ꞏ*⸳• 
-# *`⸳ ꞏ⸳`ꞏ*     +.. * ꞏ⸳`•⸳ •. * ⸳ꞏ   ` *.ꞏ`⸳+   + ⸳ .  `+ *⸳ ꞏ     `.•ꞏ ⸳* `ꞏ* 
+# `. · +*`    ·* .   · `. · `*·   · .· *` · ·   ` · ·`*.  `· •·  ·*· `   *. ·*·`
+#  * `··.   *·`·   ·`.·• . + ·` ·  Linen Layout  ·     ·` ·*·` .     + ·.  *`·.·
+# ·`·*. `•· ·`   +  *  https://adventofcode.com/2024/day/19  ·  ·  * .· `  .·  *
+# ··`.   ·`*· ..  · ·+•·*  `  .·`· .·`   + ·`*.   · `     ·    *. ·`·*.•  ··.`*·
 
 
-def parse(s):
+def parse(s: str):
     towelpart, patternpart = s.split("\n\n")
     towels = towelpart.split(", ")
     patterns = patternpart.splitlines()
@@ -51,7 +51,7 @@ class PatternCounter:
 
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     towels, patterns = parse(data)
     
     pc = PatternCounter(alphabet=towels)
@@ -68,7 +68,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 19
     from aocd import get_data
     raw = get_data(year=year, day=day)

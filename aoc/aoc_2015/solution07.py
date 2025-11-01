@@ -1,10 +1,10 @@
-# . ⸳ *`    .    ` .⸳*      + `⸳  ꞏ  ⸳    •`*⸳ .*⸳   . ` ꞏ ⸳     ` ⸳.⸳ ꞏ ⸳+⸳`*..
-# ⸳*.`.*      ⸳  .    `⸳ꞏ•  ` Some Assembly Required  *   ⸳` .ꞏ ⸳*`ꞏ  * .  + ⸳` 
-#   `⸳+  ꞏ*.⸳  ` .  ꞏ⸳ https://adventofcode.com/2015/day/7  ⸳ .•.  `• ⸳ `ꞏ  *.ꞏ⸳
-# .ꞏ+.`  •.`ꞏ    * ⸳ +.  ` ꞏ⸳  .`  . • + ⸳`.ꞏ   ⸳ *.ꞏ.    ` •⸳   ⸳   +ꞏ.*   ꞏ`⸳*
+# · .`· ·`*   ·.* ·  `·  .  ·.· `   • ..·*·•.  `· ` ·. ·*   · .    ·*·`·*.   ·*.
+# .·*.+·`·    *·`  .· * · · . Some Assembly Required  .`` ·* +·     ·`*.· .· `··
+# ·.·   *.· `·  ·      https://adventofcode.com/2015/day/7   ·. *·  ` ·*`·     ·
+#  · ·`+ .   ` · *`·.· · * ·`+   .·* · ` · `+ .   · `  . ·*     ·`· • .`· ·*  .`
 
 
-def parse(s):
+def parse(s: str):
     """Parses input lines into a, and expression that can be evaluated given the necessary variables and values,
     and b, the output wire in which the resulting output (if it can be computed) should be stored."""
     res = []
@@ -81,7 +81,7 @@ def construct_network(instructions, overrides=None):
     return d
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     operations = parse(data)
     signals = construct_network(operations)
 
@@ -99,10 +99,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 7
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve, extra_kwargs_parser="ignore")
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

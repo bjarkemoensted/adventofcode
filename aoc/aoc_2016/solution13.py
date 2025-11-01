@@ -1,13 +1,13 @@
-#  `  * +ꞏ ⸳+ ꞏ*   .⸳*  ꞏ    . *`*⸳ꞏ .* `   .*`ꞏ     *⸳.*`  ⸳*ꞏ . `ꞏ⸳*    . +ꞏ`⸳
-# ` ..  ꞏ⸳ *  ⸳`. +*ꞏ  ꞏ A Maze of Twisty Little Cubicles    .`  *ꞏ⸳`.•       ⸳*
-# ꞏꞏ⸳     ꞏ`. +ꞏ ꞏ  *. https://adventofcode.com/2016/day/13 *⸳  ꞏ⸳  *`.     .+ꞏ 
-# .•ꞏ`.*⸳ *ꞏ `  ⸳ . ` •`*.  • ꞏ  ⸳`   `. ꞏ*` •*⸳ꞏ `•.`     ꞏ.  `   ꞏ  ⸳.ꞏ   ꞏ • 
+# ·  .`  ·*`*+· .  `·   ·  ·*·  `+ . *   ·.· •     `·.··  •. *.` ·  · *· `.  ·+·
+# `· ·*  •  .· .·`    ·  A Maze of Twisty Little Cubicles   +·`.·    * .··  `*·.
+# .·`  .·*  ·  ·       https://adventofcode.com/2016/day/13  . ·` ·  ·.*`. ·*· ·
+# *.*· •  ··`.  +· ·.· *·`·.  +·  `*.  .· · *`·.+ ·   ·*`·.    *• `·.  ·.+· .`· 
 
 
 import heapq
 
 
-def parse(s):
+def parse(s: str):
     res = int(s)
     return res
 
@@ -69,7 +69,7 @@ class Queue:
         return len(self._items)
 
 
-def a_star(G: Graph, target, start=(1, 1)):
+def a_star(G: Graph, target, start=(1, 1)) -> list[tuple[int, int]]:
     open_ = Queue()
     d_g = dict()
     d_g[start] = 0
@@ -78,7 +78,7 @@ def a_star(G: Graph, target, start=(1, 1)):
     d_f[start] = manhatten_dist(start, target)
 
     open_.push(start, priority=d_f[start])
-    camefrom = dict()
+    camefrom: dict[tuple[int, int], tuple[int, int]] = dict()
 
     while open_:
         current = open_.pop()
@@ -104,7 +104,7 @@ def a_star(G: Graph, target, start=(1, 1)):
                 #
             #
         #
-    #
+    raise RuntimeError("No path found")
 
 
 def distinct_bfs_count(G: Graph, n_steps, start=(1, 1)):
@@ -126,7 +126,7 @@ def distinct_bfs_count(G: Graph, n_steps, start=(1, 1)):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     offset = parse(data)
     G = Graph(offset)
 
@@ -143,10 +143,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 13
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

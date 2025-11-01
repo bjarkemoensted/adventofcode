@@ -1,10 +1,10 @@
-# . *⸳.⸳` ꞏ .  +   .ꞏ⸳ *   .  ꞏ`  `+ +⸳.  `ꞏ *  ꞏ*`⸳. ⸳ꞏ   *  .`    . +ꞏ⸳`  ⸳ꞏ• 
-# ꞏ*⸳•`.⸳ *ꞏ  ꞏ .  ` •     ꞏ. .  ꞏ Like a Rogue ⸳`  `    ⸳ `  +.   +`    *⸳ .* •
-#  `. ꞏ+ ꞏ⸳  `     *.  https://adventofcode.com/2016/day/18  +ꞏ     .•ꞏ⸳`     .⸳
-# `⸳ꞏ *` •.⸳ ⸳*. ꞏ     ꞏ⸳+`   ` .⸳* ` +⸳* ꞏ.  ⸳ •  ` .ꞏ • `.   *⸳  `*.⸳`* +  + .
+# ·*·` ·   ·.` ··+   * `· .+  ` ·` · ·.+   `··.  · `   .· ` · ·  •  `· +.  ·.··`
+# *·• · `.·•  .  ·   · ·*.  .   `· Like a Rogue · . ·      *.·`  .  ·  ` ·.*·  ·
+# ·*`.` ··. ·*    · `  https://adventofcode.com/2016/day/18  .  ·  `.·•·    `·*.
+# `. ·*· ` . ·   ` +·.·*`  .·+ `·. `* · · · .  · *   `·    ·   .*`·· `.   · +.`·
 
 
-def parse(s):
+def parse(s: str):
     res = s
     return res
 
@@ -84,7 +84,7 @@ def compute_number_of_safe_tiles(initial_row: str, n_rows_total: int):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     example_rows = {5: 3, 10: 10}
     initial_row = parse(data)
     n_rows = example_rows.get(len(data), 40)
@@ -99,10 +99,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 18
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve, extra_kwargs_parser="ignore")
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

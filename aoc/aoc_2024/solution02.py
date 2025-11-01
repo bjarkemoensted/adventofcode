@@ -1,10 +1,10 @@
-#  ꞏ*` * `.+⸳ `•ꞏ   ` *.  •⸳ꞏ`⸳ .* * ⸳ `ꞏ  •*.     . `ꞏ    *`ꞏ+ . ⸳•   `  *`• ⸳ꞏ
-#  `ꞏ* ꞏ . ⸳ ꞏ+•         `ꞏ+ *` Red-Nosed Reports .*+       ⸳` +`ꞏ*⸳ꞏ   `    •ꞏ*
-#  *  . `⸳*. +ꞏ  *⸳    https://adventofcode.com/2024/day/2  +* ꞏ ⸳     *ꞏ ` *  ⸳
-# ꞏ ⸳•` ꞏ* *`  ꞏ  `. *ꞏ `•    ꞏ*.⸳ ⸳ **ꞏ*`ꞏ    ꞏ.  ` * *ꞏ •  .`   *ꞏ⸳. `*⸳ * ꞏ`*
+# ·.+·• *·` .·  ·  ` * ·  . ·. *` ·+·   `.· +    ·. *   ·`.+   ·`·+*·  .·`*·  ·`
+# .*·   ·`.*·       . ·*·.·  +· Red-Nosed Reports   ` · *  `  ·  . ·*`   · .·`.·
+# ··.  `. *··` *    `· https://adventofcode.com/2024/day/2   ·. · *    ·.* ` ·` 
+#  .· ··`*·. + ` ·  · `  · ·+ .   •·· +*.·`   ·` * ·+ ` .· ·   `.*·  ·+*   ·.`· 
 
 
-def parse(s):
+def parse(s: str):
     res = []
     for line in s.splitlines():
         report = [int(elem) for elem in line.split()]
@@ -48,7 +48,7 @@ def brute_check(report):
     return False
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     reports = parse(data)
 
     star1 = sum(report_is_safe(report) for report in reports)
@@ -60,10 +60,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 2
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

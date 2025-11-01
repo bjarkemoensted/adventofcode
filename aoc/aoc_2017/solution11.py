@@ -1,10 +1,10 @@
-# `    ⸳`. + `    .*`ꞏ.    • ` ꞏ. ⸳ *ꞏ `   .  `. ⸳     .  ꞏ. .  ` *.      `* ꞏ⸳.
-# ꞏ  •  .   `ꞏ `. ⸳    ꞏ  *.  ⸳•ꞏ .`⸳ Hex Ed     . •⸳ `+  .⸳   `       ⸳. +ꞏ .  
-#   `.* ꞏ   * `.`    ⸳ https://adventofcode.com/2017/day/11 .   ⸳ ꞏ⸳. . `*   `.⸳
-# . *` .⸳`  ꞏ .*.   ꞏ*     `•⸳.    ⸳.+`  ..ꞏ * ⸳  ` . *`      `. *⸳`   .+`  .⸳ꞏ 
+# ..`··  ·.*  `·  . *·  • ·  ·.· ` ·+ .`* .·   + · . ·`  . * ·`  ·   ·.   .·.··`
+# ·` .* ·`•·  ·*.   ·  .· + ·  `      Hex Ed ·.·       .   ·  ·.   *·   . · ·`*.
+# .·· . `   · ·.+  ·   https://adventofcode.com/2017/day/11 .  ` .  ` ·  .* · .·
+# · +*`· .·     ··•  * · .`       · . ·+   ·      ·`*    · .·  ·. ·  *•. ·`  ··.
 
 
-def parse(s):
+def parse(s: str):
     res = s.split(",")
     return res
 
@@ -83,7 +83,7 @@ class Trace:
     #
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     steps = parse(data)
     route = Trace()
 
@@ -99,10 +99,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 11
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

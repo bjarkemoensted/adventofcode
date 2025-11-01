@@ -1,7 +1,6 @@
-from contextlib import redirect_stdout
 import importlib
 import os
-import pathlib
+from contextlib import redirect_stdout
 
 from aoc.utils import config
 

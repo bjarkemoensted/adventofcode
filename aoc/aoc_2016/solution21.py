@@ -1,14 +1,12 @@
-#    ꞏ  .`     `⸳    . *ꞏ•* ⸳ꞏ` ⸳    •⸳•ꞏ ⸳*`    .*  ꞏ `⸳ *⸳  ꞏ* ꞏ      `*ꞏ. ⸳⸳*
-# *.   *`ꞏ`  +  .  ꞏ *ꞏ   ⸳ Scrambled Letters and Hash   `ꞏ .•⸳    * `.ꞏ  *  *` 
-#  ⸳ `    *   ⸳ꞏ`  ` ꞏ https://adventofcode.com/2016/day/21  .`  `ꞏ⸳•  `+⸳ ⸳  *ꞏ
-# `ꞏ`ꞏ  •.⸳  ꞏ+⸳   *.⸳         * `ꞏ⸳   ⸳.   ⸳*ꞏ.`  ꞏ * ⸳*ꞏ` •   ꞏ `ꞏ⸳  *`   + ꞏ⸳
+# ·`. ·*   `  ·.+  · • `.    * · ·  •  `. . ·*`      · `+  * ·· `  ·. +  ·. •`· 
+# +·`.     · `+· *· .* · `· Scrambled Letters and Hash  · ` ·*  ·.  ·. `+  *· .`
+# `.*·•·     *.`·    · https://adventofcode.com/2016/day/21   *·   * ··     `. *
+# · ·  .*·`    +`·*. `• ·  .`·* ` ·   .+      · *·`.   `.+      · ·.* ` ` ·. +*·
 
-
-from functools import cache
 import re
 
 
-def parse(s):
+def parse(s: str):
     res = []
     patterns = {
         "swap_letter": r"swap letter (\D+) with letter (\D+)",
@@ -22,14 +20,14 @@ def parse(s):
         for k, pat in patterns.items():
             m = re.match(pat, line)
             if m is not None:
-                # Cast values as ints of possible
-                arglist = []
+                # Cast values as ints if possible
+                arglist: list[int|str] = []
                 for s in m.groups():
                     try:
-                        val = int(s)
+                        arglist.append(int(s))
                     except ValueError:
-                        val = s
-                    arglist.append(val)
+                        arglist.append(s)
+                    #
 
                 tup = (k, arglist)
                 res.append(tup)
@@ -57,11 +55,11 @@ class Scrambler:
     def rotate_letter(self, arr: list, let: str):
         ind = arr.index(let)
         steps = 1 + ind + int(ind >= 4)
+        
         res = self.rotate(arr, "right", steps)
         return res
 
-    @staticmethod
-    def rotate(arr: list, direction: str, steps: int):
+    def rotate(self, arr: list, direction: str, steps: int):
         cut = None
         steps %= len(arr)
         if direction == "left":
@@ -75,8 +73,7 @@ class Scrambler:
 
         return arr
 
-    @staticmethod
-    def move(arr: list, ind1: int, ind2: int):
+    def move(self, arr: list, ind1: int, ind2: int):
         char = arr.pop(ind1)
         arr.insert(ind2, char)
         return arr
@@ -102,10 +99,10 @@ class Scrambler:
 
 
 class Unscrambler(Scrambler):
-    def __init__(self, instructions: list):
+    def __init__(self, instructions: list) -> None:
         # For the inverse scrambling, the inverse operations must be run in reverse order.
         self.instructions = [tup for tup in instructions[::-1]]
-        self._reverse_ind_shift_lookup = dict()
+        self._reverse_ind_shift_lookup: dict[tuple[int, int], int] = dict()
 
     def rotate(self, arr: list, direction: str, steps: int):
         direction = {"left": "right", "right": "left"}[direction]
@@ -115,7 +112,6 @@ class Unscrambler(Scrambler):
         ind1, ind2 = ind2, ind1
         return super().move(arr=arr, ind1=ind1, ind2=ind2)
 
-    @cache
     def _reverse_ind_shift(self, i, n):
         """Ugly hack for figuring out which indices are shifted where during rotations."""
         k = (i, n)
@@ -135,7 +131,7 @@ class Unscrambler(Scrambler):
         return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     instructions = parse(data)
 
     scrambler = Scrambler(instructions=instructions)
@@ -153,10 +149,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 21
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve, extra_kwargs_parser="ignore")
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

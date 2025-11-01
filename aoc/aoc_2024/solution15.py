@@ -1,14 +1,24 @@
-# ⸳  `. *`⸳ꞏ*      ` `.  *    ⸳` *` ꞏꞏ ⸳*.`   `    *   . ꞏ⸳ꞏ • ⸳`  . ꞏ   `ꞏ⸳ꞏ•. 
-# `.+       ꞏ*.⸳ `  +.• ꞏ .⸳`  *ꞏ Warehouse Woes ⸳ `ꞏ.    `• ⸳. ꞏ` *⸳  •`. +.ꞏ`⸳
-# .ꞏ`  *ꞏ +  ⸳  `*.  ꞏ https://adventofcode.com/2024/day/15     .`*ꞏ*`⸳.    `  `
-#  ⸳. ꞏ`*    .`+ꞏ ⸳ `+ ⸳ ꞏ.• ꞏ. . ⸳  *ꞏ`     `⸳  ꞏ. •  ` •  ꞏ `*⸳   ꞏ `⸳   .*` *
+# . `·•+.   *· ` · . +*`· . ·  ·`  *.`· + `·   ·.`  ·  ·`  .  ·  .· + `.·   *·`·
+# *.·`   ·.    .· *  ·.·`• ·      Warehouse Woes     ·  .· `*.•·  · `.· +· .  ·.
+# ·.  ··*`  · ·  `   . https://adventofcode.com/2024/day/15 ··   •  · .+ `· . .`
+# ··..*`· ·  * ·  ` ·.  +·`* · .·` .   *·   ·*   ·` .+ .·*     `.·* .· `.•`· ·*.
 
 
 from functools import cache
+from typing import Literal, TypeAlias, TypeGuard, get_args
+
 import numpy as np
+from numpy.typing import NDArray
+
+arrowtype: TypeAlias = Literal[">", "v", "<", "^"]
+coordtype: TypeAlias = tuple[int, ...]
 
 
-dirs = {
+def is_arrow_type(s: str) -> TypeGuard[arrowtype]:
+    return s in get_args(arrowtype)
+
+
+dirs: dict[arrowtype, coordtype] = {
     ">": (0, 1),
     "v": (1, 0),
     "^": (-1, 0),
@@ -16,9 +26,13 @@ dirs = {
 }
 
 
-def parse(s):
+def parse(s: str) -> tuple[str, list[arrowtype]]:
     map_part, move_part = s.split("\n\n")
-    moves = [move for move in move_part.replace("\n", "")]
+    
+    moves: list[arrowtype] = []
+    for move in move_part.replace("\n", ""):
+        assert is_arrow_type(move)
+        moves.append(move)
     
     return map_part, moves
 
@@ -38,12 +52,12 @@ class Warehouse:
     wall = "#"
     crate_gps_corner_symbol = crate  # The symbol to use for computing locations
 
-    @staticmethod
-    def parse_map(s: str) -> np.ndarray:
+    @classmethod
+    def parse_map(cls, s: str) -> NDArray[np.str_]:
         m = np.array([list(line.strip()) for line in s.splitlines()])
         return m
     
-    def __init__(self, map_ascii: np.ndarray, validate=False):
+    def __init__(self, map_ascii: str, validate=False):
         """Initializes the warehouse. map_ascii is the ASCII representation of the warehouse from the input.
         validate indicates whether we run sanity checks after every move operation."""
 
@@ -61,7 +75,7 @@ class Warehouse:
 
     def validate(self):
         if not self.m[*self.x] == self.robot:
-            raise RuntimeError(f"Coord error: Robot is not at {self.x}. Correct loc: {np.argwhere(self.m == self.robot)}")
+            raise RuntimeError(f"Coord error: Robot pos: {self.x}. Correct loc: {np.argwhere(self.m == self.robot)}")
         #
     
     def set_values(self, from_to: dict):
@@ -96,7 +110,7 @@ class Warehouse:
         
         return [ind]
 
-    def move(self, move_char: str):
+    def move(self, move_char: arrowtype):
         """Attempts to move the robot in the input direction."""
         
         dir_ = dirs[move_char]
@@ -148,7 +162,8 @@ class Widehouse(Warehouse):
     crate = crate_left+crate_right
     crate_gps_corner_symbol = crate_left
 
-    def parse_map(self, s: str) -> np.ndarray:
+    @classmethod
+    def parse_map(cls, s: str) -> NDArray[np.str_]:
         """Extend the map as per the riddle"""
         replacements = [("#", "##"), ("O", "[]"), (".", ".."), ("@", "@.")]
         for old, new in replacements:
@@ -181,7 +196,7 @@ class Widehouse(Warehouse):
     #
 
     
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     m, moves = parse(data)
 
     warehouse = Warehouse(m)
@@ -199,7 +214,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 15
     from aocd import get_data
     raw = get_data(year=year, day=day)

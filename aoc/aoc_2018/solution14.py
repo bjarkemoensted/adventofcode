@@ -1,7 +1,7 @@
-# ⸳+ꞏ   .` ⸳• ꞏ.*  *   •ꞏ .  ⸳ `ꞏ. *`   ꞏ    ꞏ.* `.*ꞏ⸳ . `• *   ⸳``  +ꞏ⸳.+    ꞏ⸳
-#  .**  ꞏ. ` ⸳   * .+ꞏ`⸳   `•ꞏ + Chocolate Charts  ⸳`  ꞏ  `* `.+   ⸳   ꞏ .•*`ꞏ.•
-# *ꞏ⸳  ``⸳ +⸳ꞏ  ⸳  `.  https://adventofcode.com/2018/day/14  ⸳ꞏ`+*     .  ⸳⸳*  `
-# ꞏ⸳. `. + ⸳  • ` ⸳  +⸳.   *ꞏ   .  `ꞏ`+ ⸳ ⸳ꞏ* `   *ꞏ.  ⸳ .⸳*    `. *⸳`⸳ ꞏ .`⸳ *ꞏ
+# .`· .·* `·     · ` · .*·` · ` · ·.    `.·•·*+ .·`  ` ··. ·* `  • ·.· •` .*··+·
+# `*`.· ·  *·. ·  `.    ·.   ·*` Chocolate Charts ·` +. `·  . · •    * ·.·` `.·*
+# ··.·*.•`··* ·  . *   https://adventofcode.com/2018/day/14  *  `   ·.  ·.*· `·.
+# .  · *` •` ·* .`··  ·*  ·`.  ·`+.·     *  `·    *·    ·`. ·•  ·`   +·. *· .·`·
 
 import numba
 import numpy as np
@@ -17,7 +17,13 @@ MAX_STEP_SIZE = 2
 
 
 @numba.njit
-def brew(elf1: int, elf2: int, scores: np.typing.NDArray[score_dtype], n_add: int) -> tuple[int, int, np.typing.NDArray[score_dtype]]:
+def brew(
+    elf1: int,
+    elf2: int,
+    scores:
+    np.typing.NDArray[score_dtype],
+    n_add: int
+    ) -> tuple[int, int, np.typing.NDArray[score_dtype]]:
     """Given the current recipes of the two elves, and the current list of scores, adds another n recipes"""
     
     # Allocate a larger array for results
@@ -82,7 +88,7 @@ def brew_until_sequence(
     #
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     n_recipes = int(data)
     scores = np.array([3, 7], dtype=score_dtype)
     elf1, elf2 = 0, 1
@@ -103,7 +109,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 14
     from aocd import get_data
     raw = get_data(year=year, day=day)

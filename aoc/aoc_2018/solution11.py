@@ -1,13 +1,13 @@
-# * `  ꞏ+ꞏ.⸳  `.+   `*.⸳ ꞏ     ⸳.  `•ꞏ`  ⸳ ꞏ .• ` ꞏ ` *  ⸳`.•   ` ꞏ.`*      ` .⸳
-#  .*    ⸳ `ꞏ *•.    ⸳`  *`ꞏ .    Chronal Charge ⸳ .• `  * .`*   +⸳  .ꞏ `   ⸳`* 
-#  • `ꞏ.ꞏ  .`*   `ꞏ    https://adventofcode.com/2018/day/11  ⸳*   •` ⸳     ꞏ*⸳ .
-#  `.ꞏ* ` ꞏ•   ⸳`  •.  ꞏ   `⸳ .  `  ꞏ +ꞏ`* ` .`. ⸳ * ꞏ `   ` ꞏ⸳ * .   `⸳ *  .ꞏ `
+# `.·. *·   ·   ·+`. ·  * ··.` · .   `  +··*   .` · .`  ·* •.·`*   ·` *  . · ·.*
+# *·. .  ` ·   + .* ·`     .  .·  Chronal Charge  .·   . ·     .· `*· ·.  ·`*.·.
+# . *·`·   * ` . `· .  https://adventofcode.com/2018/day/11  `*·+.·      ·  `.+·
+# ·`` •. ·.   ·    · .* ·   ` ·+. · `   ·.·.*·     * ·  .· `  .. ·.`+· · *·+.·` 
 
 import numpy as np
 from numpy.lib.stride_tricks import sliding_window_view
 
 
-def parse(s):
+def parse(s: str):
     return int(s)
 
 
@@ -80,7 +80,7 @@ def square_with_largest_intensity(power: np.typing.NDArray[np.int_]) -> tuple[in
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     serial_number = parse(data)
     power = make_power_square(serial_number)
     
@@ -95,10 +95,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 11
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

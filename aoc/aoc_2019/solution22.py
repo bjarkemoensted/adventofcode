@@ -1,14 +1,16 @@
-# `ꞏ. .ꞏ*⸳` .⸳  *`     *   +.⸳ꞏ ` + ⸳  .ꞏ⸳`+   `  +.⸳•⸳`   .*  ꞏ.` ⸳* ꞏ ⸳. *• ⸳ꞏ
-# *.`+ ⸳ ꞏ*     .   ⸳` ꞏ+  `ꞏ *⸳ . Slam Shuffle  ⸳` *`.⸳+    ꞏ*   ⸳ .*⸳ꞏ   . ⸳` 
-# .⸳+`ꞏ ⸳`.  +  ⸳•*` . https://adventofcode.com/2019/day/22  +.   `• ꞏ   *.⸳ꞏ• .
-# `*      ꞏ ꞏ`⸳+ +.⸳ꞏ⸳   .  ⸳•`  ꞏ *. • +ꞏ ` .       ` *ꞏ⸳ *⸳.  `+ꞏ*      ꞏ`.` ⸳
+# .·· *   ·.·` ·        ·.·`*  · `·   ·`*.· +    *`.·  ·`+ .·  ·  `.*  ·· · `·.`
+# ·.`.·· ·* `·   ` · *. *·   ·` ·* Slam Shuffle ·.+`    · · *· ` ·. `*·    ·•·`*
+# •·.·`.   * *·   .`·  https://adventofcode.com/2019/day/22   .·* ·`  . `· `·*·.
+# ·`*  •· ·  .`·* `.*· ·`   ·+.  ·.*·   `· · .+  · ·.  *. `·  ·   *·· `  *·· ..·
 
 from __future__ import annotations
+
 from collections import deque
 from copy import deepcopy
 from functools import singledispatchmethod
+from typing import Literal, TypeAlias, TypeVar, cast
+
 import sympy
-from typing import cast, Literal, TypeAlias, TypeVar
 
 deck: TypeAlias = deque[int]
 # Operation - one of the shuffling operations
@@ -19,16 +21,18 @@ instype: TypeAlias = tuple[optype, tuple[int, ...]]
 modtype: TypeAlias = int|sympy.Basic
 
 
-def parse(s):
-    res = []
+def parse(s: str) -> list[instype]:
+    res: list[instype] = []
     for line in s.splitlines():
         if line == "deal into new stack":
-            elem = ("new_stack", ())
+            res.append(("new_stack", ()))
         elif line.startswith("cut"):
-            elem = ("cut", (int(line.split()[-1]),))
+            res.append(("cut", (int(line.split()[-1]),)))
         elif line.startswith("deal"):
-            elem = ("deal_with_increment", (int(line.split()[-1]),))
-        res.append(elem)
+            res.append(("deal_with_increment", (int(line.split()[-1]),)))
+        #
+
+    print(res)
     return res
 
 
@@ -179,9 +183,11 @@ class Shuffler:
         return a, b
     
     def final_index(self, index_start: int, instructions: list[instype], reverse: bool=False, n: int=1) -> int:
-        """Computes the final position of the card which is initially at index_start, after applying the shuffling instructions
-        n times. If reverse is True, the computation is based instead on the inverse of the provided shuffling instructions,
-        so the result indicates the original position of a card which ends up at index_start after shuffling n times."""
+        """Computes the final position of the card which is initially at index_start, after applying
+        the shuffling instructions n times.
+        If reverse is True, the computation is based instead on the inverse of the provided shuffling instructions,
+        so the result indicates the original position of a card which ends up at index_start
+        after shuffling n times."""
         
         # If reverse, compute the inverse shuffling
         if reverse:
@@ -226,7 +232,7 @@ class Shuffler:
         return new_obj
     
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     instructions = parse(data)
     n_cards = 10007
     shuffler = Shuffler(n_cards=n_cards)
@@ -246,7 +252,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2019, 22
     from aocd import get_data
     raw = get_data(year=year, day=day)

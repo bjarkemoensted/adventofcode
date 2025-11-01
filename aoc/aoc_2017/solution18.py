@@ -1,31 +1,31 @@
-# *`.ꞏ⸳`*⸳  . *ꞏ      ꞏ. .*   . ⸳`ꞏ   •ꞏ⸳  `  `ꞏ.•  `  ⸳ꞏ   .  *`ꞏ *⸳ꞏ ⸳*.`ꞏ *⸳.
-# ⸳ꞏ *`  .     •ꞏ⸳    . ⸳*  `.ꞏ  •     Duet ꞏ  * ⸳.` ꞏ*.  +   ꞏ`  ⸳  +`. ⸳* . .ꞏ
-# `•⸳.    ⸳ꞏ*    `.    https://adventofcode.com/2017/day/18 •*     .`⸳  `  ⸳ ꞏ**
-#  ⸳ꞏ   `•ꞏ `⸳.  .ꞏ⸳ ꞏ   `+  ⸳ ꞏ`  .⸳ ꞏ`*    .ꞏ  `   ⸳ꞏ+.`  ⸳ꞏ.  •   `  ꞏ   ⸳.• 
+# ` · ··. `• ·.*` ··*    `· ·*. ·  .·`.   ·+ · *.•`  `·  ·+.*   ·`  ·.+ ·  `·.+·
+# ·.*·  `  ·   .·*   .`·*· •`. · *·  . Duet ·  ` ·*  ·   `.· ·*     .`·    · ·*.
+#  .·* •·`   `  ·. * · https://adventofcode.com/2017/day/18 ` .   *·  .·*`  +`··
+# .·. ·` .*`·  ·* .  `· ·* . `* ·  ·. ` ·*  ` ··  .*` .   ` *·   ·   · `.•·.`*` 
 
 
-from collections import defaultdict, deque
+from collections import deque
 
 
-def parse(s):
+def parse(s: str) -> list[tuple[str|int, ...]]:
     res = []
     for line in s.splitlines():
-        parts = line.strip().split()
-        for i, part in enumerate(parts):
+        parts: list[str|int] = []
+        for elem in line.strip().split():
             # Just convert to ints if possible. If that fails, keep as string
             try:
-                parts[i] = int(parts[i])
+                parts.append(int(elem))
             except ValueError:
-                pass
+                parts.append(elem)
             #
         res.append(tuple(parts))
     return res
 
 
-class Register(defaultdict):
+class Register(dict):
     """Helper class for registry data, so attempting to look up an int will just return the int"""
     def __missing__(self, key):
-        return self.default_factory(key)
+        return key
 
 
 def _initialize_register(instructions: list, value: int = 0) -> Register:
@@ -34,7 +34,7 @@ def _initialize_register(instructions: list, value: int = 0) -> Register:
     # Assume we just need a register for each string argument in the instructions
     keys = sorted(set([elem for elem in sum([list(tup[1:]) for tup in instructions], []) if isinstance(elem, str)]))
 
-    reg = Register(lambda x: x)
+    reg = Register()
     for k in keys:
         reg[k] = value
 
@@ -110,7 +110,7 @@ def run_threads(instructions: list):
         regs[i]["p"] = pid
 
     # Define queues index of current instruction, and other stuff for each PID
-    queues = [deque() for _ in pids]
+    queues: list[deque[int]] = [deque() for _ in pids]
     inds = [0 for _ in pids]
     n_sent = [0 for _ in pids]
     blocked = [False for _ in pids]
@@ -155,7 +155,7 @@ def run_threads(instructions: list):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     instructions = parse(data)
 
     star1 = run_instructions(instructions)
@@ -167,10 +167,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 18
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

@@ -1,12 +1,12 @@
 {{ascii_header|safe}}
 
 
-def parse(s):
+def parse(s: str) -> object:
     res = s  # TODO parse input here
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, ...]:
     parsed = parse(data)
 
     # TODO solve puzzle
@@ -19,12 +19,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = {{year}}, {{day}}
-    {% if has_examples -%}
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
-    {% endif -%}
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

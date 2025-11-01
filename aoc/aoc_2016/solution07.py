@@ -1,10 +1,10 @@
-#  `.    *⸳ ⸳.    •   .+ꞏ `⸳   `⸳*     ⸳  . • ⸳`    .*•  ⸳  *   ꞏ `⸳ .⸳+ ` `  •ꞏ
-#   ⸳`.⸳      +    ꞏ +     Internet Protocol Version 7 *      ꞏ`  • .⸳ ``• ⸳•⸳ꞏ 
-# .+  ⸳  ꞏ.`   +    ⸳  https://adventofcode.com/2016/day/7     ꞏ  . *⸳+ꞏ+ .   ⸳ 
-# ⸳.**` .⸳ ++⸳``ꞏ      .+    *⸳ *   .  `•.ꞏ+⸳  * ⸳. `⸳.   ⸳+   * ⸳ꞏ   *⸳  * ⸳. •
+# ·*·  ``·*.·    ·      +  ·  ·  ·  .` ·    .   ·+· `     *`· ·  ·` ·    *.·` `.
+#   ``·* .·   · * ·`•.·    Internet Protocol Version 7   ·    `·    ·• ` ·`  ·  
+# · ·.•   .`·* · `  .  https://adventofcode.com/2016/day/7  `   +   `· ·  ·   ·`
+# `·.*`·   ·*.   ` · · ·.`·   *·.  ·     ··. *  `·*     ·*`. · `·`   `· *  ··`  
 
 
-def parse(s):
+def parse(s: str):
     res = s.split("\n")
     return res
 
@@ -80,7 +80,7 @@ def ip_supports_ssl(ip_string):
     return False
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     ip_strings = parse(data)
 
     star1 = sum(ip_supports_tls(ip_string) for ip_string in ip_strings)
@@ -92,10 +92,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 7
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

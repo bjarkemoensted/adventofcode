@@ -1,7 +1,7 @@
-#  . ꞏ`  ⸳ •ꞏ+⸳ ` .  ⸳  •  ⸳` ꞏ `⸳ *  `   .  `* ⸳⸳  ` + . ꞏ⸳`*   •⸳    `. *ꞏ `. 
-#  ꞏ*  .⸳` ⸳ ` *.ꞏ• ` ⸳.`+ ꞏ• Elves Look, Elves Say    .•ꞏ ` ꞏ⸳*    . ⸳* `ꞏ ⸳+`•
-#  •⸳+.ꞏ • `⸳ *   `. . https://adventofcode.com/2015/day/10 ꞏ *`  *• ` ꞏ⸳ ⸳   +`
-# ⸳ `⸳*• .`   .`ꞏ. •* `    ⸳  . ꞏ`+⸳     .   ⸳ꞏ+.*`ꞏ⸳.`   ` *⸳   .•`⸳⸳+  . .   ꞏ
+# .*`· . ·+·.   .·`` · .•  ·`    *·   .` · ·`.* + ·· `·   `  .··.` ·*`  .·` .·*`
+# ·`.  ·`   ·. ·`*.   · .·*`· Elves Look, Elves Say  *  `· ·.`  *  .  ` · • ` ·.
+# `··`   ·.*`·+  ·  `• https://adventofcode.com/2015/day/10 ·  .`·*   ·   ·.·`  
+# ·   ` · ·.  .`•  ·· `    ·* `·  .`*   ·  +·`·     .·`·+ ·`*    .· `  ·* .·` .·
 
 
 def extend_sequence(s, n_times=1):
@@ -25,7 +25,7 @@ def extend_sequence(s, n_times=1):
     return extend_sequence(res, n_times - 1)
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     extended = data
     for _ in range(40):
         extended = extend_sequence(extended)
@@ -41,10 +41,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 10
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

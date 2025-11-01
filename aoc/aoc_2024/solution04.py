@@ -1,13 +1,13 @@
-# `.ꞏ•ꞏ` ⸳  .   * .ꞏ` ⸳ •.     . ꞏ ` *⸳   ꞏ . ``*⸳ꞏ    ⸳.*ꞏ   •  ` .⸳ꞏ ꞏ   ⸳•`.⸳
-# ꞏ . +⸳.• .*ꞏ`   ⸳ . •`  *⸳ .  ⸳• Ceres Search .*⸳ꞏ`  ꞏ  •⸳⸳* . ꞏ*`.  •⸳. .⸳*ꞏ`
-# * `.   ꞏ`• *⸳ ꞏ  .⸳  https://adventofcode.com/2024/day/4 . ꞏ •⸳ ` *   ꞏ . ⸳.⸳+
-# .• ⸳  ꞏ*.`⸳    `     •ꞏ  .  .•ꞏ⸳`   ꞏ .⸳`+    `    .⸳+ꞏ     ⸳  .`   *` ꞏ  .•  
+# +·.`·.· ·`*      .·.` *·  `.`    *+·  · `   *·. `` +. · ·*   ·`·. ·+  `·*  ..·
+#  `·. · *`   ·· ·+   . ·`· *` .   Ceres Search  *·  .`  ·*  · `  *·  `• * ·.``·
+# .·`·*     .· `·+  .· https://adventofcode.com/2024/day/4 .·   · ·`* .· ` .*··`
+# ·.·•` *` ·   + `.· * ·` *· ·.+` · `    · `* · ·` .`· .+  · *`.    `·   .·*` · 
 
 
 import numpy as np
 
 
-def parse(s):
+def parse(s: str):
     res = np.array([list(line) for line in s.splitlines()])
     return res
 
@@ -27,7 +27,8 @@ def _add_tuples(a, b):
 
 
 def get_substring(arr, ind: tuple, direction: tuple, n_chars: int):
-    """Given an array and index, returns the substring consisting of (up to) the n characters in the specified direction."""
+    """Given an array and index, returns the substring consisting of (up to) the n characters
+    in the specified direction."""
     
     # Get the indices containing the substring
     crds = [ind]
@@ -96,7 +97,7 @@ def count_x_mas(arr) -> int:
     return n
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     parsed = parse(data)
     
     star1 = count_xmas(parsed)
@@ -108,7 +109,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 4
     from aocd import get_data
     raw = get_data(year=year, day=day)

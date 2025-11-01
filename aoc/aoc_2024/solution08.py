@@ -1,14 +1,15 @@
-# •.ꞏ  `⸳  `  ꞏ ` ** `⸳  + .ꞏ*   .     `• .    `ꞏ `  ꞏ*⸳.    + ⸳   ꞏ.`      ꞏ*⸳ 
-# ⸳*   ꞏ        `*`ꞏ.       . Resonant Collinearity   ꞏ• .    ⸳•     *⸳.     `ꞏ 
-# ꞏ`⸳   ꞏ.`+    *ꞏ.`   https://adventofcode.com/2024/day/8 ⸳``.ꞏ ⸳.    ꞏ    *⸳``
-# . `   .      ⸳  ꞏ ⸳ `.•ꞏ      ꞏ   *.  ⸳  ` •   ꞏ*   . `⸳ •  ꞏ  *`    • ` .⸳ꞏ *
+# `·   • · ·  .· `   .·   `·  •.·   ·  + `· * ` ·+    ·   *· . `* ·.    ·`  .· ·
+# *·` .·· *  .  *·  ` *  ·  · Resonant Collinearity  · `* `  · ·  .   *  ··`  .+
+# ·*. ·. `·*    ·.     https://adventofcode.com/2024/day/8   ` *··    . * `   ·.
+# .`··` .  .+·`   * .·  ` ·  · ·       ·`* ·     .  ·* ·`      .` •· `·+  . · *`
 
 
 from collections import defaultdict
+
 import numpy as np
 
 
-def parse(s):
+def parse(s: str):
     res = np.array([list(line) for line in s.splitlines()])
     return res
 
@@ -37,7 +38,7 @@ class Grid:
         """Returns a set of the coordinates of antinodes at the given frequency.
         If with_resonance, takes resonant harmonics^tm into account."""
 
-        res = set([])
+        res: set[tuple[int, ...]] = set([])
         coords = sorted(self.d[frequency])
         
         for x1 in coords:
@@ -51,7 +52,7 @@ class Grid:
                 delta = tuple(b - a for a, b in zip(x1, x2))
                 
                 # Step in increments of the displacement vector until falling off the map
-                an = x2
+                an: tuple[int, ...] = x2
                 while self._in_bounds(an := tuple(a + b for a, b in zip(delta, an))):
                     res.add(an)
                     if not with_resonance:
@@ -76,7 +77,7 @@ class Grid:
     #
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     parsed = parse(data)
     grid = Grid(m=parsed)
 
@@ -89,7 +90,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 8
     from aocd import get_data
     raw = get_data(year=year, day=day)

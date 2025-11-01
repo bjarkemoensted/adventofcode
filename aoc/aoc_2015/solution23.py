@@ -1,10 +1,10 @@
-# ⸳`ꞏ +  . +`   ⸳.  *ꞏ .`  .•  ` .     ⸳ꞏ* ⸳`. ⸳*ꞏ*  `.*ꞏ  ⸳.      `  ꞏ . •⸳. ꞏ⸳
-# ..•`ꞏ *    `ꞏ   ⸳ . ` * *ꞏ Opening the Turing Lock  ꞏ ⸳ꞏ `ꞏ.   ⸳+   `  . ꞏ⸳* ꞏ
-# `•.   ⸳` ꞏ * .  `  * https://adventofcode.com/2015/day/23 •  *.`  ꞏ  ꞏ ⸳ . + `
-# * `*ꞏ.   ⸳    .ꞏ*  `• ꞏ⸳.* . ` * ꞏ ꞏ  *⸳ꞏ    ꞏ``  ꞏ+    . ` + ` . ⸳ꞏ    `•⸳`  
+#  ·`·.* ·  ·  `*  ·.•+`·. `*·.   ·  * `· . ·`*  +·`  ·  *  .· + `   · .* · ` ·.
+# .*· `.+· .  ·    ··   .  + Opening the Turing Lock * + ·`·  .  + · `•  ·   ·*·
+# ` .  · *·•    . ·` · https://adventofcode.com/2015/day/23 *.•··· . •`*+·. ·*  
+# ·.*·· `.+`.·   · .•`    ··     ·  •`.·· `·.·+* . • ·*`  ·   ·     +.·   `·   ·
 
 
-def parse(s):
+def parse(s: str):
     res = []
     for line in s.split("\n"):
         words = line.replace(",", "").split(" ")
@@ -74,7 +74,7 @@ class Computer:
             self.run_next()
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     instructions1 = parse(data)
     computer = Computer(instructions=instructions1)
     computer.run_all()
@@ -90,10 +90,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 23
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

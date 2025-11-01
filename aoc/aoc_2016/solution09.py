@@ -1,14 +1,14 @@
-# *.⸳` ꞏ⸳` .ꞏ • .+`•ꞏ⸳ . ⸳  `•    .` ꞏ•.+ꞏ⸳  .   ` ⸳  ꞏ.`*     .ꞏ+⸳`` .    *` `.
-# `` *⸳ ꞏ⸳ ` `  *⸳ ` ꞏ `•+   Explosives in Cyberspace     ꞏ.⸳*`⸳`   *`ꞏ . ` ꞏ  ⸳
-# ⸳*ꞏ  +`.⸳ꞏ  `⸳ꞏ`.•   https://adventofcode.com/2016/day/9  ` .ꞏ *•` ⸳ ` ꞏ.  ⸳.`
-#  .`    +ꞏ*  ⸳.⸳   ` *  .` ⸳ꞏ•   + ꞏ `.⸳•  `   +ꞏ *`ꞏ *. ` ꞏ.⸳ * ꞏ   `• .⸳`⸳*ꞏ.
+# ·`*·. .·.•`     +· . `·•` ·  · .`  .· * `· .     .·*``   ·· .+  ·`·.. ·  .`· *
+# `..· +`•·    .· `•·`   ··` Explosives in Cyberspace   +    ·    `  ·` .·`+*·.`
+# .·  ·`·.  .`·   . `+ https://adventofcode.com/2016/day/9   `•.·*   `· `.·  *·.
+# • ·.`·   ·*. ` .·  ·`*.`·+ ·`•.  `.·   ·*. ``*+··  .·   `. *·  `.  * ··`   .`·
 
 
 import re
 import string
 
 
-def parse(s):
+def parse(s: str):
     res = s
     return res
 
@@ -76,7 +76,7 @@ def compute_recursively_decompressed_string_length(s, running=0):
     return res + compute_recursively_decompressed_string_length(remainder)
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     parsed = parse(data)
 
     decompressed = decompress(parsed)
@@ -89,10 +89,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 9
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

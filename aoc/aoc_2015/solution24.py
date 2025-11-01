@@ -1,14 +1,15 @@
-# . .•  • ⸳ꞏ`    + .`⸳+ `  •   `ꞏ*.⸳ ꞏ` *    *  ⸳ꞏ`.⸳ ` +* ⸳*    .  ⸳ +` ꞏ.`+ *⸳
-# `+⸳ꞏ+ .`*    ` ⸳ ⸳ *   .   It Hangs in the Balance * . *  ⸳`  .   *`.⸳` ꞏ    *
-# +  . ` ⸳ ` •ꞏ *      https://adventofcode.com/2015/day/24        ⸳ ꞏ   *  *⸳`.
-# ꞏ` ` •  .* ꞏ⸳*   ꞏ* ⸳`     `.+  ꞏ* `⸳   ꞏ⸳ ꞏ *. ` +.     • ⸳`ꞏ       *.⸳+   .ꞏ
+# *··`. * ·.    ·· `.* ·    `·*  · .  `       ·   ·.  · * · `  · . ·•    ·.` +·`
+# `·.*· `+. ·   .`·  .·+  ·  It Hangs in the Balance  *··    .  ` ·•·   . ·*· `.
+# ·. · ` ·`* · ·•.  ·  https://adventofcode.com/2015/day/24 ··` ·  . ·* ·. ·` ·+
+# ·`·. *·.•·  `    · `..·   `*·`  · *·  .`· •·   ·.` · ·`· . * . ··   `·* ` .·.·
 
 
 from itertools import combinations
+
 import numpy as np
 
 
-def parse(s):
+def parse(s: str):
     res = []
     for line in s.split("\n"):
         res.append(int(line))
@@ -136,7 +137,7 @@ def balance_loads(numbers, n_partitions):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     weights = parse(data)
 
     star1 = balance_loads(weights, n_partitions=3)
@@ -148,10 +149,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 24
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

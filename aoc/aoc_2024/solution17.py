@@ -1,9 +1,15 @@
+# · ` *.·`  .•`   ·        *.`  ·· `.  · · ` +  ·  .· .  ·  ·      . • · ` .·`.·
+# ·. ·`    · ·  + .·       `· Chronospatial Computer  *`  · .`+.·    ·  .··*`· .
+#  · `·+ .· ·. `  ·  • https://adventofcode.com/2024/day/17   ·`*··  .  ·  `   ·
+# .`·  ·   * `  ··  .`*·   ·•  .`   ·     `   · . .`   ·. *·  `· .  ·` + . · ·` 
+
 from __future__ import annotations
+
 from copy import copy
 from dataclasses import dataclass
 
 
-def parse(s) -> tuple[State, tuple[int, ...]]:
+def parse(s: str) -> tuple[State, tuple[int, ...]]:
     regpart, progpart = s.split("\n\n")
     reg: dict[str, int] = {key: int(val) for key, val in (line[9:].split(": ") for line in regpart.splitlines())}
     state = State(A=reg["A"], B=reg["B"], C=reg["C"])
@@ -183,7 +189,7 @@ class Emulator:
 
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     initial_state, program = parse(data)
     emulator = Emulator(program, verbose=False)
     
@@ -198,7 +204,7 @@ def solve(data: str):
     return star1, star2
     
     
-def main():
+def main() -> None:
     year, day = 2024, 17
     from aocd import get_data
     

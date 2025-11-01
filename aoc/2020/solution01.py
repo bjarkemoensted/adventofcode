@@ -5,8 +5,8 @@ Created on Tue Dec  1 17:18:01 2020
 @author: BMM
 """
 
-from functools import reduce
 import itertools
+from functools import reduce
 
 with open("input01.txt") as f:
     nums = [int(line) for line in f.readlines()]

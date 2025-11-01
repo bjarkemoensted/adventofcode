@@ -1,7 +1,7 @@
-# `. `ꞏ •    `  .   +  .`ꞏ `⸳  ` •   ꞏ.ꞏ  `⸳•.     . ꞏ *`  `  .• ` ` ⸳       ꞏ.`
-# *. ꞏ •⸳.`      ⸳ `.     +⸳ `ꞏ.+   Knot Hash `.⸳ ꞏ* `   +*⸳    `*      ꞏ `. +⸳.
-# `⸳*⸳ `.    +.  ` .⸳` https://adventofcode.com/2017/day/10 ꞏ +` ⸳ .*`+.     `ꞏ*
-# .ꞏ`*.⸳ ` . ⸳•.     ⸳` ꞏ` •`.  . `⸳`  •ꞏ⸳ ꞏ  .*.+       •.* .     +` ꞏ   .•`⸳+ 
+# ·*·`.+  ·. · .+ ·  ` *.     .·` · · . ·  .  `    .··.`*  · ·`. ·   .   ·.  · ·
+# · `.· .   ·*`·   .  +·     ··`    Knot Hash  · .·*.`    ·.•`·   .  ·* · · . ·`
+#  ·  `.·* · . `·   .  https://adventofcode.com/2017/day/10 ·*    ·•. ·.•`*··` .
+# +..·*`··  .  * · ·`  .·*·`.  * ·.` * ·  . · ·.  *·    ·`.    *·  · `·•.   `·.·
 
 
 def parse(s, as_ascii_codes=False):
@@ -62,8 +62,9 @@ def densify(vals: list) -> str:
     return res
 
 
-def solve(data: str, n=256):
+def solve(data: str) -> tuple[int|str, int|str]:
     lengths = parse(data)
+    n=256
     vals = emulate_knot(lengths, n=n)
     star1 = vals[0] * vals[1]
     print(f"Solution to part 1: {star1}")
@@ -76,10 +77,8 @@ def solve(data: str, n=256):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 10
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

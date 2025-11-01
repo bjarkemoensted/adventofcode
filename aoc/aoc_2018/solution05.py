@@ -1,7 +1,7 @@
-#  ⸳ꞏ *`.⸳     `ꞏ ⸳  .   ꞏ *` .` ⸳•      ⸳• ꞏ. `   *⸳ꞏ  . ` ꞏ   +.``  ꞏ  ⸳`.*.⸳*
-# ꞏ . `+  ꞏ ⸳  .⸳ `       . ꞏ` Alchemical Reduction ꞏ .     ⸳ .`ꞏ * ⸳.+ꞏꞏ. `  . 
-# ⸳•    ⸳ .`ꞏ.   • `.  https://adventofcode.com/2018/day/5   ⸳ꞏ.`  *   . ` ⸳  ꞏ 
-#  .    ꞏ` * ⸳. . *    `ꞏ*` ⸳  • ꞏ⸳   `. ` *  ⸳.ꞏ`    •.` ꞏ• .` ⸳. ꞏ    •ꞏ⸳  `*⸳
+# *·. `.· ·`* ·.  ·`*   ·.  ` ·.+*     ` · . · *`.·  .+` ·`    .+ · .*`·   . ·*.
+# ·. · *.  +`·  * .· `·*.      Alchemical Reduction  · `· * `. ·   .      · *. ·
+# · `   + . ·  `·.*.·  https://adventofcode.com/2018/day/5  ·•*` ·    · •.  ` · 
+# .*· •`   · ` •.    ·`  +·.·•*·  . * · `  ·     · +. `·*   . ·•   · ` .·*.+  ·`
 
 
 def react(units: list[str]) -> str:
@@ -41,7 +41,7 @@ def shortest_with_exclusion(units) -> int:
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     units = list(data)
     
     star1 = len(react(units))
@@ -53,10 +53,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 5
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

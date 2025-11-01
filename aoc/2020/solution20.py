@@ -6,9 +6,11 @@ Created on Mon Dec 21 16:29:50 2020
 @author: ahura
 """
 
-from collections import Counter, defaultdict
+from collections import Counter
 from copy import deepcopy
+
 import numpy as np
+
 
 def parse(s):
     chunks = s.strip().split("\n\n")

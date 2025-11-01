@@ -1,14 +1,15 @@
-# ⸳ꞏ+     + .+⸳ ꞏ    . ꞏ*    .ꞏ*`   ꞏ `+ꞏ`*  .  + ⸳⸳ ꞏ   .` ꞏ  `*  .⸳* ꞏ ``  *.ꞏ
-#   ꞏ` .•+ ⸳ ꞏ.  `•`  *  ⸳.  •  A Series of Tubes `•*.⸳.*ꞏ `  .ꞏ⸳    ꞏ *`⸳* ꞏ⸳  
-# .•.    ⸳   ` *    ⸳  https://adventofcode.com/2017/day/19     `+.     ⸳*  .ꞏ +
-#  ꞏ`+.ꞏ⸳    .•ꞏ`+`    ⸳   *ꞏ⸳`  ꞏ. • ꞏ⸳ ⸳.•  ꞏ`   .  •.` •  ꞏ*  `ꞏ   *.ꞏ     ꞏ.
+#  `*· .  · *`·+· ·  .· *· `  ·.+    ·  *`•··      ·· +.   *`·· *.` ·   ` ·*·.· 
+# .·`•·  ·*·`·  . ` ··      .·  A Series of Tubes   `*· + ·  + ` *·   ·` .+  •`·
+# ·.·`  · .`  *· .+    https://adventofcode.com/2017/day/19    *·  + . ·    `·*.
+# `·. *·.*  ·• `` .·+    ··*`.·  .+ `* · ·+. ·`   ·*. `  · .·      · `*+·  . `.·
 
 
-import numpy as np
 from string import ascii_uppercase
 
+import numpy as np
 
-def parse(s):
+
+def parse(s: str):
     lists = [list(line) for line in s.splitlines()]
     res = np.array(lists)
 
@@ -71,7 +72,7 @@ def trace_path(map_):
     return visited
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     map_ = parse(data)
 
     chars = trace_path(map_)
@@ -84,10 +85,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 19
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

@@ -1,14 +1,16 @@
-# ⸳ ꞏ ꞏ ⸳``⸳*   ꞏ  .⸳` `•   ⸳ꞏ*. `   . •ꞏ .⸳* ꞏ•`  ⸳`  *⸳    ꞏ +  .`⸳ꞏ`  *⸳  + ⸳
-#  ꞏ⸳ *`  ⸳.`` * ꞏ   ꞏ    •⸳` ꞏ  Restroom Redoubt    ⸳ `•⸳ ꞏ  `  ꞏ  ꞏ  *  ꞏ. ⸳ꞏ*
-# ꞏ*•`   ⸳  ꞏ  *` .ꞏ   https://adventofcode.com/2024/day/14 ꞏ⸳   .⸳ *  ꞏ   ⸳` +.
-#  +.` ⸳  .   •ꞏ   `• ⸳   `    ꞏ⸳ *ꞏ * `•. ꞏ*⸳  ⸳ . ꞏ * ` ꞏ.⸳  ⸳ * ꞏ `   ⸳.ꞏ•  `
+#  `·+ ·.  * ·`.   ·`* +·. ` *   ·`* . ·  ·  ·* .` .*·    ·`  .·*  `·* .  •`·. ·
+# `·`.  ·`  *• ·   `·  .*· • .   Restroom Redoubt  ·   * ·+ `  •.  . ·` ·    *.`
+# •.+· ` *· ·. •·*` +  https://adventofcode.com/2024/day/14  `·*  ·  ` •  .·`+·.
+# · ·`+*`· . *`     .·     ·+ `·   `.•   ·`.·*  ·   ·`*·   `· *.`· `*.··`  . ·`*
 
 
 from collections import Counter
-from functools import cache
+from typing import TypeAlias
+
+coordtype: TypeAlias = tuple[int, ...]
 
 
-def parse(s):
+def parse(s: str) -> list[tuple[coordtype, coordtype]]:
     """Parses into list of dicts mapping 'p' and 'v' to position and velocity."""
     res = []
     
@@ -18,9 +20,10 @@ def parse(s):
             k, stuff = path.split("=")
             t = tuple(map(int, stuff.split(",")))
             d[k] = t
-
-        res.append(d)
-
+            
+        tup = (d["p"], d["v"])
+        res.append(tup)
+    
     return res
 
 
@@ -50,9 +53,9 @@ class Robot:
 
 
 class Swarm:
-    def __init__(self, robot_data: list, width: int, height: int):
+    def __init__(self, robot_data: list[tuple[coordtype, coordtype]], width: int, height: int) -> None:
         self.xy_bounds = (width, height)
-        self.robots = [Robot(**d, xy_bounds=self.xy_bounds) for d in robot_data]
+        self.robots = [Robot(*args, xy_bounds=self.xy_bounds) for args in robot_data]
     
     def step(self, n:int=1):
         """Have all robots take one or more steps forward"""
@@ -143,26 +146,26 @@ class Swarm:
         return res
 
 
-def solve(data: str):
-    data = parse(data)
+def solve(data: str) -> tuple[int|str, int|str]:
+    initial_conditions = parse(data)
     
     # Set the shape (use a small one for small numbers of robot, as in the example)
-    shape = (7, 11) if len(data) < 20 else (103, 101)
+    shape = (103, 101)
     height, width = shape
     
-    swarm = Swarm(robot_data=data, width=width, height=height)
+    swarm = Swarm(robot_data=initial_conditions, width=width, height=height)
     swarm.step(n=100)
     star1 = swarm.safety_score()
     print(f"Solution to part 1: {star1}")
     
-    swarm = Swarm(robot_data=data, width=width, height=height)
+    swarm = Swarm(robot_data=initial_conditions, width=width, height=height)
     star2 = swarm.scan_until_shape()
     print(f"Solution to part 2: {star2}")
     
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 14
     from aocd import get_data
     raw = get_data(year=year, day=day)

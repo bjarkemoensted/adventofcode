@@ -1,15 +1,19 @@
-# `. ꞏ  ⸳ꞏ* `   . • ⸳ꞏ     `*.ꞏ⸳  `ꞏ.• *`  ꞏ         +ꞏ⸳`  ꞏ .`  *ꞏ`    `*⸳ •ꞏ ꞏ
-# *⸳  `    *+⸳ ` •.    +        ` Code Chronicle * ⸳ꞏ.    + *` .⸳  ꞏ`     * ꞏ .+
-#  + •⸳`ꞏ  + ꞏ ⸳ . ꞏ + https://adventofcode.com/2024/day/25 `⸳ꞏ*ꞏ⸳`   •⸳  . +ꞏ `
-#  `+. ꞏ* ⸳.`  *ꞏ ⸳`    ꞏ.*⸳ `• ꞏ.  +ꞏ`  ⸳   . ꞏ* `ꞏ+    .` ꞏ    ꞏ. ⸳⸳.* `  ⸳  .
+# ·.`· .+*   .·.  ·  ` ·*.·  •.·       ·*`·    .+`·· .·    •· . ·     .*`·.  ·`*
+# . · *`· * .·  `·.· ·     ·+`*   Code Chronicle .  ·`+*·  `  ·  *    ·· `*.+.·`
+#  *   ·. ·  ` ·.•· .* https://adventofcode.com/2024/day/25    `+ ·.`·  · · `•·.
+# `·.*·• `.·   *·.  ·   ` •.  ·   ·` *  · .·*   `· .+· .   · *`·.   ·   +* `· .·
 
+
+from typing import TypeAlias
 
 import numpy as np
 
+shapetype: TypeAlias = tuple[int, int, int, int, int]
 
-def parse(s):
-    locks = []
-    keys = []
+
+def parse(s: str) -> tuple[list[shapetype], list[shapetype]]:
+    locks: list[shapetype] = []
+    keys: list[shapetype] = []
     
     for part in s.split("\n\n"):
         # Figure out if this part represents a lock or key, then discard the top and bottom rows
@@ -21,11 +25,12 @@ def parse(s):
         shape = tuple(sum(char == "#" for char in col) for col in pin_area.T)
         list_ = locks if is_lock else keys
         list_.append(shape)
-        
+    
+    
     return locks, keys
 
 
-def count_fitting_key_lock_paris(locks: list, keys: list, pinsize=5):
+def count_fitting_key_lock_pairs(locks: list, keys: list, pinsize=5):
     """Takes lists of lock and key shapes. Returns the number of compatible pairs, i.e.
     pairs where there's room for the key inside the lock."""
     
@@ -41,10 +46,10 @@ def count_fitting_key_lock_paris(locks: list, keys: list, pinsize=5):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, None]:
     locks, keys = parse(data)
 
-    star1 = count_fitting_key_lock_paris(locks=locks, keys=keys)
+    star1 = count_fitting_key_lock_pairs(locks=locks, keys=keys)
     print(f"Solution to part 1: {star1}")
 
     star2 = None
@@ -53,7 +58,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 25
     from aocd import get_data
     raw = get_data(year=year, day=day)

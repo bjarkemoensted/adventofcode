@@ -1,10 +1,10 @@
-# .` +   *ꞏ`⸳     ꞏ*⸳. `  ꞏ⸳  .* `⸳   + *⸳.   *`ꞏ  `+     ..*⸳ ꞏ `   **  `⸳`ꞏ⸳⸳+
-# +. ⸳ꞏ` . •  ` ⸳  ꞏ`*   ꞏ *. +    Let It Snow *⸳` . ` ꞏ⸳` •     .+⸳ `  ⸳   `*. 
-#   *`*ꞏ⸳  ꞏ      .`ꞏ  https://adventofcode.com/2015/day/25 ⸳  *⸳•`.    . ꞏ⸳ `*⸳
-# `•  .  ꞏ*` +..     `+  ⸳ꞏ.` ꞏ⸳*. ⸳*  ꞏ`  ⸳+``⸳  .  ꞏ*⸳.  `. ꞏ`*⸳ ` .ꞏ •  * .⸳ 
+#  `·`..· ·+.•·*`  ··.  *` +·   ·.     ·  *.`·· * ·  .  `·.  ·  ·`·. `+· .*`··*.
+# .·  ·· .`·*  ·   * ··`. .  ·  ·` Let It Snow   ·. ·• `    · ·•.  ··   ` ·.* `·
+# ·· .`*    ·` .·+·` * https://adventofcode.com/2015/day/25 .   ·.*`+·   ·. `·.`
+# ·.`    ·•. · ` .  *·`.·          ·.·`  *··.`·     .`·· * ·   . ·   · *· `·.`·.
 
 
-def parse(s):
+def parse(s: str):
     s = s.replace(",", "").replace(".", "")
     words = s.split(" ")
     d = {words[i]: words[i+1] for i in range(len(words) - 1)}
@@ -41,7 +41,7 @@ def get_code_at_coords(initial, i, j):
     return code_running
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, None]:
     coords = parse(data)
     initial_code = 20151125
 
@@ -54,10 +54,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 25
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

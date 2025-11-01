@@ -1,19 +1,20 @@
-# .ꞏ` *⸳   ꞏ.`+  .⸳*ꞏ⸳    ⸳ .    + ` ⸳.* `. `⸳* `* ꞏ.`  . `  +  ⸳`ꞏ*⸳  .  •  . *
-# ⸳ꞏ ⸳ ` ꞏ•*ꞏ+.⸳       ꞏ ` *ꞏ +⸳ Beverage Bandits  `  ⸳.ꞏ+   ⸳  ` . •  ⸳•   .*⸳ꞏ
-# *⸳ ` . *⸳     ⸳  .+ꞏ https://adventofcode.com/2018/day/15  `⸳     ꞏ *    ꞏ⸳•`.
-# ꞏ`⸳     . *  `      * ⸳ ꞏ` .⸳ꞏ*⸳  ⸳ꞏ   ` .⸳*ꞏ⸳ .  •      .⸳ ꞏ⸳   ` *` . `⸳*.•⸳
+# ·.·` ·  *` ·.  * `·   ·   .·    ·*`     .··   *· ` ·*    ·.·`   ·.·*`• . ` ··*
+# ··*  ..     *·.`·   ·`  *·• ·  Beverage Bandits ·  * ` · .·  *·.`•  ·`. +··`  
+# *`.·  `·.* ··     *  https://adventofcode.com/2018/day/15 *`   ·. .·*·  `*+ `·
+# `.  *`·.·· *   .`·   +•·.`·  .* ` ·  ·   *. ·*   ·  `.· *`   · * `·.  `+·.  *·
 
 from __future__ import annotations
+
+import functools
+import time
 from collections import defaultdict
 from copy import deepcopy
-import functools
-import networkx as nx
-import numpy as np
 from pprint import pprint
-import time
 from types import MethodType
 from typing import Callable, Iterable, TypeAlias
 
+import networkx as nx
+import numpy as np
 
 coord: TypeAlias = tuple[int, int]
 
@@ -25,7 +26,7 @@ _wall_char = "#"
 unit_symbols = (_goblin_char, _elf_char)
 
 
-def parse(s) -> np.typing.NDArray[np.str_]:
+def parse(s: str) -> np.typing.NDArray[np.str_]:
     """Parse input into array of chars"""
     chars = [[char for char in line.strip()] for line in s.splitlines()]
     cols = len(chars[0])
@@ -195,7 +196,12 @@ class Grid:
 
         return shortest_dist, tied
 
-    def get_tied_for_closest(self, source: coord, targets: Iterable[coord], blocked: tuple[coord]) -> None|tuple[int, list[coord]]:
+    def get_tied_for_closest(
+            self,
+            source: coord,
+            targets: Iterable[coord],
+            blocked: tuple[coord]
+        ) -> None|tuple[int, list[coord]]:
         """Returns the shortest distance to any target, and the targets tied at that distance"""
         targets = tuple(sorted(targets))
         res = self._get_tied(source, targets, blocked)
@@ -346,14 +352,11 @@ class Battle:
             unit.tick()
         self._remove_dead()
     
-    def fight(self, display=False, end_condition: Callable[[Battle], bool]|None=None) -> int|None:
+    def fight(self, display=False, end_condition: Callable[[Battle], bool]|None=None) -> int:
         """Fights an elf-goblin battle. end_condition is an optional callable which takes the battle
         instance and returns True if the fight should end.
-        Returns the 'outcome' (n_rounds * sum hit points) if game ends."""
+        Returns the 'outcome' (n_rounds * sum hit points) when game ends."""
 
-        if end_condition is None:
-            end_condition = lambda _: False
-                
         game_over = False
 
         n_rounds_fought = 0
@@ -368,12 +371,15 @@ class Battle:
                 print(f"After {n_rounds_fought} round{'s'*(n_rounds_fought != 1)}:")
                 print(self.as_string(include_units=True), end="\n\n")
             
-            game_over = game_over or end_condition(self)
+            if not game_over and end_condition is not None:
+                game_over = end_condition(self)
+            #
 
-        outcome = n_rounds_fought*sum(unit.hit_points for unit in self.units) if game_over else None
+        if not game_over:
+            raise RuntimeError("Fighting stopped but game isn't over. Shouldn't happen.")
+        
+        outcome = n_rounds_fought*sum(unit.hit_points for unit in self.units)
         return outcome
-            
-
     
     def as_string(self, include_units=True, subs:dict[coord, str]|Iterable[coord]|None=None):
         """Represents the cavern as an ASCII map, similarly to on the web page"""
@@ -411,8 +417,10 @@ def determine_attack_power_to_keep_elves_alive(battle: Battle) -> int:
     
     # Condition for stopping a battle early
     n_elves = sum(c == _elf_char for c in battle._initial_unit_positions.values())
-    elves_died = lambda battle_: sum(unit.type_ == _elf_char for unit in battle_.units) < n_elves
     
+    def elves_died(battle_: Battle):
+        return sum(unit.type_ == _elf_char for unit in battle_.units) < n_elves
+
     low = 0
     high = 16
     outcomes = dict()
@@ -445,7 +453,7 @@ def determine_attack_power_to_keep_elves_alive(battle: Battle) -> int:
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     map_ = parse(data)
     
     battle = Battle(map_)
@@ -455,13 +463,11 @@ def solve(data: str):
     
     star2 = determine_attack_power_to_keep_elves_alive(battle=battle)
     print(f"Solution to part 2: {star2}")
-
-    #Cache.display_all()  # Display cache statistics to figure out hwere to optimize
     
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 15
     from aocd import get_data
     raw = get_data(year=year, day=day)

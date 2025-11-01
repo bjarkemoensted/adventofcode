@@ -1,18 +1,13 @@
-# ⸳    ꞏ*ꞏ*  ⸳`.ꞏ  *`  ⸳ ꞏ.    ` + .*   ⸳*ꞏ`ꞏ*  ⸳    `.⸳   +  `ꞏ .  ꞏ⸳  ⸳* `   ꞏ
-# ꞏ.ꞏ.     ⸳•ꞏ• ⸳ꞏ  + ⸳  How About a Nice Game of Chess? ⸳     `  ꞏ⸳. ꞏ•`⸳ * ꞏ`.
-# .   ꞏ  •`   .* ⸳` ꞏ  https://adventofcode.com/2016/day/5 ⸳ꞏ.    *`ꞏꞏ+.  ⸳ꞏ `  
-#  *`⸳⸳ ⸳.  `•   *  .ꞏ    *⸳ .  ꞏ`  ꞏ .    ⸳` ꞏ• ` ꞏ⸳  `  ⸳.*⸳• ꞏ   *.   ` ꞏꞏ *⸳
+# ·· + ` ·*.· +. ·  .    • ·    `  ·`.+· *  · ` ·   `* . · *·`.+  ·   ·  `·*. *·
+# `  ·.·.•     +* ·.* ·* How About a Nice Game of Chess? +   ··  .`*   . ·  `· *
+# .·  `*·+.` `  ·* · . https://adventofcode.com/2016/day/5 ·*     •+ ` ·    * `.
+# *`· ·.` `·•*·`.  *·`. · *  ·`            `.* · `.    *· ·  + ·*`.·  * ·  `.*· 
 
 
 import hashlib
 
 
-def parse(s):
-    res = s  # TODO parse input here
-    return res
-
-
-def parse(s):
+def parse(s: str):
     res = s.strip()
     return res
 
@@ -73,7 +68,7 @@ def crack_password_fancy(door_id, password_length=8):
     return "".join(password)
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     door_id = parse(data)
 
     star1 = crack_password(door_id=door_id)
@@ -86,10 +81,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 5
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

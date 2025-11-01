@@ -6,9 +6,9 @@ Created on Mon Dec 14 07:59:50 2020
 @author: ahura
 """
 
-from itertools import product
-import numpy as np
 import re
+from itertools import product
+
 
 def binarray_from_number(num, n_bits=36):
     res = [int(val) for val in '{0:0b}'.format(num)]

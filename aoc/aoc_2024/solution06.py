@@ -1,32 +1,39 @@
-#  . ⸳ꞏ  *+.`    ꞏ   .` ⸳     ꞏ ꞏ `⸳* .  ⸳  *` ꞏ ` +` ꞏ  .  ⸳+ꞏ .     .•`⸳*ꞏ   ⸳
-# ⸳`ꞏ   ⸳.`   ⸳•ꞏ`* `   .     ⸳+ Guard Gallivant   ⸳+* . ꞏ`     +  ⸳` *ꞏ•   ꞏ⸳ ⸳
-# •⸳.` .    ꞏ .⸳ +`.   https://adventofcode.com/2024/day/6     .⸳+ `ꞏ.  ꞏ*ꞏ   •`
-# ꞏ * `*  .+  •` ꞏ.ꞏ *`  *     ꞏ+ ⸳  +  `.*⸳    * ⸳` . + `ꞏ`* . + `  ꞏ  ⸳•⸳  ꞏ`•
+# +.·· . * · ·  *.  .·` *·  +`·..   *·  ·* `·. . * ·  ·`*+.  ·*     ·`·  *·. `·+
+# `· *·.• ·`*   ·  *    .  ·`•·  Guard Gallivant · *. *·   ··       *.* ·   ·.* 
+# ·*. `··.*.·      `*  https://adventofcode.com/2024/day/6  .     ·· +·*   ` ·.·
+# . ``·* ·.*.·· • .   · ·`·   .*·    *·.*`   · *+  . ·  .  * .··*.  `·+  · ·.*`·
 
 
 from collections import defaultdict
+from typing import TypeAlias
+
 import numpy as np
+from numpy.typing import NDArray
+
+coordtype: TypeAlias = tuple[int, ...]
+statetype: TypeAlias = tuple[coordtype, coordtype]
 
 
-def parse(s):
+def parse(s: str):
     m = np.array([list(line) for line in s.splitlines()])
     return m
 
 
 #Stuff for rotating direction vectors right
 dirs = ((-1, 0), (0, 1), (1, 0), (0, -1))
-rot_dict = {dirs[i]: dirs[(i+1) % len(dirs)] for i in range(len(dirs))}
+rot_dict: dict[coordtype, coordtype] = {dirs[i]: dirs[(i+1) % len(dirs)] for i in range(len(dirs))}
 
 
-def get_initial_pos(map_: np.ndarray) -> tuple:
+def get_initial_pos(map_: NDArray[np.int_]) -> coordtype:
     """Grabs initial position from the array"""
     for pos in np.ndindex(map_.shape):
         if map_[pos] == "^":
             return pos
         #
-    #
+    raise RuntimeError("Couldn't locate starting position")
 
-def _add_tuples(a, b):
+
+def _add_tuples(a: coordtype, b: coordtype) -> coordtype:
     res = tuple(x + y for x, y in zip(a, b, strict=True))
     return res
 
@@ -38,7 +45,7 @@ class Graph:
         self.edges = dict()
         
         # Reverse map to make it easy to look up which states lead to a given state
-        self._reverse = defaultdict(lambda: set([]))
+        self._reverse: dict[statetype, set[statetype]] = defaultdict(lambda: set([]))
         
         # Go over all adjacent states
         for pos in np.ndindex(map_.shape):
@@ -60,10 +67,11 @@ class Graph:
                 
                 self.edges[u] = v
                 self._reverse[v] |= {u}
+                
             #
         #
     
-    def _redirect(self, blocked: tuple):
+    def _redirect(self, blocked: tuple) -> dict[statetype, statetype]:
         """Generates a dict of the state transitions affected by inserting an obstacle at the specified location.
         The dict containts states as keys and 'corrected' subsequent states as values, and so can be used to override
         the graph class' edges to simulate traversal with an extra obstacle."""
@@ -85,7 +93,7 @@ class Graph:
         
         return res
 
-    def traverse(self, initial_state: tuple, blocked: tuple=None):
+    def traverse(self, initial_state: tuple, blocked: tuple|None=None):
         """Traverses the graph starting from the specified state.
         if a blocked coordinate is provided, the traversal will simulate an obstacle there."""
 
@@ -163,7 +171,7 @@ def count_potential_loops(G: Graph, initial_state: tuple):
 
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     m = parse(data)
     
     G = Graph(m)
@@ -178,10 +186,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 6
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     
     raw = get_data(year=year, day=day)

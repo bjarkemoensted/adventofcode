@@ -6,8 +6,8 @@ Created on Mon Dec 21 18:22:33 2020
 @author: ahura
 """
 
-from collections import defaultdict
 import re
+
 
 def parse(lines):
     res = []

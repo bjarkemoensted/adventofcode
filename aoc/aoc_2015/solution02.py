@@ -1,10 +1,10 @@
-#  . *ꞏ  `    ⸳ ꞏ.`•⸳ `ꞏ⸳•.       ꞏ`.•  ⸳* .+ .ꞏ   .` ⸳* `ꞏ ꞏ +  *`⸳  .     `*⸳ꞏ
-# ``   .  `ꞏ` ⸳•`* ꞏ..  I Was Told There Would Be No Math •`.ꞏ    ⸳  `+. ꞏ+⸳ꞏ` .
-#  ꞏ`⸳*   . +     .`*  https://adventofcode.com/2015/day/2 .• ꞏ ⸳ꞏ. `• `   ꞏ . ⸳
-# ꞏ⸳• `⸳.     ꞏ`*  .  ⸳* `ꞏ.` ⸳*  ꞏ.    +.⸳ꞏ.`•   ꞏ  ` +ꞏ⸳   +  ꞏ   .  •⸳ `  ꞏ.`
+# .·`  `•·   . *`  ·.   •· . * •`     .··`*      ·   . *·`. · •·  .` * · *.` .··
+# · •.· ·*+  `.· ·`*·   I Was Told There Would Be No Math ·`+ .•     .· `.*·`+*.
+# `.·  ·  .· ·*   •    https://adventofcode.com/2015/day/2 * .·   `• ·*.·` * `.·
+# · *+ .  ·*. ·`. · *  `     ·. `·.+ ·*   .`·• `. + · .`*. · ` .  ·   ·  • .··`.
 
 
-def parse(s):
+def parse(s: str):
     res = [tuple(int(elem) for elem in line.split("x")) for line in s.split("\n")]
     return res
 
@@ -25,7 +25,7 @@ def compute_ribbon_length(dimensions):
     return circumference + volume
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     parsed = parse(data)
 
     star1 = sum([compute_wrapping_paper_area(dimension) for dimension in parsed])
@@ -37,10 +37,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 2
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

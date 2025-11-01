@@ -1,7 +1,7 @@
-# ` *   ⸳*  ꞏ•`+.`    •ꞏ   `ꞏ  .*   ⸳ꞏ• *  .`• ⸳ ꞏ* .` .*    `ꞏ*  •  ⸳`  ꞏ*⸳ `.*
-# .*`  * ꞏ.`*⸳ `⸳ *      * ⸳ ꞏ.  Corporate Policy     ⸳ꞏ   .ꞏ•⸳ `  .*  •ꞏ     +`
-#  `.ꞏ       ꞏ.*`    ⸳ https://adventofcode.com/2015/day/11 •⸳   ꞏ.*    ` ꞏ* .*⸳
-#  ⸳ꞏ.+.  * `  ꞏ**ꞏ +ꞏ`  .+ ⸳*+    •   .     ꞏ⸳+` .**⸳ꞏ   ꞏ`    +  ⸳ * ꞏ•⸳ ꞏ.*⸳ 
+# ··· `·   `*·.  .+·  ·`·   ·* ·    `.··•  .    ·  `+ ·* .· ·  `  ·  ·.**`·· `·.
+# * `· `·.·*·  `  ·  `*· . ·•    Corporate Policy .· `* `· · .· · +  * .·. •·· ·
+# ·. `·+     `·. ·`*·  https://adventofcode.com/2015/day/11   `·.* ·   ` ·+·`. *
+# .`· *. · · + ·  .` · *   `·.· ·   *   ·`. ··+  · `.* ·  • .·+·  `*· ·*   . •··
 
 
 alph = "abcdefghijklmnopqrstuvwxyz"
@@ -44,7 +44,7 @@ def password_is_valid(s):
     return True
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     password = data
     while not password_is_valid(password):
         password = increment(password)
@@ -62,10 +62,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 11
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

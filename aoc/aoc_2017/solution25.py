@@ -1,11 +1,41 @@
-# ꞏ*⸳`.      ⸳ ꞏ`* ꞏ   +⸳⸳`*. ꞏ+ *` . *  ` ꞏ. ⸳ *  `ꞏ++⸳. ꞏ• `⸳  *ꞏ  +⸳ꞏ⸳`  *⸳ꞏ.
-# `. ꞏ⸳ ⸳* .*• . ꞏ   *      +ꞏ The Halting Problem  `  `⸳   .⸳* ` *.⸳ ꞏ •    *` 
-# *`.   +`   `ꞏ•.⸳ •   https://adventofcode.com/2017/day/25 +* `⸳ ⸳ `ꞏ  `*ꞏ⸳   •
-#  ⸳ꞏ•   ⸳⸳*.•`    ꞏ⸳.*`  +⸳ꞏ   +`  ꞏ*  ꞏ.  *`  `ꞏ⸳ *  ꞏ`. ⸳` ꞏ *  ꞏ ⸳ `+⸳+ .ꞏ ⸳
+# `*·  .·+`   ··*`. · +`.`··       ·  .`·   ·  * `  ·•`.  *. ·· `.•·`    ··`*.`·
+# ·`*·.·+`  ·  `` · *·     +`. The Halting Problem  . .·* `     · · .+  · `*· ·`
+# `·.`·*.·*  ·  . ` ·. https://adventofcode.com/2017/day/25   `· *   ``  · .·+.·
+# ···  ` * `· •.·  ·.` ·  *`.  ·  ·*. ·  •·. `* `·.`* ·    ·`    ·.• ·+·.*··`· .
 
+
+import re
+from dataclasses import dataclass
+from typing import Literal, Self, TypeAlias, cast, get_args
 
 import numba
-import re
+
+dirtype: TypeAlias = Literal["right", "left"]
+
+
+@dataclass
+class Instruction:
+    write: int
+    move: dirtype
+    new_state: str
+
+    @classmethod
+    def from_str_dict(cls, d: dict[str, str]) -> Self:
+        move = d["move"]
+        assert move in get_args(dirtype)
+        
+        res = cls(
+            write=int(d["write"]),
+            move=cast(dirtype, move),
+            new_state=d["new_state"]
+        )
+        return res
+
+
+# type for the instructions at a given state
+instype: TypeAlias = dict[int, Instruction]
+# type for an entire 'program' - instructions at each state
+progtype: TypeAlias = dict[str, instype]
 
 
 def _parse_init(s):
@@ -17,49 +47,51 @@ def _parse_init(s):
     return state, n_steps
 
 
-def _parse_block(s):
+def _parse_block(s) -> tuple[str, instype]:
     """Parses a block of instructions - the state for which it takes effect, and for each possible value (0, 1)
     what to write, which direction to move, and what the resulting state is."""
 
     lines = s.splitlines()
-    state = re.match(r"In state (\S+):", lines[0]).group(1)
+    
+    m = re.match(r"In state (\S+):", lines[0])
+    assert m is not None
+    state = m.group(1)
 
-    interpretations = {
-        "write": r"\s*- Write the value (\d+).",
-        "move": r"\s*- Move one slot to the (right|left).",
-        "new_state": r"\s*- Continue with state (.*).",
-    }
+    interpretations = (
+        ("write", r"\s*- Write the value (\d+)."),
+        ("move", r"\s*- Move one slot to the (right|left)."),
+        ("new_state", r"\s*- Continue with state (.*).")
+    )
 
-    operations = dict()
-
-    for line in lines:
-        m = re.match(r"\s*If the current value is (\d+):", line)
-        if m is not None:
-            val = int(m.group(1))
-            operations[val] = dict()
-            continue
-
-        for type_, pattern in interpretations.items():
+    operations: instype = dict()
+    
+    cutinds = [i for i, line in enumerate(lines) if line.strip().startswith("If the current value is")]
+    cutinds.append(len(lines))
+    
+    for a, b in (cutinds[i: i+2] for i in range(len(cutinds)-1)):
+        snippet = lines[a:b]
+        # Match current value
+        m = re.match(r"\s*If the current value is (\d+):", snippet[0])
+        assert m is not None
+        val = int(m.group(1))
+        
+        params: dict[str, str] = dict()
+        for (key, pattern), line in zip(interpretations, snippet[1:], strict=True):
             m = re.match(pattern, line)
-            if m is not None:
-                elem = m.group(1)
-                try:
-                    elem = int(elem)
-                except ValueError:
-                    pass
-                operations[val][type_] = elem
-                break
-            #
-        #
+            assert m is not None
+            params[key] = m.group(1)
+        
+        ins = Instruction.from_str_dict(params)
+        operations[val] = ins
 
     return state, operations
 
 
-def parse(s):
+def parse(s: str) -> tuple[str, int, progtype]:
     init_, *blocks = s.split("\n\n")
 
     initial_state, n_steps = _parse_init(init_)
-    instructions = dict()
+    instructions: progtype = dict()
 
     for block in blocks:
         state, ops = _parse_block(block)
@@ -98,28 +130,29 @@ def _run_numeric(instructions: list, initial_state: int, n_steps: int) -> int:
     return res
 
 
-def checksum(instructions: list, initial_state: str, n_steps: int):
-    dir_ = {"left": -1, "right": 1}
+def checksum(program: progtype, initial_state: str, n_steps: int):
+    dir_: dict[dirtype, int] = {"left": -1, "right": 1}
 
     # Convert the instructions to a purely numerical format ('A' -> 0, 'B' -> 1, etc)
+    letter2ind = {letter: i for i, letter in enumerate(sorted(program.keys()))}
+    numins: list[list[list[int]]] = [[] for _ in range(len(program))]
 
-    letter2ind = {letter: i for i, letter in enumerate(sorted(instructions.keys()))}
-    numins = [None for _ in range(len(instructions))]
-
-    for state, ins in instructions.items():
+    for state, steps in program.items():
         stateind = letter2ind[state]
-        this_instruction = [None, None]  # Instruction for encountering values of 0 and 1
-        for ifval, condins in ins.items():
-            update = [
-                condins["write"],  # The value can be used as-is
-                dir_[condins["move"]],  # Look up the direction
-                letter2ind[condins["new_state"]]  # Use a number instead of letter for new state
-            ]
+        these_steps: list[list[int]] = [[], []]  # Instruction for encountering values of 0 and 1
+        for ifval, ins in steps.items():
 
-            this_instruction[ifval] = update
-        numins[stateind] = this_instruction
+            update = [
+                ins.write,  # The value can be used as-is
+                dir_[ins.move],  # Look up the direction
+                letter2ind[ins.new_state]  # Use a number instead of letter for new state
+            ]
+            
+            these_steps[ifval] = update
+        numins[stateind] = these_steps
 
     initial_numeric = letter2ind[initial_state]
+    
     # Use typed list so numba doesn't act up
     typed_ins = numba.typed.List(numba.typed.List(part) for part in numins)
 
@@ -129,7 +162,7 @@ def checksum(instructions: list, initial_state: str, n_steps: int):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, None]:
     initial_state, n_steps, instructions = parse(data)
 
     star1 = checksum(instructions, initial_state, n_steps)
@@ -141,10 +174,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 25
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

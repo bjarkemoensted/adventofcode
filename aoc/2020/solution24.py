@@ -7,7 +7,6 @@ Created on Thu Dec 24 13:29:06 2020
 """
 
 from collections import Counter
-import numpy as np
 
 test = '''sesenwnenenewseeswwswswwnenewsewsw
 neeenesenwnwwswnenewnwwsewnenwseswesw

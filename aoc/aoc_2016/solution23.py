@@ -1,18 +1,18 @@
-# ⸳  ꞏ`*.  *ꞏ.    ` ꞏ`⸳   + `*  ⸳ꞏ  `.  +     ⸳ꞏ •.     ` .* ꞏ` ⸳ •     `  ⸳.`•ꞏ
-# `⸳ *  ꞏ⸳* ꞏ  `.  `*  ⸳. ꞏ*⸳     Safe Cracking •.`+   .⸳`*     ꞏ  ` ` * .⸳ꞏ`+ꞏ*
-# *ꞏ`.•⸳`  ꞏ       *`. https://adventofcode.com/2016/day/23 •.  `*    ` .⸳ꞏ   .`
-# ꞏ ꞏ  .  ⸳` ꞏ.⸳      `. *ꞏ ⸳• . `+⸳ꞏ*      ` `.*ꞏ ⸳      `⸳ꞏ  **.`⸳ •ꞏ⸳   `ꞏ   
+# +. ·`.*·    .•·`* . · • ·.·`   .* · ` ·    ·* . ·  ·.·`+• · ·*`  .`·    ·.*.·`
+# ·*`·. .`·· * .*   ·   · . • .   Safe Cracking   `· .·•.·`    .·*  ·`.  ·* ·`*.
+# `.·*·    `.·* . ·  ` https://adventofcode.com/2016/day/23 .·  .`·  +  *. •`·  
+# ·· . · * .· `      ·.    •·.` ·    `*. ·•·*  `  ·.       .·+· · ` . ·* · `.*`·
 
 
-def parse(s):
-    res = []
+def parse(s: str) -> list[tuple[int|str, ...]]:
+    res: list[tuple[int|str, ...]] = []
     for line in s.split("\n"):
-        ins = line.strip().split()
-        for i in range(len(ins)):
+        ins: list[int|str] = []
+        for elem in line.strip().split():
             try:
-                ins[i] = int(ins[i])
+                ins.append(int(elem))
             except ValueError:
-                pass
+                ins.append(elem)
             #
         res.append(tuple(ins))
     return res
@@ -229,7 +229,7 @@ class Interpreter:
         self.pointer += 1
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     instructions = parse(data)
     int_ = Interpreter(registry=Registry(a=7), instructions=instructions, verbose=False)
     int_.run_instructions()
@@ -245,10 +245,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 23
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

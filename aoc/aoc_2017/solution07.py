@@ -1,16 +1,16 @@
-# ꞏ `  ⸳ ꞏ+ ꞏ•      ⸳ .`•⸳.ꞏ  +      .*⸳ ` ꞏ+    ⸳`ꞏ         ⸳ .`     *ꞏ  . `⸳*ꞏ
-# ⸳.  ꞏ+  ⸳ `. ⸳ꞏ*     .   `ꞏ ⸳* Recursive Circus ꞏ**  ⸳`  `ꞏ+  ꞏ.⸳      `ꞏꞏ   •
-# `ꞏ⸳. .  `    * +  `ꞏ https://adventofcode.com/2017/day/7 + . • ꞏ `     ꞏ+    ꞏ
-# •⸳.*` ꞏ.     ꞏ ⸳+  *⸳  `*     . ꞏ * ⸳ `ꞏ•. `⸳+ ꞏ      ꞏ* ꞏ `.⸳*   ꞏ` .+⸳   `  
+# `·  .·`*· ·.  ·*.`       * ·  `+··    ·*  · `•  ·  *.`·     ·  ·   *`.  +·. `·
+# ·`*+·`· .·   + ·* ` * ·. ·   + Recursive Circus  · .· * .  ·+  *.·•· `· .*  ·`
+# ·. ·` + *.  ·  .`•   https://adventofcode.com/2017/day/7   + ·  ` · . `  ·• ·.
+# *· · ·.   +·`    · ·`*. ·    .·` +·.  *   · ··* .`   · *   .` ·    + ·*`  · *·
 
 
+import re
 from collections import Counter
 from copy import deepcopy
 from functools import cache
-import re
 
 
-def parse(s):
+def parse(s: str):
     res = dict()
     for line in s.splitlines():
         m = re.match(r"(?P<name>\S+) \((?P<weight>\d+)\)", line)
@@ -18,7 +18,9 @@ def parse(s):
             children = tuple(line.strip().split(" -> ")[1].split(", "))
         except IndexError:
             children = tuple(())
-
+        
+        assert m is not None
+        
         name = m.group('name')
         d = dict(
             name=name,
@@ -100,7 +102,7 @@ def find_corrected_weight(programs):
     #
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     programs = parse(data)
 
     star1 = find_bottom(programs)
@@ -112,10 +114,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 7
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

@@ -1,14 +1,13 @@
 import datetime
 import pathlib
 
-
 _here = pathlib.Path(__file__).resolve().parent
 root_dir = _here.parents[1]
 package_name = "aoc"
 solutions_dir = root_dir / package_name
 
 ext_code = ".py"
-solution_template_path = _here / "solution_template.py"
+solution_template_path = _here / "solution.py.template"
 
 solution_filename = "solution{day:02d}"+ext_code
 solution_regex    = r"solution(\d{2})"+ext_code

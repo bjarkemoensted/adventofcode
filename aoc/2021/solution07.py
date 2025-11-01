@@ -6,10 +6,14 @@ with open("input07.txt") as f:
 targets = range(min(numbers), max(numbers))
 
 
+def _default_metric(a, b):
+    return abs(a - b)
+
+
 def dist(arr, target, metric=None):
     """Computes the sum of distances to target, given a distance metric"""
     if not metric:
-        metric = lambda a, b: abs(a - b)
+        metric = _default_metric
     return sum(metric(val, target) for val in arr)
 
 

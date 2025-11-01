@@ -1,17 +1,16 @@
-# .•    . `⸳ꞏ   •`.   ꞏ• ꞏ  .  ꞏ ⸳•  * .  ` . +   •ꞏ ⸳ ``  +.`   .⸳. *  ꞏ ` ꞏ⸳.ꞏ
-# ꞏ*.` ⸳*`  ⸳  .⸳   .ꞏ`ꞏ*.`   Chronal Classification `.        ꞏ⸳*`  ꞏ⸳  `   *ꞏ 
-# `⸳*ꞏ `⸳.  +ꞏ ` *⸳    https://adventofcode.com/2018/day/16   `.•  ⸳ .*  ꞏ⸳`+. .
-# *. ⸳ꞏ   .+  `⸳ .ꞏ • ⸳    ` ꞏ.` *⸳ꞏ. • `  `⸳. * `  *   ꞏ` ⸳  + ` ꞏ  ⸳.`•. +`ꞏ ⸳
+# ·.+  · `·  `.* ·`   .  · +`  *. ·. ·`  `     .·+.  `• · .  ·*` •.    ·.· `·+*.
+# .+·  .·*   ·`   +·`. · .  · Chronal Classification  `·.  `*.   ··   *` .· `.··
+# .· · ``·+·    ·.·    https://adventofcode.com/2018/day/16 · . ·   •`·+  .· `.·
+# `·*   ·. `· ·. ` *  +`.  ·  +· `.+  · `· • .· ` ·   ·    .` ·•  + ·.    `·*·`.
 
 import functools
 from itertools import groupby
 from typing import Callable, TypeAlias
 
-
 functype: TypeAlias = Callable[[list[int], int, int, int], None]
 
 
-def parse(s):
+def parse(s: str):
     """Input is in 2 parts:
         a: A section with instructions and register values before/after applying the instruction,
         b: A section with a number of instructions"""
@@ -24,7 +23,9 @@ def parse(s):
     # Parse the tuples of register vals and instructions from the first part
     samples = []
     for part in parts:
-        entries = [line.split(": ")[-1].replace("[", "").replace("]", "").replace(",", "") for line in part.splitlines()]
+        entries = [
+            line.split(": ")[-1].replace("[", "").replace("]", "").replace(",", "") for line in part.splitlines()
+        ]
         regs = tuple(list(map(int, ent.split())) for ent in entries)
         if not regs:
             continue
@@ -201,7 +202,7 @@ def link_opcodes_to_ops(compatible: list[tuple[int, set[str]]]) -> dict[int,str]
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     samples, program = parse(data)
     compatible = determine_compatible_ops(samples)
 
@@ -219,13 +220,10 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 16
-    from aoc.utils.data import check_examples
-    #heck_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
-    #raw = test
     solve(raw)
 
 

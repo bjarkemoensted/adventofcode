@@ -1,13 +1,13 @@
-# .`*  ꞏ.  `*     ꞏ`.⸳    * ` . ` •⸳ꞏ    ꞏ  . `*ꞏ⸳   +ꞏ    ⸳ꞏ*   `ꞏ+    ` ꞏ• ⸳.ꞏ
-#  ꞏ`*ꞏ  ⸳+   ꞏ`. • ⸳ꞏ        •`⸳ `  RAM Run ꞏ   +  ` *.ꞏ  .•   ꞏ  ` *⸳`   ꞏ .+ 
-# `ꞏ  ⸳ ꞏ*  `⸳  • .ꞏ   https://adventofcode.com/2024/day/18   `  . . ⸳ ꞏ  ꞏ `` *
-#  + .*⸳`ꞏ   .       + ꞏ ` ꞏ ` •*⸳   ꞏ* ` .ꞏ ` .*ꞏ        .  ꞏ• ⸳ `       • • `.
+# *.*` · ·+·.       * `.·  ·*. +  · `·.• · .*`  * ·      ·`.  * ·    *  `·*·. `·
+#  `.·  *    .· · +     *·`   ·  . * RAM Run   · .*  `      · `.  +  ·  · ` + .·
+# . ··  ` . *·+    •   https://adventofcode.com/2024/day/18   ·`      ·..•+  · `
+# ·*`   ·.·  *.·+  · .+·  .  *  · +  * .·    · . ` •*.·+` ·  *.  ·  ·  * . `·.·*
 
 
 import networkx as nx
 
 
-def parse(s):
+def parse(s: str):
     res = [tuple(map(int, line.split(","))) for line in s.splitlines()]
     return res
 
@@ -118,7 +118,7 @@ class MemorySpace:
         return res
         
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     byte_coords = parse(data)    
     ms = MemorySpace(byte_coords=byte_coords)
 
@@ -133,7 +133,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 18
     from aocd import get_data
     raw = get_data(year=year, day=day)

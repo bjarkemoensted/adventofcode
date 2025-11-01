@@ -8,6 +8,7 @@ Created on Tue Dec  8 08:03:18 2020
 
 import networkx as nx
 
+
 def parseline(line):
     line = line.strip()
     inst, val = line.split()

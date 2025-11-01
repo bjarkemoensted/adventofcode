@@ -1,13 +1,13 @@
-# `.⸳  .`  ꞏ`ꞏ*   ⸳ *`       .     ⸳`+   ꞏ•`  *    ⸳.*`⸳.    .    *  `•⸳ .ꞏ.+  `
-# .•``ꞏ * ⸳ .+         ⸳ꞏ`    Probably a Fire Hazard   `   *.⸳ꞏ ⸳   `  ꞏ** `ꞏ.` 
-#  ꞏ•      +⸳   .•. ꞏ+ https://adventofcode.com/2015/day/6 ꞏ  *`.  ⸳ + .`ꞏ* .ꞏ⸳ 
-# `⸳ꞏꞏ*    .  ⸳ꞏ+     ꞏ* .  `  .ꞏ⸳*      *`ꞏ⸳•   .  ꞏ`    ꞏ.`+⸳ •`⸳ ꞏ ` +⸳  • .+
+#  ·`•`  ·.+·  .·   · · `.   *  `.· *.  ·+ ` . ·    .·` · .+  · ` •. ·    `·  .·
+# + ·`•.·* .  `  ·. *   .·`·  Probably a Fire Hazard + ·•` ` ·  .* `· .+·.* ·. ·
+# .` *·` .·  · ·. `    https://adventofcode.com/2015/day/6  ·  + ·  .•·`. · ` · 
+# ·. · ·` *·` ·  .·*`  .  ·        .·+   ·*.   ·+·. `·  .·+*.`  ·  ·  `·*    ·`.
 
 
 import numpy as np
 
 
-def parse(s):
+def parse(s: str):
     """Parses input into a list of intructions in the form
         (instruction, coords1, coords2)."""
 
@@ -56,7 +56,7 @@ def run_instructions(instructions, shape=(1000, 1000), cumulative=False):
     return lights
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     instructions = parse(data)
 
     lights = run_instructions(instructions)
@@ -72,10 +72,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 6
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

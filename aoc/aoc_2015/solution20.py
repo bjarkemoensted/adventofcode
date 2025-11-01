@@ -1,14 +1,15 @@
-#  `•` ⸳ .•  ꞏ`     ⸳*⸳. ` ꞏ .*       ꞏ•⸳.` •ꞏ   *.⸳ •* `ꞏ ⸳  .+` *     ꞏ.⸳ ` •`
-#  .⸳  `+•  ⸳` *  ꞏ     Infinite Elves and Infinite Houses `    .`ꞏ⸳    ⸳` •*   
-# *⸳ ꞏ  `  .` •  ⸳  .` https://adventofcode.com/2015/day/20  ⸳  *.  ⸳  ꞏ. *⸳ ``*
-# ꞏ•.  * ⸳`ꞏ  ⸳.• ` *. ꞏ  .* `     *.⸳   ꞏ*`⸳.  +ꞏ⸳         `. *⸳  * .⸳ • ꞏ`   ⸳
+#  *·``·  ·  *  ·.   ` .·`+··`.  `·   •· .   ·` .•`  ·    `      ·   ·* .+ `· .`
+# ··     . `•`   ·`. *· Infinite Elves and Infinite Houses  ` .·   · *· `*.· ·` 
+# *` . `·  · .`*  ··   https://adventofcode.com/2015/day/20 .`·*  ` ·`  *.·. ` ·
+# `·. ·  *+  ·.  `*· ·   .   ·`*  `·.  ``·.    ·   *` .· ·  ·  `.•·`+  *·  ` .· 
 
 
 import math
+
 import numba
 
 
-def parse(s):
+def parse(s: str):
     res = int(s)
     return res
 
@@ -55,7 +56,7 @@ def find_first_int_with_target_divsum(target: int, maxfactor=None):
         n += 1
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     n_presents = parse(data)
 
     target = math.ceil(n_presents / 10)
@@ -69,7 +70,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 20
     from aocd import get_data
     raw = get_data(year=year, day=day)

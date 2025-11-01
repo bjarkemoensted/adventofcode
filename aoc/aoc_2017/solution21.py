@@ -1,14 +1,15 @@
-#    +ꞏ`⸳    .*     .⸳+`   `ꞏ*. .ꞏ  • ⸳  ꞏ  +.ꞏ**      +  ꞏ` ꞏ⸳     *` .•⸳ `ꞏ•* 
-# `*⸳     ꞏ *•⸳ .⸳ꞏ       ` . ꞏꞏ•  Fractal Art .  •  ꞏ⸳ `*⸳  * .`.   ꞏ* ⸳   . `⸳
-# ⸳.•` ꞏ • ꞏ⸳  `   .⸳` https://adventofcode.com/2017/day/21 ` ⸳ +     `ꞏ  ⸳   **
-# +⸳ꞏ.  *  *.ꞏ`   .+   ꞏ*`* ⸳` ⸳ * ꞏ.+`**.`     ꞏ *` +  ⸳ + ꞏ.   *      `+`* ꞏ⸳.
+# · .·` ·+ ·` .  ·` * ·   •..  · *    ·  ·`  . +·`  .*  `··   . ` · *·  .+·. `*·
+# .·   .` ·  ·*`·   .· ` ·.`    +· Fractal Art · .   ·+`*   .· `    ·*`  ·  .•·`
+# `.  ·+·  .·` •  ·`+· https://adventofcode.com/2017/day/21 ·. · `   ·  · *` .··
+# *·` ·  `·  . ·   ··*     ·  ·*.`+  · .  * ·· . *·` . ·  `·*`  .·   . · .*·`·`+
 
 
 import numpy as np
+from numpy.typing import NDArray
 
 
 def get_initial():
-    """Make ths starting state"""
+    """Make the starting state"""
     res = np.array([list('.#.'), list('..#'), list('###')])
     return res
 
@@ -23,7 +24,7 @@ def _tuple_to_numpy(tup: tuple):
     return res
 
 
-def parse(s):
+def parse(s: str):
     """Make a hashable representation of each array to the outputs"""
     res = dict()
     for line in s.splitlines():
@@ -55,11 +56,11 @@ def determine_partsize(state):
     raise ValueError
 
 
-def _iterate_flip_rotate(m: np.array):
+def _iterate_flip_rotate(m: NDArray[np.str_]):
     """Iterates over every rotation/flip of an array"""
     flipped = [np.flip(m.copy(), axis=i).copy() for i in (0, 1)]
 
-    for arr in [m]+flipped:
+    for arr in [m] + flipped:
         for k in range(4):
             res = np.rot90(arr, k=k).copy()
             yield res
@@ -67,7 +68,7 @@ def _iterate_flip_rotate(m: np.array):
 
 def make_lookup(rules: dict):
     """Make lookup dict of all possible reorientations"""
-    res = dict()
+    res: dict[tuple[str, ...], NDArray[np.str_]] = dict()
 
     for k, v in rules.items():
         key_arr = _tuple_to_numpy(k)
@@ -81,6 +82,8 @@ def make_lookup(rules: dict):
                 res[newkey] = v
             #
         #
+    
+    
     return res
 
 
@@ -135,8 +138,9 @@ def simulate_growth(rules: dict, n_steps: int = 5, verbose=False, state=None):
     return state
 
 
-def solve(data: str, iterations=5):
+def solve(data: str) -> tuple[int|str, int|str]:
     rules = parse(data)
+    iterations=5
     endstate = simulate_growth(rules=rules, n_steps=iterations)
 
     star1 = sum(char == "#" for char in endstate.flat)
@@ -144,21 +148,17 @@ def solve(data: str, iterations=5):
 
     n_final = 18
     n_left = n_final - iterations
-    if iterations <= 3:
-        star2 = None
-    else:
-        final_state = simulate_growth(rules=rules, n_steps=n_left, state=endstate)
-        star2 = sum(char == "#" for char in final_state.flat)
+
+    final_state = simulate_growth(rules=rules, n_steps=n_left, state=endstate)
+    star2 = sum(char == "#" for char in final_state.flat)
     print(f"Solution to part 2: {star2}")
 
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 21
-    from aoc.utils.data import check_examples
 
-    check_examples(year=year, day=day, solver=solve)
 
     from aocd import get_data
     raw = get_data(year=year, day=day)

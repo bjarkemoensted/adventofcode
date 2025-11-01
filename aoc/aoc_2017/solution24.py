@@ -1,22 +1,22 @@
-# *ꞏ ⸳  .*ꞏ⸳  ⸳.`   + ` .* ⸳ ꞏ+ `   ⸳⸳ ꞏ*.   *. ⸳*  .`ꞏ  ⸳*  .•` ꞏ  ⸳ . ꞏ+* ⸳•ꞏ 
-# ⸳⸳ꞏ • `  *    . ꞏ*   ⸳⸳ꞏ.    Electromagnetic Moat ꞏ +.⸳*    ꞏ `•   . *. ⸳`ꞏ •⸳
-# ꞏ*  ꞏ  . ꞏ ⸳+`       https://adventofcode.com/2017/day/24     * +ꞏ`  ` ꞏ.*    
-#  .+* ⸳ ꞏ   `.⸳+ * ꞏ` +   `  `ꞏ.⸳   ꞏ⸳.     `+` ⸳     *⸳ ꞏ⸳.     ꞏ  • .⸳`ꞏ   *ꞏ
+# .* ·*` ·  *.· `  ·+· ·  `·*.    `·`·*    *·    · *· ` *· .  ·   `·`* · ·`* ·.•
+# *`.`·.·    * ·     •·.`   *` Electromagnetic Moat  .  ·* `  * ·   +·`*. · .+`·
+# · *. · `*      ·*`.  https://adventofcode.com/2017/day/24 · .·• * ·   ` . ·.· 
+# ··  `*.•  ·`* ·    ·.`• ·` ··  *·    ·•· . ·· `    ·*·`.·+`  *  ·`.   ·* ·*` ·
 
 
 import heapq
 
 
-def parse(s):
-    res = []
+def parse(s: str):
+    elems = []
     for line in s.splitlines():
         a, b = map(int, line.split("/"))
         if a > b:
             a, b = b, a
         piece = (a, b)
-        res.append(piece)
+        elems.append(piece)
 
-    res = tuple(sorted(res))
+    res = tuple(sorted(elems))
 
     return res
 
@@ -140,14 +140,16 @@ def build_bridge(pieces, longer_is_better=False, maxiter=None):
         #
 
     # Whatever the metric for 'best' (strength or length), use the other metric to break ties
-    tiebreaker = lambda state: compute_strength(reconstruct(state)) if longer_is_better else len(reconstruct(state))
+    def tiebreaker(state) -> int:
+        return compute_strength(reconstruct(state)) if longer_is_better else len(reconstruct(state))
+
     best = max(tied, key=tiebreaker)
 
     res = reconstruct(best)
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     pieces = parse(data)
 
     bridge = build_bridge(pieces)
@@ -161,10 +163,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 24
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
 

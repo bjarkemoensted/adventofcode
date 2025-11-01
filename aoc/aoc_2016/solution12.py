@@ -1,18 +1,18 @@
-# *ꞏ*   `⸳     ⸳.•  *  ⸳ꞏ•.`        ꞏ+⸳ * .  ꞏ.`ꞏ      ꞏ+ ꞏ `   ꞏ  `+    ⸳•ꞏ .ꞏ`
-#   ⸳+.` ꞏ `** `ꞏ     .`  ꞏ* . Leonardo's Monorail   ⸳       ` ꞏ*.• ⸳  ꞏ ` * ` ꞏ
-# . `.⸳  •  ꞏ` .* +`   https://adventofcode.com/2016/day/12 .ꞏ•      ⸳•`ꞏ  `*ꞏ⸳*
-#  .  `•ꞏ        ``.  *ꞏ      *ꞏ +`.  *ꞏ ⸳  .•⸳ꞏꞏ  ` *  .  ꞏ  .⸳ `   •`+ .  ꞏ *`
+# .*···. `      *··.`  ` ·.•·    ·*` ·       `·+    .·•*·`  + ·.   ·. `   · ·`. 
+#  ·.   · *.· +  * · · +   · + Leonardo's Monorail . *     .·  *  ·`   . · *. `·
+# ·.·`*·.*   `·  .   + https://adventofcode.com/2016/day/12    `.·  *+· · . +· .
+# *  ·.   ` +· *  `·* · .  + · ·  ·  .`. +·* .     ·· `  .*` · · +. `·     ·`*· 
 
 
-def parse(s):
-    res = []
+def parse(s: str) -> list[tuple[int|str, ...]]:
+    res: list[tuple[int|str, ...]] = []
     for line in s.split("\n"):
-        ins = line.strip().split()
-        for i in range(len(ins)):
+        ins: list[str|int] = []
+        for elem in line.strip().split():
             try:
-                ins[i] = int(ins[i])
+                ins.append(int(elem))
             except ValueError:
-                pass
+                ins.append(elem)
             #
         res.append(tuple(ins))
     return res
@@ -63,7 +63,7 @@ class Interpreter:
     #
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     instructions = parse(data)
     reg = {let: 0 for let in "abcd"}
     int_ = Interpreter(registers=reg, instructions=instructions)
@@ -81,10 +81,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 12
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

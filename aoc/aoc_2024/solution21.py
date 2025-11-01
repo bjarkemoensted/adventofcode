@@ -1,14 +1,15 @@
-# *ꞏ+ .ꞏ`⸳ ⸳ ꞏ *    * +`ꞏ `. •⸳  . `ꞏ.ꞏ ⸳ •  *  ꞏ  ⸳.   ⸳ .`ꞏ    •  ⸳    .ꞏ*  `+
-# `*.ꞏ`.+ ⸳ꞏ ⸳  *..``• ⸳    ꞏ*`  Keypad Conundrum    ⸳`. +  ` ꞏ+   ꞏ+  `.  ꞏ.⸳ꞏ 
-# ꞏ`   ꞏ * `.*  ꞏ •ꞏ ⸳ https://adventofcode.com/2024/day/21 +.⸳    .ꞏꞏ *` ⸳. •.ꞏ
-# .• ` ` ꞏ*    .  ꞏ•⸳.` +ꞏ    .ꞏ +   ` ⸳.* ꞏ*    ` •⸳ ꞏ*+ꞏ      ⸳ꞏ* ` .ꞏ+   ꞏ•⸳ 
+# .•·.*·`·  .   ·*+`.· •   ·+·.*`· .     + .`·*· `*·      ` · +. *.· `  ·`*·  .·
+# · ` ` ·.•· ·  *.   `·+  *·   · Keypad Conundrum    .  * · +* ` .· ·  •`·· ·`+.
+# `· *. + · ·* ·    ·+ https://adventofcode.com/2024/day/21    ·· *  +`·  ·.• `·
+# ·`.· *· · *`·.   ·+   ··`*.`   .··*+  .  ·* .`·   ·•. ·· `.·  `·   *·.+·  `+·`
 
 
 from functools import cache
+
 import networkx as nx
 
 
-def parse(s):
+def parse(s: str):
     return s.splitlines()
 
 
@@ -66,7 +67,7 @@ def _keys_as_graph(keys: tuple):
     return G
 
 
-def _represent_path_as_symbols(path: list) -> tuple:
+def _represent_path_as_symbols(path: list) -> str:
     """Takes a path like [(2, 3), (2, 4), (1, 4), ...] and converts it to a string of symbols
     representing the steps taken along the path, e.g. '>^'."""
 
@@ -101,7 +102,7 @@ def get_paths(a: str, b: str, directional: bool):
 
 
 @cache
-def compute_len(a: str, b: str, depth=0, maxdepth: int=None) -> int:
+def compute_len(a: str, b: str, depth=0, maxdepth: int|None=None) -> int:
     """Computes the shortest length of the sequence required to go from key a to key b, at a given
     'depth' of keypads. It is assumed that the 'deepest' keypad is the only numerical one."""
     
@@ -119,7 +120,7 @@ def compute_len(a: str, b: str, depth=0, maxdepth: int=None) -> int:
     
     # Otherwise, consider all possible paths and their lengths on the subsequent keypad
     paths = get_paths(a=a, b=b, directional=directional)
-    best = float("inf")
+    best = -1
     
     for path in paths:
         # Add 'A' to the beginning of the sequence, as all robots start there
@@ -131,7 +132,8 @@ def compute_len(a: str, b: str, depth=0, maxdepth: int=None) -> int:
             a2, b2 = sequence[i], sequence[i+1]
             cost += compute_len(a=a2, b=b2, depth=depth-1, maxdepth=maxdepth)
         
-        best = min(best, cost)
+        if cost < best or best == -1:
+            best = cost
     
     return best
 
@@ -166,7 +168,7 @@ def compute_complexity_sum(codes: list, depth=2):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     codes = parse(data)
     
     star1 = compute_complexity_sum(codes=codes, depth=2)
@@ -178,7 +180,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 21
     from aocd import get_data
     raw = get_data(year=year, day=day)

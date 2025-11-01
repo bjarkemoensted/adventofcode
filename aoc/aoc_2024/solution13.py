@@ -1,14 +1,15 @@
-# * •ꞏ. ⸳ ꞏ+ .`     .   ⸳ `*+. ⸳ ` .*⸳ ` ꞏ  ⸳ꞏ .*ꞏ          ` .⸳* .    `• ` ꞏ.•`
-# .ꞏ * `  .   *ꞏ     . •`⸳.ꞏ⸳ *  Claw Contraption `   ` .⸳  •. ꞏ`*.ꞏꞏ  ⸳.  * `ꞏ•
-#  ⸳`.ꞏ .*`   ꞏ*.⸳.  ꞏ https://adventofcode.com/2024/day/13 .ꞏ     ⸳+ .      +`.
-# `*.ꞏ*  .*ꞏ ⸳  *  ꞏ`* .+ ꞏ⸳`ꞏ +.⸳ `•   ꞏ ⸳.      ꞏ``.* •` ꞏ  `   ꞏ .*⸳ `*ꞏ.  ⸳ 
+# .··.* ·`    ·*   · .  · * ·  .`··. *·. · `.·+   ·*·.  · `*·+·   ·` . ·* +·` .·
+# ·  •`. *.· ·   ·.*·    *··`·   Claw Contraption ..  · ·  `+·.  ·. ··`  *· .+`·
+# ·.*`   ·  ·•` ·*  .  https://adventofcode.com/2024/day/13   `· .•·   · · .*· `
+# •`.· ·` ·.*· · .`.+* ·       · · . · *·`+.  · . ·+`· .   ·   * `· .   ·. *·`·.
 
 
 import re
+
 from scipy import optimize
 
 
-def parse(s):
+def parse(s: str):
     """Parses into a list of dicts, each with keys "A", "B", and "prize". Each maps to a tuple of ints representing
     x-y coordinates. For A/B that's the x, and y-components of a claw movement resulting from pressing the button.
     For the 'prize key', it means the coordinates of the target location."""
@@ -32,6 +33,7 @@ def parse(s):
         buttons = parts[:2]
         for b in buttons:
             m = re.match(button_pattern, b)
+            assert m is not None
             btn = m.group("button")
             d[btn] = xy_from_match(m)
         
@@ -92,7 +94,7 @@ def get_lowest_total_cost(claw_machines: list, target_offset=0):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     claw_machine_data = parse(data)
     
     star1 = get_lowest_total_cost(claw_machine_data)
@@ -105,7 +107,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 13
     from aocd import get_data
     raw = get_data(year=year, day=day)

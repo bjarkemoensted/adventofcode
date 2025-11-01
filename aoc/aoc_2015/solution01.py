@@ -1,10 +1,10 @@
-# `ꞏ      ⸳ `ꞏ⸳  .* ꞏ. .ꞏ⸳ *ꞏ⸳.⸳•   . `         ꞏ*.⸳  `⸳ ꞏ .ꞏ⸳`•   * ⸳ `•⸳ . ꞏ⸳`
-#    ꞏ*  .•  .ꞏ    *⸳⸳ `   ꞏ      Not Quite Lisp  ⸳*.ꞏ   *⸳  ꞏ `    ⸳.* ꞏ. `• `⸳
-# .* ⸳  .` ꞏ•          https://adventofcode.com/2015/day/1  .       `•` ⸳ ⸳ꞏ .  
-#  ⸳` ꞏ   .   . +ꞏꞏ⸳*         ⸳ ⸳ꞏ.+   ⸳⸳    .ꞏ .`   *⸳    `  ꞏꞏ ⸳  * ꞏ⸳  *•   ꞏ
+# .·  · *• · .·  ` *·.` +      +  ·    ·`. * ·   *.·  ` · .•·   *.·   ` + . `  ·
+# *·`·   . *··  ` ·   *· `   ·+·* Not Quite Lisp  ` ·      . *` ·  `·*    *`.·· 
+# · .* `·    ` *. ·    https://adventofcode.com/2015/day/1 ·` ·`  * .· ` • ··.`*
+#  .•` ·`·   * ·  .` +  ·  *·.   ·`  ·+·*  .•·` ·  `*·    ·`*.  `• ·*    ·  *·.`
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     s = data
 
     d = {"(": 1, ")": -1}
@@ -23,10 +23,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 1
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

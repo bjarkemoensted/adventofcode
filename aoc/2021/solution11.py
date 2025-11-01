@@ -1,4 +1,5 @@
 import copy
+
 import numpy as np
 
 with open("input11.txt") as f:

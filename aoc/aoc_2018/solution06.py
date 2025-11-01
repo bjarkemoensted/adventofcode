@@ -1,16 +1,17 @@
-# *  .ꞏ`   ꞏ    .* ⸳ `      ⸳ *.  `  ` ⸳•. ꞏ       ꞏ    ⸳*.  `*      *⸳ .+`ꞏ •`⸳
-#   .• ꞏ     ` .  ꞏ   *⸳+. ` • Chronal Coordinates    ⸳ꞏ.     ꞏ.⸳  `  * ꞏ⸳• + .`
-#  ⸳⸳ *  . ⸳ ꞏ  `*   ⸳ https://adventofcode.com/2018/day/6 .  ⸳ꞏ+  `ꞏ.     `⸳ꞏ*.
-# ⸳.ꞏ  *   • .` +ꞏ * ꞏ⸳   `  ` *ꞏ.* ⸳ꞏ  *  ⸳ꞏ* `.  ⸳•.   ꞏ⸳ *.     +.` `⸳ꞏ   .⸳ 
+# ·.  ` ·   ·  .`·+`.  ··*     ·.`  ·.•      ` ·+ `.*  `·    · •*` . ·      ·.·*
+# `·.* ·• ·   · ·    +·.  ··   Chronal Coordinates •  ·.   · ` ·  *`  · * `  ·+·
+# .`+·    `·· `+.   ·  https://adventofcode.com/2018/day/6 .`   · ·   `  ·   +`·
+# · `.·`* .  ·  *  · `   · •` ·.    ·  *·`  ·.·*` · .` ··. *    `  · + ·` .·` · 
 
 from collections import Counter
-import numpy as np
 from typing import TypeAlias
+
+import numpy as np
 
 coordtype: TypeAlias = tuple[int, int]
 
 
-def parse(s):
+def parse(s: str):
     res = [tuple(map(int, line.split(", "))) for line in s.splitlines()]
     return res
 
@@ -79,7 +80,7 @@ def area_bounded_by_total_size(dists: np.typing.NDArray[np.int_], bound: int) ->
     return area
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     coords = parse(data)
     coords_ij = [(y, x) for x, y in coords]
     
@@ -97,11 +98,9 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 6
-    from aoc.utils.data import check_examples
     
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     
     raw = get_data(year=year, day=day)

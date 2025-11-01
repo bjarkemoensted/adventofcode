@@ -1,17 +1,16 @@
-# *  ꞏ`+    ꞏ   ⸳ +  .⸳* ꞏ`* ⸳  +  .ꞏ `*⸳  *   .     `ꞏ `*⸳.ꞏ•    ꞏ ` *⸳. + ꞏ` ⸳
-#  .*⸳ꞏ * ` .    ꞏ. *  ꞏ⸳•.      Dragon Checksum  `. ⸳.  ꞏ+    ⸳ *` •.  ꞏ  . +ꞏ•
-# .ꞏꞏ+• ⸳      *ꞏ  . ⸳ https://adventofcode.com/2016/day/16    `  +`⸳• •    .ꞏ*`
-# *⸳. ⸳ +ꞏ  * ꞏ`*  ⸳. *`   ꞏ  * ꞏ`.*   ⸳` * ⸳    `  ꞏ.•    ⸳  •ꞏ⸳.    `   .•⸳ .ꞏ
-
+# `.·  ·   . ·` .  · * ··`· .+·  `* ·. ·•` ·+     *·.`  ··   ·`*   ·` *·.` · ·.*
+# *• ·· ` ··  * ·` . · .`·   ·   Dragon Checksum .     · *.`· · `   * ·     ·*·`
+# ··` .`·`     ·*·  ·` https://adventofcode.com/2016/day/16  ` ·*   .·` ·+· . `·
+# · · +· .  ` ·*` ·   ·  . ·*. ·* · •`* .   ·` ·   *·.·`·  *    · . ·*   · ·`.*·
 
 import numpy as np
-
+from numpy.typing import NDArray
 
 char2bool = {"0": False, "1": True}
 bool2char = {v: k for k, v in char2bool.items()}
 
 
-def parse(s):
+def parse(s: str) -> NDArray[np.bool_]:
     arr = np.array([char2bool[char] for char in s])
     return arr
 
@@ -27,7 +26,7 @@ def dragon_curve_thingy(s: str) -> str:
     return res
 
 
-def generate_data(initial_state: str, n_bits: int) -> str:
+def generate_data(initial_state: NDArray[np.bool_], n_bits: int) -> NDArray[np.bool_]:
     a = initial_state.copy()
     while len(a) < n_bits:
         b = np.logical_not(np.flip(a.copy()))
@@ -43,7 +42,7 @@ def _get_pairs(s: str) -> list:
     return pairs
 
 
-def checksum(a: np.ndarray) -> str:
+def checksum(a: NDArray[np.bool_]) -> str:
     a = a.copy()
     while len(a) % 2 == 0:
         pairs = np.reshape(a, (-1, 2))
@@ -54,36 +53,25 @@ def checksum(a: np.ndarray) -> str:
     return res
 
 
-def solve(data: str):
-    example_disk_sizes = {
-        "110010110100": 12,
-        "10000": 20,
-    }
-
-    is_example = data in example_disk_sizes
-    n_bits = example_disk_sizes[data] if is_example else 272
+def solve(data: str) -> tuple[int|str, int|str]:
+    n_bits = 272
     initial_state = parse(data)
 
-    data = generate_data(initial_state, n_bits)
-    star1 = checksum(data)
+    generated_data = generate_data(initial_state, n_bits)
+    star1 = checksum(generated_data)
 
     print(f"The checksum of the random-ish data is {star1}.")
 
     n_bits2 = 35651584
-    if is_example:
-        star2 = None
-    else:
-        data2 = generate_data(initial_state, n_bits2)
-        star2 = checksum(data2)
-        print(f"The checksum of the larger random-ish data is {star2}.")
+    data2 = generate_data(initial_state, n_bits2)
+    star2 = checksum(data2)
+    print(f"The checksum of the larger random-ish data is {star2}.")
 
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 16
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve, extra_kwargs_parser="ignore")
     from aocd import get_data
     raw = get_data(year=year, day=day)
     

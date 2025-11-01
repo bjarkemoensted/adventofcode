@@ -80,7 +80,6 @@ class QuantumGame:
         """Updates the game state."""
         player = self.next_player
 
-        total_games = sum(self.state.values())
         active_games = sum(v for k, v in self.state.items() if isinstance(k, tuple))
         done_games = sum(v for k, v in self.state.items() if isinstance(k, int))
         expected_games_after = done_games + 27 * active_games

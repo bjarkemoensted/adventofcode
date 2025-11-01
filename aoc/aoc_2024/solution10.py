@@ -1,14 +1,18 @@
-#  * ` ꞏ    ` ⸳*ꞏ.   `*     ` .*+ꞏ`        ⸳ꞏ  `.•  ⸳     +⸳`  .⸳` • ꞏ⸳ `+ .`* +
-# ꞏ`+.*    ⸳ . ꞏ * ` ꞏ`.  + * ꞏ   .  Hoof It `ꞏ   . .`⸳ ꞏ*ꞏ+    `. +  `*    ꞏꞏ ⸳
-#   `+⸳ `  `.   ⸳⸳•ꞏ`  https://adventofcode.com/2024/day/10   ⸳ * `.*`    `ꞏ• .`
-# +.⸳   ꞏ`. •`   ꞏ⸳ *.  ⸳`  •ꞏ   ⸳` ꞏ ꞏ*`.⸳+`  .ꞏ    ꞏ.  `   ꞏ   ⸳ `⸳++ꞏ   `.`* 
+# ·  .`·+ `·  *·.   ··· + ` *.   ·.· ·     `. ·· `·  ·*. ·. `·•·`     .· •·  ·`·
+# `. •·` .·* · + · . . `· ·  ·* ·.   Hoof It ·   ·      +.·  · `* ·    `*·. · +`
+# ·`.·.*    · . ·   +  https://adventofcode.com/2024/day/10 .. *·  `   .· * `.··
+# .*·` .··.`   · •· .* ·. `  *·    `·  . * ·+. `   ··`.   * · .    · `·*. `·.  .
 
 
 from collections import defaultdict
+from typing import TypeAlias
+
 import numpy as np
 
+coordtype: TypeAlias = tuple[int, ...]
 
-def parse(s):
+
+def parse(s: str):
     m = np.array([[int(x) for x in line] for line in s.splitlines()])
     return m
 
@@ -25,7 +29,7 @@ class Graph:
     
     def __init__(self, m: np.ndarray):
         # Keep track of edges, and the indices of each value encountered
-        self.edges = dict()
+        self.edges: dict[coordtype, list[coordtype]] = dict()
         self.value_lookup = defaultdict(lambda: [])
         
         # Go over all indices and values in the map
@@ -118,7 +122,7 @@ def sum_trailhead_ratings(trail_groups: list):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     m = parse(data)
     G = Graph(m)
     trail_groups = get_all_trails(G=G)
@@ -132,7 +136,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 10
     from aocd import get_data
     raw = get_data(year=year, day=day)

@@ -1,10 +1,10 @@
-# ꞏ•  ꞏ⸳ •.    ꞏ⸳  •.  ꞏ⸳ `   +ꞏ   .*   ⸳ꞏ*`⸳       ꞏ.`+⸳ꞏ   .*  •   ⸳ ꞏ ⸳ꞏ*⸳.  
-# ` ꞏ⸳  `. .+   ꞏ  ⸳`*ꞏ⸳•`  ꞏ.⸳   Crossed Wires `ꞏ  `ꞏ⸳      ` * ꞏ⸳ •  `   ⸳.•`ꞏ
-# ⸳  ꞏ• .`ꞏ ⸳   .*     https://adventofcode.com/2024/day/24 * ꞏ.   ⸳  .  `+ ⸳+ `
-# .  ` ꞏ  •*`.ꞏ⸳  .`   +⸳ .    .⸳ .  ꞏ  ꞏ `*    ⸳ ꞏ.   ⸳*ꞏ ꞏ`  +ꞏ⸳.    * ꞏ  `ꞏ..
+# ·` · ` +· · * .  · * ·.`• `·*•.· + · `·*  . · • ·* · ·  *`  `   .+·     ·+`* ·
+#  *+`·· · .   .`  + · *·  `·     Crossed Wires `  · •· `..*·    * · ·  .·+` `*.
+# .··*     · .` ·*·    https://adventofcode.com/2024/day/24 .`   · `  ·.* `· •· 
+# ·`*.·+·`  .  ·*·.` ·  · *.  · `+  `·  •`·.·*  +  .`·   ·`  *· ·`   ` · •*.··`·
 
 
-def parse(s):
+def parse(s: str):
     """Parses input into 2 dicts - one mapping variables to their starting value, another mapping variables
     to a tuple like (a, operator, b), indicating how the variable's value is computed from 2 inputs,
     e.g. ('x', "AND", "y")"""
@@ -26,19 +26,18 @@ class MonitoringDevice:
     """Represents the monitoring device. Handles stuff like recursively resolving variable values
     in terms of their inputs, looking up formulas for variables, and swapping inputs."""
     
-    def __init__(self, initial_values: dict, rules: dict):
+    def __init__(self, initial_values: dict, rules: dict) -> None:
         # Store both variable -> formula, and the inverse, so both are straightforward to look up
         self.rules = {k: v for k, v in rules.items()}
         self.rules_flipped = {v: k for k, v in rules.items()}
         assert len(self.rules) == len(self.rules_flipped)
         
         # Set the starting values
-        self.values = dict()
+        self.values: dict[str, int] = dict()
         self.set_values(**initial_values)
         
         # Keep track of any inputs that have been swapped
-        self._swapped = []
-
+        self._swapped: list[tuple[str, ...]] = []
     
     def set_values(self, clear=True, **kwargs):
         """Sets the specified key/value pairs. If clear is True, deletes all values first."""
@@ -54,7 +53,8 @@ class MonitoringDevice:
 
         # Only allow swapping a single pair at a time
         assert len(replace) == 2
-        self._swapped.append(tuple(replace.keys()))
+        _swap = tuple(replace.keys())
+        self._swapped.append(_swap)
         
         # Update all formulas involving the swapped wires
         for output, formula in self.rules.items():
@@ -133,7 +133,7 @@ class MonitoringDevice:
         try:
             k = next((key for key in ((a, op, b), (b, op, a)) if key in self.rules_flipped))
             return self.rules_flipped[k]
-        except StopIteration as e:
+        except StopIteration:
             return None
         #
 
@@ -221,7 +221,7 @@ def identify_swaps(initial_values: dict, rules: dict):
     return mon._swapped
     
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     initial_values, rules = parse(data)
     
     monitor = MonitoringDevice(initial_values=initial_values, rules=rules)
@@ -237,7 +237,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 24
     from aocd import get_data
     raw = get_data(year=year, day=day)

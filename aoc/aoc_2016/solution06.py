@@ -1,17 +1,18 @@
-# ꞏ *`+.⸳   *   `. `•  ꞏ⸳     +⸳  .  ⸳`ꞏ+ ⸳    ` . ⸳*.`ꞏ• ꞏ*     .  ` • ⸳.  ꞏ⸳.•
-#  ⸳*ꞏ` •   `⸳  *  . ꞏ⸳  . *    Signals and Noise     .    ` •⸳ ꞏ ⸳ *.` ꞏ * .  ⸳
-# .+  ⸳`.*  ⸳    ꞏ•  . https://adventofcode.com/2016/day/6 ꞏ*`.    ` *ꞏ    ` * ꞏ
-# • . ꞏ ⸳`ꞏ .   ꞏ*  .   ` ꞏ +⸳` ⸳ `*⸳ꞏ        `*ꞏ .   +      ⸳ `+ꞏ ⸳.    +.  ⸳*.
+# •··  `  ·*.·    · `  ·    *`·  .`·*·       ·.  ·`*.+   ·` .    ·* ·.  ·  *.+·`
+# ·` . *·  `  ··*.  ·+   ·` .·  Signals and Noise ·. `*·  ·.`   *   `·· .`+ ·` ·
+# .   ·· `+·   `··   ` https://adventofcode.com/2016/day/6      ·` +·  ·*.··  .*
+#  . ·  *·  ·• +.  ·*·  .` ·   ·•   `+·   ·  `· . *+·      · · `•  · +` ·· . *`·
 
 
 from collections import Counter
 
-def parse(s):
+
+def parse(s: str):
     res = [list(line) for line in s.split("\n")]
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     parsed = parse(data)
 
     # List of characters at positions 0, 1, etc
@@ -34,10 +35,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2016, 6
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

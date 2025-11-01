@@ -1,5 +1,6 @@
-from collections import Counter
 import copy
+from collections import Counter
+
 import networkx as nx
 
 with open("input12.txt") as f:

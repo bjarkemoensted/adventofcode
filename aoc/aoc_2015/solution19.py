@@ -1,10 +1,10 @@
-# ⸳. * ꞏ*`     .  `⸳.  *   `.⸳  •` .* ⸳+    . `*  .⸳ `ꞏ   `• ⸳*. ꞏ   .**⸳  .`  `
-#    .⸳. .  *   ⸳  .+⸳*`ꞏ      Medicine for Rudolph `•            ⸳ .* ꞏ ` +⸳`.⸳
-# ` +⸳. ⸳ * ꞏ.⸳+`      https://adventofcode.com/2015/day/19 .•   ⸳`*  ꞏ⸳   `•.ꞏ`
-# .+  ` ꞏ⸳  .     *  ` ꞏ` +  .  ⸳+ * .ꞏ  ꞏ          .⸳.    ` ꞏ  ⸳.*•     ꞏ     .
+# · +· .`·   ·+.   · `   *  ` ·. ·  · *`   .·`  ·*·  `.·   .·   ·• ·    .*`··  +
+# `·. ·`    ·   · ·`* .  +·    Medicine for Rudolph `·    .· *` • ·.  ·  · `. ·.
+# ·.`.  · ·+   ·  `·   https://adventofcode.com/2015/day/19 . ·    `·*. +    .`·
+# .`·  + ·   ·.      ·* ·.`   + ·`    ·. +·  `· ·.    ·   .``· + · `   ··..* · `
 
 
-def parse(s):
+def parse(s: str):
     transformation_string, molecule_string = s.split("\n\n")
 
     replacements = []
@@ -61,7 +61,6 @@ def find_quickest_growth(start, replacements, target, maxiter=None):
         extend = paths[:cut]
         keep = paths[cut:]
 
-        distance_to_start = string2shortest.get(start, float("inf"))
         for string in extend:
             # Try extending the shortest string using the inverse transformations
             dist = string2shortest[string]
@@ -100,7 +99,7 @@ def find_quickest_growth(start, replacements, target, maxiter=None):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     transformations, medicine = parse(data)
     if not any(a == "e" for a, _ in transformations):
         transformations += [('e', 'H'), ('e', 'O')]
@@ -115,10 +114,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 19
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
 
     raw = get_data(year=year, day=day)

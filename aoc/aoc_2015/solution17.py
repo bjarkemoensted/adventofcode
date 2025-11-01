@@ -1,14 +1,14 @@
-# ⸳`ꞏ•  .ꞏ* `     .  ꞏ  •   *ꞏ⸳ . `•ꞏ •ꞏ.   ` . ` ⸳ꞏ ``* .   ꞏ ⸳*  ꞏ  .. `⸳•   ꞏ
-#   ⸳ *  `. ⸳  ⸳   .•  ꞏ  ꞏ No Such Thing as Too Much  ⸳.ꞏ`  .ꞏ*`  *  +⸳  ꞏ. *` 
-# * . ꞏ ⸳  *ꞏ `  `  .ꞏ https://adventofcode.com/2015/day/17  *`ꞏ.          `ꞏ..⸳
-# .ꞏ`ꞏ ⸳  `   •.ꞏ     .⸳ *`.ꞏ      ⸳•`    `ꞏꞏ• .⸳`   *.ꞏ⸳ • ⸳`   ꞏ*•.`   +*⸳.ꞏ `
+# .·•  `·  .  ` ·.  *    * ·   · .  ··`   *·.+    ··  . ·`  * · .*  ·.` +·* · ·.
+# •. ·`·*  ·. . * ·`·  *` · No Such Thing as Too Much ·` *·.  `  ·`·.  + ` *.  ·
+#  ·. * `*  · · .*   ` https://adventofcode.com/2015/day/17 ·`+   .`·   ·*`. · `
+# ·*`• .· ·`   ·  •·`· . ·*`. ·`* +·. `  *·  ·`.   *· + `· * . `*.· *  ·`   •`·.
 
 
-from collections import Counter
 import math
+from collections import Counter
 
 
-def parse(s):
+def parse(s: str):
     res = [int(line) for line in s.split("\n")]
     return sorted(res)
 
@@ -72,10 +72,11 @@ def count_unique_combinations(combinations):
     return round(res)
 
 
-def solve(data: str, liters=150):
+def solve(data: str) -> tuple[int|str, int|str]:
     containers_puzzle = parse(data)
+    target_volume = 150
     # Find the number of combinations of containers that have a combined volume of 150L.
-    combinations = brute_force(containers_puzzle, target_volume=liters)
+    combinations = brute_force(containers_puzzle, target_volume=target_volume)
     star1 = count_unique_combinations(combinations)
     print(f"Solution to part 1: {star1}")
 
@@ -88,10 +89,8 @@ def solve(data: str, liters=150):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 17
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

@@ -1,24 +1,42 @@
-# •.*ꞏ `⸳ ꞏ ⸳*`ꞏ.   `  `  .ꞏ+ ⸳   +`⸳`ꞏ   ⸳ +  `   ꞏ+ .⸳ `  • `⸳ *. ⸳` `•  ꞏ •⸳`
-# ꞏ  . •.⸳  • +  `  ⸳+.     I Heard You Like Registers   .ꞏ . + `⸳  ꞏ `*⸳    . ⸳
-#  ⸳ꞏ . ` .• `ꞏ    ⸳ . https://adventofcode.com/2017/day/8  `⸳  ꞏ *.  `⸳.•ꞏ   ..
-# .      ` ⸳. * ⸳ꞏ`.   ⸳ `     .ꞏ+ . ⸳ ꞏ •`*ꞏ   ⸳ ** ` ꞏ ⸳.  ` .+ꞏ`⸳  ꞏ    `⸳ꞏ •
+# •` ·  .·* *`  · ·  .`*·    * .  `·    `  · .  `·• ` ·* . ·+·`   ·.    · ` . *·
+# .·*  ·   ·`.·* . ·+  `*   I Heard You Like Registers .·`   +· ·  `.  •.` ·.` ·
+# ·`· `.   *.·`·  .+·  https://adventofcode.com/2017/day/8     *`·.·*    · ` .· 
+# . `* `·.· ·*  +·   ·.  •· `·   ·*  . ` ·`     *·..·+  `· * .      `*· `. ·+· .
 
 
-from collections import defaultdict
 import re
+from collections import defaultdict
+from dataclasses import dataclass
 
 
-def parse(s):
+@dataclass
+class Instruction:
+    register: str
+    operation: str
+    value: int
+    if_register: str
+    if_relation: str
+    if_value: int
+
+
+def parse(s: str) -> list[Instruction]:
     pat = (r"(?P<register>\S+) (?P<operation>\S+) (?P<value>-?\d+) "
            r"if (?P<if_register>\S+) (?P<if_relation>\S+) (?P<if_value>-?\d+)")
 
-    numbers = ("value", "if_value")
-    keys = ('register', 'operation', 'value', 'if_register', 'if_relation', 'if_value')
     res = []
     for line in s.splitlines():
         m = re.match(pat, line)
-        d = {k: int(v) if k in numbers else v for k, v in m.groupdict().items()}
-        ins = tuple(int(d[k]) if k in numbers else d[k] for k in keys)
+        assert m is not None
+        
+        d = m.groupdict()
+        ins = Instruction(
+            d["register"],
+            d["operation"],
+            int(d["value"]),
+            d["if_register"],
+            d["if_relation"],
+            int(d["if_value"]),
+        )
         res.append(ins)
 
     return res
@@ -34,26 +52,27 @@ _comparisons = {
 }
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     instructions = parse(data)
     verbose = False
 
     highest_val = 0
-    registers = defaultdict(lambda: 0)
-    for register, operation, value, if_register, if_relation, if_value in instructions:
-        comparison = f"__{_comparisons[if_relation]}__"
-        comparison_method = getattr(registers[if_register], comparison)
-        condition = comparison_method(if_value)
-
-        val = -1 * value if operation == 'dec' else value
+    registers: dict[str, int] = defaultdict(lambda: 0)
+        
+    for ins in instructions:
+        comparison = f"__{_comparisons[ins.if_relation]}__"
+        comparison_method = getattr(registers[ins.if_register], comparison)
+        condition = comparison_method(ins.if_value)
+        val = -1 * ins.value if ins.operation == 'dec' else ins.value
 
         if verbose:
-            cond = f"{registers[if_register]} {if_relation} {if_value}"
+            cond = f"{registers[ins.if_register]} {ins.if_relation} {ins.if_value}"
+            
             print(cond, condition)
 
         if condition:
-            registers[register] += val
-            highest_val = max(highest_val, registers[register])
+            registers[ins.register] += val
+            highest_val = max(highest_val, registers[ins.register])
 
     star1 = max(registers.values())
     print(f"Solution to part 1: {star1}")
@@ -64,10 +83,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 8
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

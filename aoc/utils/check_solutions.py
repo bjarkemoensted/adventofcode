@@ -1,12 +1,12 @@
-from argparse import ArgumentParser
-from aoc.utils.tokens import read_tokens
-from aocd.utils import get_plugins
-from aocd.runner import run_for
-
 import importlib
 import pathlib
+from argparse import ArgumentParser
+
+from aocd.runner import run_for
+from aocd.utils import get_plugins
 
 from aoc.utils import config
+from aoc.utils.tokens import read_tokens
 from aoc.utils.utils import nolog
 
 
@@ -62,7 +62,7 @@ def _run(years: list, days: list):
     return res
 
 
-def check(years=None, days=None):
+def check(years: int|list[int]|None=None, days: int|list[int]|None=None) -> None:
     year2days = get_available_years_and_days()
     if isinstance(years, int):
         years = [years]
@@ -72,17 +72,10 @@ def check(years=None, days=None):
     if years is None:
         years = sorted(year2days.keys())
 
-    days_available_all_years = None
-    for year in years:
-        these_days = set(year2days.get(year, []))
-        if days_available_all_years is None:
-            days_available_all_years = these_days
-        else:
-            days_available_all_years = days_available_all_years.intersection(these_days)
-    days_available_all_years = sorted(days_available_all_years)
-
+    days_available_all_years = sorted(set.intersection(*(set(year2days.get(year, [])) for year in years)))
+    
     run_years_separately = days is None
-
+    
     if run_years_separately:
         for year in years:
             days_run = year2days[year] if days is None else days
@@ -93,10 +86,11 @@ def check(years=None, days=None):
     #
 
 
-def _parse_days(days_strs: list) -> list:
+def _parse_days(days_strs: list) -> list|None:
     
     if not days_strs:
         return None
+
     days = set([])
     
     for s in days_strs:
@@ -115,7 +109,7 @@ def _parse_days(days_strs: list) -> list:
     return res
 
 
-def main():
+def main() -> None:
     parser = ArgumentParser(description="Solution checking CLI tool")
 
     parser.add_argument(

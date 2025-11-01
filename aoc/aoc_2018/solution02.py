@@ -1,12 +1,12 @@
-#    *ꞏ. `. ⸳+   *ꞏ  •⸳.  .ꞏ+.          ꞏ`ꞏ*   ⸳.    + ⸳ .  • ꞏ. •⸳* .  `ꞏ  +⸳. 
-# `ꞏ  .*+.ꞏ     ⸳ `    •ꞏ  Inventory Management System ꞏ •⸳ `       .++ ꞏ⸳   .ꞏ 
-#   .ꞏ⸳  • `    +.  ꞏ⸳ https://adventofcode.com/2018/day/2 .ꞏ+   . ⸳⸳ .ꞏ  *ꞏ` •.
-#  +⸳.* ꞏ  *⸳ꞏ.`ꞏ    +  . ⸳`.  ⸳ ꞏ `•* .         ⸳+ ꞏ ꞏ.   •   `.   ꞏ `⸳ .⸳+.ꞏ •
+# `··. ·* · `. · *   ·`•·      ·`·   `· ·`·*    .·•  ` + · •·.`  · `* · · •.· ·`
+# *+`·` ·   · +  ··` * ·   Inventory Management System  ·. ·    ·    * · · `.+· 
+# .*.· ` ·+  ·     .·+ https://adventofcode.com/2018/day/2    ·+`•`··      · ·`•
+# ·.*`· .*·· • · ` ·` * ·. ·      ·`   · *  · .` * ·`.·  *· ·` ·     ·*`·.+ `·*·
 
 from collections import Counter
 
 
-def parse(s):
+def parse(s: str):
     res = s.splitlines()
     return res
 
@@ -37,7 +37,7 @@ def get_prototype_id(ids: list[str]) -> str:
     raise ValueError
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     box_ids = parse(data)
 
     star1 = compute_checksum(box_ids)
@@ -49,10 +49,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 2
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

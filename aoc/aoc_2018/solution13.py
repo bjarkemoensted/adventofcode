@@ -1,14 +1,16 @@
-# ⸳+*`ꞏ    *⸳  .`ꞏ*  .  `* +  . *    `•.        .  +ꞏ.`⸳    ꞏ`+*    ꞏ`.••*.    ⸳
-# *   ⸳`ꞏ • *.   •.`⸳ꞏ    + `.* Mine Cart Madness   `  + ⸳  •    .`ꞏ** ꞏ . ⸳  *`
-# .ꞏ * ⸳* `  ⸳  *` *.  https://adventofcode.com/2018/day/13 .+  `*ꞏ    `.  *+ ꞏ.
-#   ꞏ +*ꞏ   .•⸳+   ꞏ    +`. *⸳  ꞏ` *.ꞏ⸳.   * .ꞏ.  +   •.⸳  +` `  ꞏ. ` +. ⸳*ꞏ +  
+# · *·`.+· ` ·  ·  ·   •· .+ ·  ·`   ·  ·   *·.  `·  · ·.   +`  ·. ·+ `* ·* ·.··
+# +·`.·•· ·    ·`. `.*·  ·` ·   Mine Cart Madness   · ` ·   ·*` · . · *`·  `*·.·
+# `·  .·   · ·  *`. ·· https://adventofcode.com/2018/day/13  ·    ·.  · · ·+ `· 
+# ·.·*·` `  · .  ·`+ ` · + .· · ·*`· · +. · ·*  ·   ·`.    ·  +·.·*    ·.   ··` 
 
 from __future__ import annotations
+
 from collections import Counter
 from copy import deepcopy
 from functools import cache
-import numpy as np
 from typing import TypeAlias
+
+import numpy as np
 
 # For holding i, j-coordinates
 coordtype: TypeAlias = tuple[int, int]
@@ -29,7 +31,7 @@ _rightturns = {drul[i]: drul[(i-1)%len(drul)] for i in range(len(drul))}
 _leftturns = {drul[i]: drul[(i+1)%len(drul)] for i in range(len(drul))}
 
 
-def parse(s) -> np.typing.NDArray[np.str_]:
+def parse(s: str) -> np.typing.NDArray[np.str_]:
     """Parse input into array of chars"""
     chars = [[char for char in line] for line in s.splitlines()]
     cols = len(chars[0])
@@ -198,7 +200,7 @@ def determine_final_cart_loc(mine: Mine):
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     map_ = parse(data)
     mine = Mine(map_)
     
@@ -213,9 +215,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 13
-    from aoc.utils.data import check_examples
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

@@ -1,16 +1,16 @@
-#    •⸳.ꞏ`   +`  ꞏ   *  ⸳`.ꞏ  `         .`•.⸳⸳+ ꞏ* .  ⸳   ⸳ꞏ   *+  •`ꞏ.   ꞏ• +⸳ 
-#  +ꞏ⸳`  •  ꞏ * . ` .⸳ Experimental Emergency Teleportation *`   ⸳ ꞏ   `*•  ⸳ ..
-#  ⸳`. + ⸳ꞏ  . + `*⸳   https://adventofcode.com/2018/day/23 ꞏ+       ⸳ `* • .` ꞏ
-# +ꞏ• . `  *.`   .  ⸳`ꞏ*ꞏ`+ .  ⸳ .*  ⸳ꞏ` .ꞏ+⸳• `   ⸳ ` •.ꞏ•`       ⸳  ꞏ⸳.`*.ꞏ ꞏ⸳
+# ` •·. ` ·+·`   ·  ·`. ·*.` ·* `    ·  .· .·`   `.··*    •`·   ` · ·+`.·  .`·+`
+#  `·*··.         ·`.  Experimental Emergency Teleportation    ·* `· .+·  `·. ·*
+# ·.   •`·.  ·`·  .·*· https://adventofcode.com/2018/day/23 `  • `    ·   .`*  ·
+# .·* ` ·  ·`.·      *`· . · *   ·+`.··  `   ·*  ·.` •·`.     ·`  *  · *`.· ·`.·
 
 from __future__ import annotations
-from dataclasses import dataclass
+
 import itertools
-from heapq import heappop, heappush
 import math
 import re
+from dataclasses import dataclass
+from heapq import heappop, heappush
 from typing import Generic, TypeAlias, TypeVar
-
 
 coord_type: TypeAlias = tuple[int, ...]
 
@@ -111,7 +111,7 @@ class BoundingBox:
         return dist <= bot.r
 
 
-def parse(s) -> list[Nanobot]:
+def parse(s: str) -> list[Nanobot]:
     """Parses the input into a list of instances of nanobot dataclasses"""
     res = []
     pattern = re.compile(r"pos=<(?P<x>-?\d+),(?P<y>-?\d+),(?P<z>-?\d+)>, r=(?P<r>\d+)")
@@ -239,7 +239,7 @@ def determine_optimal_point(bots: list[Nanobot], maxiter: int|None=None) -> coor
         
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     bots = parse(data)
     
     strongest = max(bots, key=lambda bot: bot.r)
@@ -255,7 +255,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 23
     from aocd import get_data
     raw = get_data(year=year, day=day)

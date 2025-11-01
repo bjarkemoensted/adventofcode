@@ -1,13 +1,14 @@
-# ꞏ⸳*   `    `  ⸳*  *⸳   ꞏ•`⸳+.     .⸳ `    .⸳*ꞏ  .+ `` ꞏ. +  ⸳⸳`*.      ⸳   ꞏ`⸳
-# ⸳ •. ` • .⸳ꞏ . `ꞏ  • `⸳  ꞏ+.*  Go With The Flow •  *⸳ꞏ.   ⸳`ꞏ         ꞏ*`  +.ꞏ
-# *.ꞏ⸳   `  •. *   `   https://adventofcode.com/2018/day/19 ꞏ + ꞏ ⸳•`. `    .`*⸳
-# ꞏ`⸳*.    +ꞏ  ` .  `⸳`* ꞏ    ⸳ +.`    ⸳ .   + `ꞏ*ꞏ ⸳.  +   `.     .ꞏ   *`  ꞏ⸳`•
+# ·*.·`   + ·`  ` . *·  * · `  · .·`. ·  + ·` +. · * · `   ·`·.  ·   `.•·` * · ·
+# .·*• `  ·  .·`·  . *· `· `  ·  Go With The Flow   .`·* ·   .·+   ·  •` * ·.  ·
+# *`·. · ` · •.·   · + https://adventofcode.com/2018/day/19 ·  ·`*·.  · * ·`·.•`
+# · . ·*·. * ·`  *     ·.* · •`  · .·    ` .  .··  .·*  ` ·     ·`   * ·.·+ ` ·*
 
 from __future__ import annotations
-from collections import defaultdict
+
 import functools
 import itertools
 import re
+from collections import defaultdict
 from typing import Callable, TypeAlias
 
 functype: TypeAlias = Callable[[list[int], int, int, int], None]
@@ -125,7 +126,7 @@ def peephole(data: str) -> str:
     # Identify the sloppy sum-of-divisors algo
     match = pattern.search(data)
     if match is None:
-        raise RuntimeError(f"Couldn't locate pattern for optimization")
+        raise RuntimeError("Couldn't locate pattern for optimization")
     
     # Check which values match which free variable in the pattern (might be permutations of my input)
     d = match.groupdict()
@@ -294,7 +295,7 @@ class Emulator:
         return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     ip_reg, instructions = parse(data)
     emulator = Emulator.setup(ip_reg)
     
@@ -308,7 +309,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 19
     from aocd import get_data
     raw = get_data(year=year, day=day)

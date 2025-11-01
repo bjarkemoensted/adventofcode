@@ -1,31 +1,33 @@
-# ⸳ꞏ` *ꞏ . `    ⸳.ꞏ⸳• ⸳ `.  +  ꞏ.⸳`   *⸳  `. • . .⸳`+⸳ .     + ..ꞏ⸳`*     ` + ⸳.
-# +`. ꞏ•.⸳*⸳  ꞏ+` ⸳ .*ꞏ`    Science for Hungry People    ꞏ  . ⸳  *  `   .  . ⸳ꞏ*
-# .    ⸳+`ꞏ  +.   •`ꞏ. https://adventofcode.com/2015/day/15 *. ꞏ    .ꞏ  •  •.` ꞏ
-# ꞏ•⸳ꞏ`.⸳ `+   ⸳•  ꞏ⸳ `  ꞏ.• ꞏ .ꞏ *`.• ⸳`⸳    ` *⸳ ꞏ    . +    ⸳  ꞏ ⸳`.  •.  ꞏ ⸳
+#  .·`• ··.     ·*  *`    ·+·*`. · *·`     ·`  •·   `·. *·`.*· +.`·     .·*+`.··
+# .·*`· .`·.  *`   .    ·   Science for Hungry People * +.·  `·  *  `·      *·.`
+# ·` · .+  `* ·· `*  · https://adventofcode.com/2015/day/15   .` .*·+`·    .·` .
+# ·.· `+.·`•·` * ·.    ·     ·  · * .·· •` . . · ·*· .  ·    +`  · `·*.·`+·` *` 
 
 
+import math
 from collections import Counter
 from functools import reduce
-import math
-import numpy as np
 from operator import mul
+
+import numpy as np
+from numpy.typing import NDArray
 from scipy.optimize import minimize
 
 
-def parse(s):
+def parse(s: str):
     res = dict()
     for line in s.splitlines():
         ingredient, mess = line.split(": ")
         d = dict()
         for part in mess.split(", "):
-            prop, val = part.split(" ")
-            val = int(val)
+            prop, val_str = part.split(" ")
+            val = int(val_str)
             d[prop] = val
         res[ingredient] = d
     return res
 
 
-def _constraints_satisfied(x: np.array, constraints: list|dict) -> bool:
+def _constraints_satisfied(x: NDArray[np.int_], constraints: list|dict) -> bool:
     if isinstance(constraints, dict):
         fun = constraints["fun"]
         type_ = constraints["type"]
@@ -41,7 +43,7 @@ def _constraints_satisfied(x: np.array, constraints: list|dict) -> bool:
     #
 
 
-def make_x0(n_ingredients: int, total_amount: int, loss, seed: int = None, constraints=None):
+def make_x0(n_ingredients: int, total_amount: int, loss, seed: int|None = None, constraints=None):
     if constraints is None:
         constraints = []
 
@@ -97,7 +99,7 @@ def jitter(x, loss, constraints):
     return best
 
 
-def opt(ingredients, total_amount=100, n_calories: int = None):
+def opt(ingredients, total_amount=100, n_calories: int|None = None):
     ing_ordered = sorted(ingredients.keys())
     all_props = set(list(ingredients.values())[0].keys())
     assert all(set(v.keys()) == all_props for v in ingredients.values())
@@ -106,13 +108,13 @@ def opt(ingredients, total_amount=100, n_calories: int = None):
     props_order = sorted(all_props)
 
     W = np.array([[ingredients[ing][prop] for prop in props_order] for ing in ing_ordered])
-    n_ingredients, n_properties = W.shape
+    n_ingredients, _ = W.shape
 
-    loss = lambda x_: -reduce(mul, (max(val, 0) for val in W.T.dot(x_)), 1)
+    def loss(x_):
+        return -reduce(mul, (max(val, 0) for val in W.T.dot(x_)), 1)
 
     constraints = [
         {'type': 'ineq', 'fun': lambda x_, fac=sig: fac*(sum(x_) - total_amount)} for sig in (+1, -1)
-        #{'type': 'eq', 'fun': lambda x_: (sum(x_) - total_amount)}
     ]
     for i, col in enumerate(W):
         constraints.append(
@@ -121,47 +123,26 @@ def opt(ingredients, total_amount=100, n_calories: int = None):
 
     cals = [ingredients[ing][cal] for ing in ing_ordered]
 
-    print(len(constraints))
     if isinstance(n_calories, int):
-        print(f"{cals=}")
-        w_cal = np.array([ingredients[ing][cal] for ing in ing_ordered])
         constraints += [
             {'type': 'ineq', 'fun': lambda x_, fac=sig: fac*(sum(val * c for val, c in zip(x_, cals)) - n_calories)}
             for sig in (+1, -1)
-            #{'type': 'ineq', 'fun': lambda x_: sig * (w_cal.T.dot(x_) - n_calories} for sig in (+1, -1)
-            #{'type': 'eq', 'fun': lambda x_: w_cal.T.dot(x_) - n_calories}
         ]
-        print(n_calories, len(constraints))
 
-    bounds = [(0, None) for _ in range(n_ingredients)]
     x0 = make_x0(n_ingredients=n_ingredients, total_amount=total_amount, loss=loss, seed=42, constraints=constraints)
 
     res = minimize(
         loss,
         x0,
-        #method='SLSQP',
         method='COBYLA',
-        #bounds=bounds,
         constraints=constraints,
         options=dict(maxiter=99999)
     )
 
-    # print(f"{res=}")
-    # print(_constraints_satisfied(res.x, constraints))
     res_float = res.x
     res_int = jitter(x=res_float, loss=loss, constraints=constraints)
     if res_int is None:
         raise RuntimeError
-
-
-    # print(f"{x0=}", f"{_constraints_satisfied(x0, constraints)}")
-    # print(f"{bounds=}")
-    # print(f"{constraints=}")
-    # print(f"{loss=}")
-    # print(f"{W=}")
-    # print()
-    # print(f"{res_float=}")
-    # print(f"{res_int=}")
 
     print(f"Calories: {sum(a*b for a, b in zip(res_int, cals))} ({sum(a*b for a, b in zip(res_float, cals))})")
 
@@ -169,26 +150,21 @@ def opt(ingredients, total_amount=100, n_calories: int = None):
     return score
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     ingredients = parse(data)
 
-    # 13882464
-    # 13882464
     star1 = opt(ingredients)
 
     print(f"Solution to part 1: {star1}")
 
-    # 11171160 ?
-    star2 = opt(ingredients, n_calories=500)  # 117936
+    star2 = opt(ingredients, n_calories=500)
     print(f"Solution to part 2: {star2}")
 
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 15
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

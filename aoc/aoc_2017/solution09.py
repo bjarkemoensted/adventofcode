@@ -1,7 +1,7 @@
-#  `. *ꞏ`*    `.⸳ *ꞏ` •       `.⸳  `+⸳ .      ꞏ⸳ `* .  `+⸳`  ꞏ•.  ⸳  * ` .  ꞏ⸳* 
-# ⸳ .` ⸳ꞏ+ꞏ •     .`  ⸳ • +`* ⸳ Stream Processing . ꞏ`* . ⸳    ⸳`  ꞏ `⸳•  .ꞏ + `
-# `*⸳•  .⸳+  `   .ꞏ    https://adventofcode.com/2017/day/9 .`   +⸳ꞏ` .* ⸳ ꞏ ` `.
-# *•ꞏ.⸳   ⸳.    .`  •ꞏ. `*⸳    *ꞏ.•   .  `ꞏꞏ` +. *  ` ⸳  *.ꞏ⸳    *`⸳  ꞏ . ⸳ .  +
+# .· · · *  `·.   `·*  .   ·`. +  ·.    ··  ·*  `  . · ` . ·  ·   · • `.· `·*`.·
+# ·. `· •  `*  `·    ·` + · .·  Stream Processing .·`   ·•·.+  ·`*. .·    ·*`. ·
+# .·· * `  ··`  +.·*   https://adventofcode.com/2017/day/9 `*·   .  ·`  .·+.· ·*
+# ·`..`*···   `·.·*.  ··  `.*·   ·  `.· +.     ·.` • ` ·  ·.    ·+ ·`. · `.·  ·`
 
 
 class Parser:
@@ -66,7 +66,7 @@ class Parser:
             self._parse_char(char)
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     parser = Parser()
     parser.parse(data)
 
@@ -79,10 +79,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2017, 9
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

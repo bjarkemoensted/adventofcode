@@ -1,14 +1,14 @@
-# *     ` `*ꞏ.⸳` ` •⸳   ꞏ •. ⸳  ꞏ . `*.`ꞏ⸳•  ⸳    `•   `. *⸳ `.• ꞏ⸳ `     ⸳.ꞏ+` 
-# `⸳.`  ꞏ*   ⸳ +  `⸳. `  ꞏ.`⸳  ꞏ Memory Maneuver  ⸳ꞏ*.ꞏ `  .`     +  `ꞏ⸳    •.  
-# ꞏ `⸳•  ⸳+` `ꞏ    ꞏ   https://adventofcode.com/2018/day/8  ⸳`ꞏ +`  .ꞏ . ` ⸳ *ꞏ`
-# ⸳`•ꞏ. ⸳ `   + ꞏ⸳⸳.     *` ⸳ꞏ  .` ⸳ .*       ⸳•` . `  ⸳ *⸳ꞏ   ⸳`. ꞏ  ⸳+ . *`ꞏ ⸳
+# ·+`·.`    •.·   `· *   ·* `  .   ·  *   · .   *·`·.+  ` ·     .·`+. ·.  . `· *
+# *.·`·.   * ·`*· .   .   ` ·`+• Memory Maneuver   . ·    .` *  ·•.      `·.·`*`
+#  * .`  ·*.  .·  ·  ` https://adventofcode.com/2018/day/8 · ·  `.*    ·. `* .·.
+# ·`. +·`.·.`  · `    +·.  * • `.·  .     .·*`·.     `  .  .·`* +`·. ·   ·*`.+`·
 
 from __future__ import annotations
 
 test = """2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2"""
 
 
-def parse(s):
+def parse(s: str):
     return [int(c) for c in s.split()]
 
 
@@ -85,7 +85,7 @@ def parse_tree(data, parent=None, i=0) -> tuple[Node, int]:
     return node, i
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     parsed = parse(data)
     tree, _ = parse_tree(parsed)
     
@@ -98,10 +98,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 8
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     
     raw = get_data(year=year, day=day)

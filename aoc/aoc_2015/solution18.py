@@ -1,13 +1,12 @@
-#  .`⸳  ꞏ  ⸳ `    *⸳• .ꞏ       ⸳`ꞏ.*  * `.   ⸳ .   `*        ⸳ꞏ   +  ⸳  `*   `.ꞏ
-# ` ⸳ *.`  ꞏ•⸳  *`⸳`.        Like a GIF For Your Yard .   ꞏ.  ⸳ *  ⸳` •  ` ꞏ.  +
-# ⸳   .ꞏ ⸳+.`        . https://adventofcode.com/2015/day/18 ꞏ.  .⸳ `* ꞏ ⸳.*  *ꞏ.
-#  `+ *  ꞏ.`    ⸳*.ꞏ`ꞏ *⸳` .  * .      `+    `   `.⸳  ꞏ ` ⸳  ` ꞏ  .`ꞏ .⸳**ꞏ  .`•
-
+# •.` ··   * .· ·` * .`·   .·    *  .· ` .  `· + .··*.·       ·  .·   + ` ·  *··
+# ·   + .· · · `  .·` +.·    Like a GIF For Your Yard   +· .   `.· *. ·  `·. ·*`
+# `··.  ·.` • `·       https://adventofcode.com/2015/day/18 ·  .`*  · `·• .··  .
+# · `· .  · ·* .  ·`· · •  ·  `·*  .    · ` *· ·.+  •  `· .+ ·* ·`.·    ·*  ` .·
 
 import numpy as np
 
 
-def parse(s):
+def parse(s: str):
     """Parses input into an array of ones and zeroes indicating lights on/off."""
     lines = [list(line) for line in s.split("\n")]
     res = np.zeros(shape=(len(lines), len(lines[0])), dtype=int)
@@ -74,7 +73,8 @@ def iterate(arr, n, corners_stay_on=False):
     return res
 
 
-def solve(data: str, iterations=100):
+def solve(data: str) -> tuple[int|str, int|str]:
+    iterations=100
     m = parse(data)
     m = iterate(m, n=iterations)
     star1 = sum(m.flat)
@@ -90,10 +90,8 @@ def solve(data: str, iterations=100):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2015, 18
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)

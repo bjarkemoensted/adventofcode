@@ -1,5 +1,6 @@
-from collections import defaultdict
 import copy
+from collections import defaultdict
+
 import numpy as np
 
 

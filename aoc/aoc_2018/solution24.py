@@ -1,27 +1,23 @@
-#  *ꞏ..•⸳* `  ꞏ⸳ .`   ꞏ*  ꞏ⸳.   ꞏ . `⸳  .ꞏꞏ⸳*    ⸳ *ꞏ.     ⸳ꞏ+  `*.   `*  ꞏ ` ꞏ.
-# * ꞏ ⸳  ꞏ+.` .  *  ⸳` ꞏ*  Immune System Simulator 20XX      ꞏ *⸳ ꞏ `      ⸳⸳ . 
-#    ⸳ꞏ ꞏ  •⸳.`  ꞏ   ꞏ https://adventofcode.com/2018/day/24  ꞏ ⸳•. ⸳•  .ꞏ    ꞏ•.
-# ꞏ. `+⸳ .ꞏ⸳ + ꞏ`  ꞏ*.⸳  ꞏ` *  .   ꞏ   ⸳ ꞏ  * .ꞏ*`  .`* +⸳`⸳  ꞏ .ꞏ * ` ꞏ.⸳. * ꞏ⸳
+# `*·+`.· +  ·  ·`·  *     ··.  . *·`  + `·*· .•  ·.+ ` ·   .  ·*`    · ·+`*.`·+
+# · ` ··  ` +* ·.  ·`·  *. Immune System Simulator 20XX     +`·  •· `+ . • · `*·
+# •` ·.` ·  ·` *`·+    https://adventofcode.com/2018/day/24 · .  ·*`+·   ·  *· .
+# .··*  `*·   ·`+  .  `*·+`·.    •` ··  `.    ·+·  *`•.· ·    +     ·.*·•`·  .·*
 
 from __future__ import annotations
+
+import re
+import uuid
 from copy import deepcopy
 from dataclasses import dataclass, field
-import re
-from typing import Any, Literal, TypeAlias
-import uuid
-
+from typing import Any, Literal, TypeAlias, TypeGuard, get_args
 
 _damage_type: TypeAlias = Literal["radiation", "bludgeoning", "fire", "cold", "slashing"]
 _army_type: TypeAlias = Literal["Immune System", "Infection"]
 
 
-test = """Immune System:
-17 units each with 5390 hit points (weak to radiation, bludgeoning) with an attack that does 4507 fire damage at initiative 2
-989 units each with 1274 hit points (immune to fire; weak to bludgeoning, slashing) with an attack that does 25 slashing damage at initiative 3
+def is_army(val: str) -> TypeGuard[_army_type]:
+    return val in get_args(_army_type)
 
-Infection:
-801 units each with 4706 hit points (weak to radiation) with an attack that does 116 bludgeoning damage at initiative 1
-4485 units each with 2961 hit points (immune to radiation; weak to fire, cold) with an attack that does 12 slashing damage at initiative 4"""
 
 _pattern_raw = r"""
 (?P<n_units>\d+) units.*?(?P<hit_points>\d+) hit points.
@@ -127,7 +123,9 @@ class Group:
     def choose_victim(self, *enemies: Group) -> Group|None:
         """Chooses an enemy to attack, from the list of candidates.
         If no enemy can be targeted, returns None."""
-        candidates = (e for e in enemies if e.is_alive and e.estimate_damage(self.effective_power, type_=self.damage_type))
+        candidates = (
+            e for e in enemies if e.is_alive and e.estimate_damage(self.effective_power, type_=self.damage_type)
+        )
         res = max(candidates, key=self.priority_enemy_selection, default=None)
         return res
     
@@ -150,13 +148,14 @@ class Group:
         return n_dead
 
 
-def parse(s) -> list[Group]:
+def parse(s: str) -> list[Group]:
     parts = s.split("\n\n")
     res = []
     
     for part in parts:
         lines = part.splitlines()
         army = lines[0].split(":")[0]
+        assert is_army(army)
 
         for i, line in enumerate(lines[1:]):
             kws = _parse_group(line)
@@ -378,11 +377,12 @@ def compute_min_boost(battle: Battle) -> int:
     return res
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     parsed = parse(data)
     battle = Battle(*parsed, verbose=False)
     
     star1 = battle.go()
+    assert isinstance(star1, int)
     print(f"Solution to part 1: {star1}")
     
     star2 = compute_min_boost(battle)
@@ -391,7 +391,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2018, 24
     from aocd import get_data
     raw = get_data(year=year, day=day)

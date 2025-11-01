@@ -1,6 +1,7 @@
 import copy
-import numpy as np
 import re
+
+import numpy as np
 
 
 def read_input():

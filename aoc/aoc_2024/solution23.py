@@ -1,14 +1,15 @@
-# `+    `  +*. ꞏ⸳ꞏ •⸳  ꞏ ` +. ꞏ . •ꞏ   ꞏ` .⸳   ⸳ꞏ*`   .ꞏ  `.   ⸳⸳  ꞏ . +  .⸳ ꞏ+`
-#  .  ⸳ *`ꞏ    ⸳ .  `•   ⸳.  ꞏ  `   LAN Party ⸳  ⸳ꞏ   •`.+            .    ꞏ`⸳ `
-# .⸳ꞏ+`      *. `+     https://adventofcode.com/2024/day/23 •    ꞏ. *⸳  `* `. `ꞏ
-# *` ꞏ.*ꞏ`+   `  • ꞏ ⸳ ⸳.       *`ꞏ  ⸳ `+.     • `• ꞏ ⸳+ ꞏ.   +.    `    .   `ꞏ⸳
+#   .·** ·    `·.  ·`*           ·`   · * . .·`     · .  * ·.+  `*  ·· .   ·`•·.
+#  `·. ·* + · .  · .    * `·+  ·.   LAN Party ·       ·.   +·`  ·.· *  `*   ·   
+# *·  . · `+. * · ·* . https://adventofcode.com/2024/day/23 `·  .· *      *`•· .
+# .*`· .·   +· *  . ·`      ·  . `*.·  ` ·*+ . *`· . *  · `* .·    .   *· · *`.·
 
 
 from itertools import combinations
+
 import networkx as nx
 
 
-def parse(s):
+def parse(s: str):
     res = [line.split("-") for line in s.splitlines()]
     return res
 
@@ -34,7 +35,7 @@ def count_candidate_cliques(cliques: list, size=3, must_start_with="t"):
     return res
             
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     links = parse(data)
     G = nx.Graph()
     G.add_edges_from(links)
@@ -50,7 +51,7 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 23
     from aocd import get_data
     raw = get_data(year=year, day=day)

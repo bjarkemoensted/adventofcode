@@ -1,17 +1,17 @@
-# •ꞏ⸳ `   ⸳•`ꞏ.* +ꞏ`*  ⸳    ` *ꞏ.       *ꞏ ⸳+ •`.⸳     ` *ꞏ⸳ . ` *ꞏ.  * ⸳  ⸳ .* 
-# ꞏ* `•` ⸳ꞏ .       ꞏ   `*   ꞏ`   Bridge Repair *` *  . ⸳ •`ꞏ*      ⸳  +.ꞏ `⸳•.+
-# *. ⸳ꞏ . +ꞏ ⸳      .` https://adventofcode.com/2024/day/7    .⸳•ꞏ.`++ ⸳•    *⸳ꞏ
-# ⸳` ꞏ⸳    `* •⸳. `⸳  +    ꞏ • *ꞏ`⸳  ꞏ *ꞏ.       *  .*`⸳ꞏ .+`  .  *•ꞏ. ` ⸳ ꞏ ꞏ *
+# ·.  ·*·`•   · .` ·· . ·*`+  ·· `*·. ·     ·• *` ·.* ·`    + ·*·` . ` *·  ·`.·*
+# `*·· .*  `.  ·*  ` ·*· ·.   ` * Bridge Repair .* `·   *    · ·`  ·*. · ` . *`·
+# · `. ·  ·*   + * ·   https://adventofcode.com/2024/day/7 .·` ·  *  * . · `·· .
+# .  +·` . ·•·  ··.* ` *   ··    ·  * .` · . *  · *  `.·   · .   ·` · · * ·+` .`
 
 
-def parse(s):
+def parse(s: str):
     """Parses into tuples like (result, [component1, component2, ...])"""
 
     res = []
     for line in s.splitlines():
-        a, b = line.split(":")
-        a = int(a)
-        b = [int(part) for part in b.strip().split()]
+        a_s, b_s = line.split(":")
+        a = int(a_s)
+        b = [int(part) for part in b_s.strip().split()]
         res.append((a, b))
 
     return res
@@ -42,7 +42,7 @@ def is_solvable(result: int, terms: list, operations, running: int=0):
     return any(subsequent)
 
 
-def solve(data: str):
+def solve(data: str) -> tuple[int|str, int|str]:
     equations = parse(data)
     
     operations = [
@@ -60,10 +60,8 @@ def solve(data: str):
     return star1, star2
 
 
-def main():
+def main() -> None:
     year, day = 2024, 7
-    from aoc.utils.data import check_examples
-    check_examples(year=year, day=day, solver=solve)
     from aocd import get_data
     raw = get_data(year=year, day=day)
     solve(raw)
