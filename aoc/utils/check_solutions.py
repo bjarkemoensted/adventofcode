@@ -1,6 +1,7 @@
 import importlib
 import pathlib
 from argparse import ArgumentParser
+import functools
 
 from aocd.runner import run_for
 from aocd.utils import get_plugins
@@ -39,7 +40,7 @@ def get_available_years_and_days():
     return d
 
 
-def _run(years: list, days: list):
+def _run(years: list, days: list, suppress_warnings=True):
     """Wrapper for running against multiple datasets and handling tokens etc."""
 
     plugs = [ep.name for ep in get_plugins()]
@@ -53,12 +54,18 @@ def _run(years: list, days: list):
     # Display which years/days we're running
     s = f"Checking - {_format('Year', years)}. {_format('Day', days)}."
     disp(s)
+    
+    runner = functools.partial(run_for, plugs=plugs, years=years, days=days, datasets=datasets, timeout=0)
 
-    # The AOCD logger outputs warnings every time it waits to get/post
-    with nolog():
-        res = run_for(plugs=plugs, years=years, days=days, datasets=datasets, timeout=0)
-        print()
-
+    if suppress_warnings:
+        # The AOCD logger outputs warnings every time it waits to get/post
+        with nolog():
+            res = runner()
+            print()
+        #
+    else:
+        res = runner()
+    
     return res
 
 
