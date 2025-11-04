@@ -3,148 +3,201 @@
 #  . ··`* `.  `·       https://adventofcode.com/2023/day/22 . · +  *.`· `    · `
 # +· . *` •·  ·   *· . `   ·  ·   *  . · ·` +     ·     *`· •     .`·  *·.`  *.·
 
+from __future__ import annotations
+from collections import defaultdict
+from dataclasses import dataclass
+import typing as t
 
-def parse(s: str) -> object:
-    res = []
-    for line in s.split("\n"):
-        cube = tuple(tuple(map(int, elem.split(","))) for elem in line.split("~"))
-        res.append(cube)
-
-    assert all(all(a <= b for a, b in zip(*cube)) for cube in res)
-
-    return res
+intervaltype: t.TypeAlias = tuple[int, int]
 
 
-_ground = ((float("-inf"), float("-inf"), 0), (float("inf"), float("inf"), 0))
-_down = (0, 0, -1)
+@dataclass
+class Brick:
+    x: intervaltype
+    y: intervaltype
+    z: intervaltype
 
+    @classmethod
+    def from_string(cls, s: str) -> t.Self:
+        pairs = (map(int, part.split(",")) for part in s.split("~"))
+        x, y, z = zip(*pairs)
+        inst = cls(x=x, y=y, z=z)
+        return inst
 
-def collision(cube1, cube2):
-    """Returns true if the two cubes collide with each other."""
-    dim = len(cube1[0])
+    def overlaps(self, other: Brick) -> bool:
+        """Determines whether the xy region overlaps with another brick (similar to determining
+        whether the planes resulting from projecting the bricks onto z=0 have an overlap)"""
+        pairs = ((brick.x, brick.y) for brick in (self, other))
 
-    # Assume collision. Switch to False if any coordinate (x, y, z) is disjunct between the two cubes
-    res = True
-    for i in range(dim):
-        low1 = cube1[0][i]
-        high1 = cube1[1][i]
-        low2 = cube2[0][i]
-        high2 = cube2[1][i]
-        disjunct = low2 > high1 or high2 < low1
-        if disjunct:
-            return False
-        #
-    return res
+        for (low1, high1), (low2, high2) in zip(*pairs):
+            intersect = low2 <= high1 and high2 >= low1
+            if not intersect:
+                return False
+        
+        return True
 
+    def vertical_distance(self, other: Brick) -> int:
+        """Returns the minimum vertical distance between two bricks.
+        If the bricks share some z-coordinates, 0 is returned.
+        Otherwise, the lowest difference between any z-coordinates is used."""
 
-def _shift_coords(cube, dir_):
-    res = tuple(tuple(a + b for a, b in zip(corner, dir_)) for corner in cube)
-    return res
-
-
-def trymove(cube, obstacles, dir_=None, repeat=False):
-    """Tries moving a cube in the specified direction. Returns new location if successful. Returns old location
-    if the new position is blocked by an obstacle or by the ground.
-    if repeat, keep repeating until a collision is detected."""
-
-    if dir_ is None:
-        dir_ = _down
-
-    newcube = _shift_coords(cube, dir_)
-
-    if collision(newcube, _ground) or any(collision(newcube, obstacle) for obstacle in obstacles):
-        return cube
-    else:
-        if repeat:
-            return trymove(newcube, obstacles, dir_=dir_, repeat=repeat)
+        a1, b1 = self.z
+        a2, b2 = other.z
+        if a1 > b2:
+            return a1 - b2
+        elif a2 > b1:
+            return b1 - a2
         else:
-            return newcube
+            return 0
+        #
+    
+    @property
+    def height(self) -> int:
+        """The height above the ground"""
+        a, _ = self.z
+        return a
+    
+    def fall(self, dist: int) -> None:
+        """Moves the block down by the specified amount (modifies in-place)"""
+        a, b = self.z
+        self.z = (a - dist, b - dist)
 
 
-def fall(cubes):
-    """Let all the cubes fall into place. Starting with the cube at the lowest z-value."""
-
-    cubes_done = []
-    for i, cube in enumerate(sorted(cubes, key=lambda cube: cube[0][2])):
-        cube_landed = trymove(cube, obstacles=cubes_done, repeat=True)
-        cubes_done.append(cube_landed)
-        print(f"{i+1} of {len(cubes)} cubes have fallen into place.", end="\r")
-    print()
-
-    return cubes_done
+def parse(s: str) -> list[Brick]:
+    res = [Brick.from_string(line) for line in s.splitlines()]
+    return res
 
 
-def make_restmap(cubes):
-    """Maps all cubes (index) to the indices of the cubes on which they rest.
-    For example, {1: [2,3,4], ...} indicates that cube 1 rests on cubes 2, 3, and 4.
-    Works by trying to shift all cubes downwards one step, then identifying with which cubes it collides."""
+class Tetris:
+    """Helper class for handling bricks and doing stuff like calculating the posititions of the bricks as they fall,
+    determining which bricks support one another, etc."""
 
-    res = {}
-    for i, cube in enumerate(cubes):
-        res[i] = []
-        newcube = _shift_coords(cube, dir_=_down)
-        for j, othercube in enumerate(cubes):
-            if i == j:
+    def __init__(self, bricks: t.Iterable[Brick]) -> None:
+        self._bricks: dict[int, Brick] = dict()
+        self._xy_overlaps: dict[int, set[int]] = defaultdict(set)
+
+        for brick in bricks:
+            self.add_brick(brick)
+        #
+    
+    def add_brick(self, brick: Brick) -> int:
+        """Add a brick. Returns the index of the brick.
+        Also updates the registry of which bricks have overlapping xy-regions (to speed up
+        collision testing)"""
+
+        n = len(self._bricks)
+        if n in self._bricks:
+            raise RuntimeError
+        
+        self._bricks[n] = brick
+        
+        # Update registry of intersecting xy planes
+        for ind, other_brick in self._bricks.items():
+            if ind == n:
                 continue
-            if collision(newcube, othercube):
-                res[i] += [j]
-            #
+            
+            if brick.overlaps(other_brick):
+                self._xy_overlaps[n].add(ind)
+                self._xy_overlaps[ind].add(n)
+
+        return n
+
+    def get_vertical_dists(self, ind: int) -> dict[int, int]:
+        """ind: index of a brick.
+        Returns a dict mapping other dict inds to how far below the input brick they are.
+        Negative values are used if the other brick is above the input one."""
+
+        brick = self._bricks[ind]
+        res = dict()
+        for otherind in self._xy_overlaps[ind]:
+            otherbrick = self._bricks[otherind]
+            dist = brick.vertical_distance(otherbrick)
+            res[otherind] = dist
+        
+        return res
+
+    def let_fall(self) -> None:
+        """Lets the brick fall into place. Starts with bricks closer to the ground to avoid issues with
+        bricks collidint mid-air"""
+        ordered = sorted(self._bricks.keys(), key=lambda k: min(self._bricks[k].z))
+        for ind in ordered:
+            brick = self._bricks[ind]
+            vdists = self.get_vertical_dists(ind)
+            maxdist = min((v for v in vdists.values() if v >= 0), default=brick.height)
+            assert maxdist != 0
+            brick.fall(maxdist - 1)
         #
-    return res
 
+    def get_supports(self) -> dict[int, list[int]]:
+        """Maps each brick index to a list of indices of bricks which rest on it.
+        'rest on' here doesn't preclude resting on other bricks as well."""
 
-def find_disintegrable_cubes(restmap):
-    """Identifies the cubes which may be safely disintegrated."""
-
-    # Start with the set of all cubes
-    all_cubes = set(restmap.keys())
-
-    # Disqualify any cubes that are the sole support for another cube
-    sole_supports = set([])
-    for supports in restmap.values():
-        if len(supports) == 1:
-            sole_supports.add(supports[0])
-        #
-
-    # Cubes that are not sole supporters are safe to disintegrate
-    res = all_cubes - sole_supports
-    return res
-
-
-def count_chain_reaction_cubes(restmap):
-    """Counts the number of cubes which can be disintegrated as a result of a chain reaction.
-    Works by trying to start a chain reaction from each cube and observing the number of cubes destroyed in the
-    subsequent chain reaction."""
-
-    res = 0
-    for cube in restmap.keys():
-        # Repeatedly destroy cubes which just lost all their supports
-        destroyed = set([])
-        boom = {cube}
-        while boom:
-            destroyed = destroyed.union(boom)
-            boom = set([])
-            for newcube, supports in restmap.items():
-                if supports and all(support in destroyed for support in supports) and newcube not in destroyed:
-                    boom.add(newcube)
+        supports = {i: [] for i in self._bricks.keys()}
+        for i in self._bricks.keys():
+            for other, dist in self.get_vertical_dists(i).items():
+                if dist == 1:
+                    supports[other].append(i)
                 #
             #
-        # Only count the cubes destroyed from the chain reaction, not the initial destruction
-        res += len(destroyed) - 1
+        return supports
 
-    return res
+    def chain_reactions(self) -> dict[int, int]:
+        """Computes for each brick how many other bricks will be affected by disintegrating it."""
+
+        # Map each brick to bricks which rest on it (so {A: [B, C]} means B and C rest upon A)
+        supports = self.get_supports()
+
+        # Conversely, map each to the bricks it rests upon (so {A: {B, C}} means A rests on B and C)
+        supported_by = {i: set() for i in self._bricks.keys()}
+        for k, v in supports.items():
+            for otherind in v:
+                supported_by[otherind].add(k)
+            #
+        
+        res = dict()
+
+        # Try disintegration each brick, and determine how many bricks are affected
+        for i in self._bricks.keys():
+            
+            affected = set()
+            front = {i,}  # this holds the 'new' bricks in the computation
+            next_ = set()
+
+            # Repeatedly consider any brick resting upon bricks affected so far
+            while front:
+                # Update with the newly affected bricks
+                affected |= front
+                
+                # Any brick resting on a newly affected brick might in turn get affected - check those
+                candidates = {touched for elem in front for touched in supports[elem]}
+                for candidate in candidates:
+                    # Check if every brick on which the candidate rests is now affected
+                    foundation = supported_by[candidate]
+                    reaction_continues = foundation.issubset(affected)
+                    if reaction_continues:
+                        next_.add(candidate)
+                    #
+                
+                front = next_
+                next_ = set()
+
+            # The reaction size is the number of affected bricks, except the disintegrated one
+            res[i] = len(affected) - 1
+
+        return res
 
 
 def solve(data: str) -> tuple[int|str, ...]:
-    cubes = parse(data)
+    bricks = parse(data)
 
-    cubes_on_ground = fall(cubes)
-    restmap = make_restmap(cubes_on_ground)
-    discubes = find_disintegrable_cubes(restmap)
-    star1 = len(discubes)
+    tetris = Tetris(bricks)
+    tetris.let_fall()
+    reaction_sizes = tetris.chain_reactions()
+
+    star1 = sum(v == 0 for v in reaction_sizes.values())
     print(f"Solution to part 1: {star1}")
 
-    star2 = count_chain_reaction_cubes(restmap)
+    star2 = sum(reaction_sizes.values())
     print(f"Solution to part 2: {star2}")
 
     return star1, star2
