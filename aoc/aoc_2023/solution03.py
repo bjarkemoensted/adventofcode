@@ -6,7 +6,6 @@
 
 from typing import Iterator, Literal, TypeAlias
 
-
 cattype: TypeAlias = Literal["digit", ".", "symbol"]
 coordtype: TypeAlias = tuple[int, int]
 valmap: TypeAlias = dict[coordtype, int]

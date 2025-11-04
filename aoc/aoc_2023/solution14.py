@@ -4,11 +4,12 @@
 # ·.* · `+  ··   . * ·· `+     · .`·•.. * ·    `*·` .    ··•    `· ·*.··` · *.· 
 
 from __future__ import annotations
+
 from functools import cache
-import numpy as np
-from numpy.typing import NDArray
 from typing import Iterable, TypeAlias
 
+import numpy as np
+from numpy.typing import NDArray
 
 coordtype: TypeAlias = tuple[int, int]
 

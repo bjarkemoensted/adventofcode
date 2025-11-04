@@ -6,7 +6,6 @@
 import math
 from typing import TypeAlias
 
-
 nodemap: TypeAlias = dict[str, tuple[str, str]]
 
 

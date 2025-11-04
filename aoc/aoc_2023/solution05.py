@@ -6,7 +6,6 @@
 
 from typing import TypeAlias
 
-
 maptype: TypeAlias = list[list[int]]
 
 

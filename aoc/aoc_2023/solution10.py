@@ -4,12 +4,11 @@
 # ·+`· .*    ·   ·`*`.  ·.· +.` ··   ·*  ·. ·  * ·` * .·    `.  · · · `*  . `·*·
 
 from functools import cache
+from typing import TypeAlias
 
 import networkx as nx
 import numpy as np
 from numpy.typing import NDArray
-from typing import TypeAlias
-
 
 coordtype: TypeAlias = tuple[int, int]
 
