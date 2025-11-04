@@ -4,13 +4,14 @@
 # `··.*   ··  `.·  ·*`. ·   ··+     ·  .·     ·.• ·    · *·  ` ·` . ·  *·    .`·
 
 
-def parse(s: str) -> list:
+def parse(s: str) -> list[tuple[str, int, str]]:
     res = []
     for line in s.split("\n"):
-        a, b, c = line.split()
-        b = int(b)
+        a, b_str, c = line.split()
+        b = int(b_str)
         c = c[1:-1]
         res.append((a, b, c))
+        print(a, b, c)
 
     return res
 

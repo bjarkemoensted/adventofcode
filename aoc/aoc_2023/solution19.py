@@ -4,10 +4,9 @@
 # +`  ·.`·.* `·.    `·    · ·  ·`   ` ··*.       `·* .`··  `  *·· ·. ·`     *·`·
 
 
-from dataclasses import dataclass
 import re
 import typing as t
-
+from dataclasses import dataclass
 
 # Define aliases for some type we'll use a bit, and define type guards for some
 xmastype: t.TypeAlias = t.Literal["x", "m", "a", "s"]

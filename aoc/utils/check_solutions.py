@@ -1,7 +1,7 @@
+import functools
 import importlib
 import pathlib
 from argparse import ArgumentParser
-import functools
 
 from aocd.runner import run_for
 from aocd.utils import get_plugins

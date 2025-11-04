@@ -88,7 +88,11 @@ class Grid:
         
         # Determine the heat loss without any of the imposed constraints. All real heat losses will be >= this value
         G_rev = self.G.reverse(copy=True)
-        self._heat_loss_lower_bound = nx.single_source_dijkstra_path_length(G=G_rev, source=self.target, weight="weight")
+        self._heat_loss_lower_bound = nx.single_source_dijkstra_path_length(
+            G=G_rev,
+            source=self.target,
+            weight="weight"
+        )
     
     def heuristic(self, pos: coordtype) -> int:
         """A lower bound on the heat loss when moving a crucible from the input position to the target"""
