@@ -3,15 +3,13 @@
 # *· . ·   `.  ·.•·    https://adventofcode.com/2023/day/23   ·   .*  ·.* ·`  ·.
 # ·`*    ··.`·.*      ·`·.*`·*   .·`.·  +·.      · `·.*    `   · ` ·    ·*.·.`+·
 
-from dataclasses import dataclass
 from enum import Enum
 from heapq import heappop, heappush
-import numba
-from numba.typed import Dict, List
-from numba.types import DictType
+from numba import njit
+from numba.typed import Dict
+from numba import types
 import numpy as np
 from numpy.typing import NDArray
-import time
 import typing as t
 
 
@@ -19,9 +17,9 @@ coordtype: t.TypeAlias = tuple[int, int]
 edgetype: t.TypeAlias = tuple[coordtype, coordtype]
 graphtype: t.TypeAlias = dict[coordtype, dict[coordtype, int]]
 
-nb_node = numba.types.uint64
-nb_inner = numba.types.DictType(nb_node, nb_node)
-nb_outer = numba.types.DictType(nb_node, nb_inner)
+nb_node = types.int64
+nb_inner = types.DictType(nb_node, nb_node)
+nb_outer = types.DictType(nb_node, nb_inner)
 
 
 class Symbols(str, Enum):
@@ -152,99 +150,177 @@ def build_graph(M: NDArray[np.str_], allow_uphill=False) -> graphtype:
     return G
 
 
-def heuristic(G: dict[int, dict[int, int]], visited: int, head: int):
-    return 99999  # !!!
+@njit(cache=True)
+def heuristic(
+        neighbors: NDArray[np.int64],
+        edges: NDArray[np.int64],
+        keys: NDArray[np.int64],
+        visited: int,
+        head: int,
+        end: int):
+    """Heuristic for determining and upper bound on the longest possible path from the current path head
+    to the target (end) node, avoiding nodes already visited.
+    Nodes visited are represented by a single large integer."""
+    
+    visited_running = visited
+    blop_sig = 0
+    front = [head]
+    
+    # Run BFS on remaining nodes, using hte path head as the source node.
+    while front:
+        iter_ = [elem for elem in front]
+        front = []
+        for u in iter_:
+            blop_sig += keys[u]
+
+            for v in neighbors[u]:
+                if v == -1 or (keys[v] & visited_running):
+                    continue
+
+                visited_running += keys[v]
+                front.append(v)
+            #
+        #
+    
+    # If there's not path from the current path head to target, no ptah is possible
+    target_reachable = keys[end] & blop_sig
+    if not target_reachable:
+        return -1
+    
+    # Sum all the edges present in the reachable remaining nodes
+    res = 0
+    for i, j, dist in edges:
+        # Require both nodes are reachable
+        if (keys[i] & blop_sig) and (keys[j] & blop_sig):
+            res += dist
+        #
+
+    return res
 
 
-def astar(G: dict[int, dict[int, int]], nodes, edges, keys, start: int, end: int, n_max: int=-1) -> int:
-
+@njit(cache=True)
+def astar_long(
+        adj: NDArray[np.int64],
+        neighbors: NDArray[np.int64],
+        edges: NDArray[np.int64],
+        keys: NDArray[np.int64],
+        start: int,
+        end: int,
+        n_max: int=-1) -> int:
+    """A* variant for determining longest path.
+    adj is the Adjacency matrix with A[i, j] = distance(i, j).
+    neighbours is a n_nodes x 4 array where each of the 4 elements of arr[u] are adjacent nodes or -1
+    edges is an n_edges x 3 array with u, v, distance, ordered by decending distance, and only for u < v
+    keys is an array of distinct 'keys' (powers of 2) which can be summed to effectively represent a set.
+    start and end are the source and target nodes.
+    n_max is an optional limit on the number of iterations.
+    Returns the longest path length if found, -1 if not found (including if the iteration limit is reached)"""
 
     # Priority queue storing each state (tuple of key for nodes visited and current head)
-    queue: list[tuple[int, tuple[int, int]]] = []
+    queue: list[tuple[int, tuple[int, int]]] = [(i, (i, i)) for i in range(0)]
 
+    # Define initial state
     initial_visited = keys[start]
     initial_state = (initial_visited, start)
-    h0 = heuristic(G, initial_visited, start)
-    heappush(queue, (h0, initial_state))
+    h0 = heuristic(neighbors, edges, keys, initial_visited, start, end)
 
+    # Add the initial state to the queue
+    heappush(queue, (h0, initial_state))
     d_g = {(i, i): i for i in range(0)}
     d_g[initial_state] = 0
 
     nits = 0
     record = -1
 
-    while queue and (nits < n_max or n_max == -1):
+    while queue:
         nits += 1
-
-        h_old_neg, state = heappop(queue)
+        if nits % 100_000 == 0:
+            print(f"Queue size: {len(queue)}, n iterations: {nits} (record: {record})")
+        
+        if nits < n_max:
+            return -1
+        
+        _, state = heappop(queue)
         visited, head = state
-        h_old = -h_old_neg
         dist = d_g[state]
 
         if head == end:
             record = max(record, dist)
             continue
-
-        for new_head, delta in G[head].items():
-            if visited & new_head:
+        
+        for new_head in neighbors[head]:
+            if new_head == -1:
+                continue  # hit a 'fake' neighbor because head has fewer than 4 neighbors
+            
+            delta = adj[head, new_head]
+            
+            key = int(keys[new_head])
+            if visited & key:
                 continue
 
             new_dist = dist + delta
-            new_visited = visited + keys[new_head]
+            new_visited = visited + key
             new_state = (new_visited, new_head)
 
             if new_dist <= d_g.get(new_state, -1):
                 continue
             
             d_g[new_state] = new_dist
-            upper_bound = new_dist + heuristic(G, new_visited, new_head)
+
+            h = heuristic(neighbors, edges, keys, new_visited, new_head, end)
+            if h == -1:
+                continue
+
+            upper_bound = new_dist + h
+            if upper_bound <= record:
+                continue
             heappush(queue, (-upper_bound, new_state))
-            
-        
-        print(f"!!! {visited=}, {head=}")
 
     return record
 
 
 def longest_path(G_coord: graphtype, start_coord: coordtype, end_coord: coordtype) -> int:
-    
     # Map the nodes in (i, j) coordinates onto consecutive inds starting at 0
     _nodes_coord = sorted(G_coord.keys())
     inv = {coord: i for i, coord in enumerate(_nodes_coord)}
     nodes = [inv[u] for u in _nodes_coord]
+    n_nodes = len(nodes)
+    assert n_nodes < 64 - 1
+    assert nodes[0] == 0 and all(nodes[i+1] == nodes[i]+1 for i in range(len(nodes)-1))  # !!!
+
     G = {inv[u]: {inv[v]: dist for v, dist in d.items()} for u, d in G_coord.items()}
 
-    assert len(_nodes_coord) < 64 - 1
-    keys = [2**i for i in range(len(_nodes_coord))]
-
-    # Get all the distinct edges (regardless of direction)
-    _edge_lookup = {tuple(sorted((u, v))): dist for u, d in G.items() for v, dist in d.items()}
-    edges_by_size = sorted(_edge_lookup.items(), key=lambda t: t[-1])
-
-    start, end = inv[start_coord], inv[end_coord]
+    # Each node can have max 4 neighbors. Store them in Nx4 matrix for efficiency (using -1 for no neighbor)
+    neighbors = np.full((n_nodes, 4), -1, dtype=np.int64)
     
-    res = astar(G, nodes, edges_by_size, keys, start, end, n_max=5)   # !!!
+    # Adjacency matrix for the graph
+    adj = np.full((n_nodes, n_nodes), -1, dtype=np.int64)
+    # Distinct key (power of 2) for each node, to facilitate bit masking as lookup
+    keys = np.array([2**i for i in range(n_nodes)], dtype=np.int64)
 
-    return res
+    # Store edges lengths under ordered (u, v) tuples, to avoid double counting
+    _edge_lookup: dict[tuple[int, int], int] = dict()
 
-    # !!!
-    nodes_ordered = sorted(G.nodes())
-    inv = {node: i for i, node in enumerate(nodes_ordered)}
-    stuff = [((-1, -1), (-1, -1), (-1, -1), (-1, -1)) for _ in nodes_ordered]
+    for u, d in G.items():
+        for ind, (v, dist) in enumerate(sorted(d.items())):
+            adj[u, v] = dist
+            neighbors[u, ind] = v
 
-    for u_i, u in enumerate(nodes_ordered):
-        adj = [(-1, -1) for _ in range(4)]
-        for ind, (v, dist) in enumerate(sorted(G.d[u].items())):
-            adj[ind] = (inv[v], dist)
-        
-        a, b, c, d = adj
-        stuff[u_i] = (a, b, c, d)
+            edgekey = (u, v) if v > u else (v, u)
+            _edge_lookup[edgekey] = dist
+        #
 
+    # Store edges in an array of (u, v, dist), descending order of distance
+    edges_desc = np.full((len(_edge_lookup), 3), 0, dtype=np.int64)
+    for i, ((u, v), dist) in enumerate(sorted(_edge_lookup.items(), key=lambda t: -t[-1])):
+        edges_desc[i, 0] = u
+        edges_desc[i, 1] = v
+        edges_desc[i, 2] = dist
+    
+    
+    start, end = inv[start_coord], inv[end_coord]
 
-    pre = time.time()
-    res = astar(stuff, inv[start], inv[end])
-
-    print(f"Delta: {time.time() - pre:.6f}")
+    res = astar_long(adj=adj, neighbors=neighbors, edges=edges_desc, keys=keys, start=start, end=end)
 
     return res
 
@@ -257,8 +333,6 @@ def solve(data: str) -> tuple[int|str, ...]:
     start = min(G.keys())
     end = max(G.keys())
 
-    
-    # TODO solve puzzle
     star1 = longest_path(G, start, end)
     print(f"Solution to part 1: {star1}")
 
@@ -272,7 +346,7 @@ def solve(data: str) -> tuple[int|str, ...]:
 def main() -> None:
     year, day = 2023, 23
     from aocd import get_data
-    #raw = get_data(year=year, day=day)
+    raw = get_data(year=year, day=day)
     solve(raw)
 
 
