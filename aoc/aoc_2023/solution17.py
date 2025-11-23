@@ -196,7 +196,6 @@ def a_star(G: Graph, *initial_states: Crucible):
     # Variables for keeping track of scores and states
     g0 = 0
     d_g = dict()
-    d_f = dict()
     queue: list[tuple[int, Crucible]] = []
     camefrom: dict[Crucible, Crucible] = dict()
     
@@ -204,7 +203,6 @@ def a_star(G: Graph, *initial_states: Crucible):
     for initial_state in initial_states:
         d_g[initial_state] = g0
         f_score = g0 + G.heuristic(initial_state)
-        d_f[initial_state] = f_score
         heappush(queue, (f_score, initial_state))
     
     # Keep updating the path with the lowest lower bound, until we hit the target
@@ -234,7 +232,6 @@ def a_star(G: Graph, *initial_states: Crucible):
                 d_g[v] = g_tentative
                 h = G.heuristic(v)
                 f_score = g_tentative + h
-                d_f[v] = f_score
                 # Add state to the queue with the (new) lower bound
                 heappush(queue, (f_score, v))
             #

@@ -17,6 +17,7 @@ import typing as t
 
 coordtype: t.TypeAlias = tuple[int, int]
 edgetype: t.TypeAlias = tuple[coordtype, coordtype]
+graphtype: t.TypeAlias = dict[coordtype, dict[coordtype, int]]
 
 nb_node = numba.types.uint64
 nb_inner = numba.types.DictType(nb_node, nb_node)
@@ -132,127 +133,101 @@ def _iter_segments(M: NDArray[np.str_]) -> t.Iterator[tuple[tuple[coordtype, ...
     #
 
 
-# TODO fuck it just nuke this!!!!!
-class Graph:
-    def __init__(self, M: NDArray[np.str_], allow_uphill=False) -> None:
-        self.M = M.copy()
-        self.d: dict[coordtype, dict[coordtype, int]] = dict()
-        self._points: dict[edgetype, tuple[coordtype, ...]] = dict()
+def build_graph(M: NDArray[np.str_], allow_uphill=False) -> graphtype:
+    G: graphtype = dict()
 
-        for path, uphill in _iter_segments(M):
+    for path, uphill in _iter_segments(M):
             if allow_uphill or not uphill:
-                self.add_path(path)
+                dist = len(path) - 1
+                endpoints = path[0], path[-1]
+                for node in endpoints:
+                    if node not in G:
+                        G[node] = dict()
+                    #
+                u, v = endpoints
+                G[u][v] = dist
             #
         #
 
-    def add_node(self, u: coordtype) -> None:
-        if u not in self.d:
-            self.d[u] = dict()
-        #
-    
-    def add_edge(self, u: coordtype, v: coordtype, dist: int) -> None:
-        for node in (u, v):
-            self.add_node(node)
-        
-        self.d[u][v] = dist
-    
-    def add_path(self, path: tuple[coordtype, ...]) -> None:
-        dist = len(path) - 1
-        u, v = path[0], path[-1]
-        assert u != v
-        self.add_edge(u, v, dist)
-        self._points[(u, v)] = path
-
-    def nodes(self) -> list[coordtype]:
-        return sorted(self.d.keys())
-
-    def edges(self) -> list[edgetype]:
-        return sorted((u, v) for u, d_ in self.d.items() for v, _ in d_.items())
-    #
+    return G
 
 
-@numba.njit
-def astar(graph: list[tuple[tuple[int, int], ...]], start: int, end: int):
-    nodes = list(range(len(graph)))
-    n_nodes = len(graph)
+def heuristic(G: dict[int, dict[int, int]], visited: int, head: int):
+    return 99999  # !!!
 
-    # Binary repr of each node has a single 1 in a distinct location. This allows efficient subset detection
-    assert n_nodes < 64 - 1
-    keys = [2**i for i in range(n_nodes)]
-    for i in range(len(keys)-1):
-        # Make sure we don't get overflow errors
-        assert keys[i] < keys[i+1]
 
-    # Absolute upper bound heuristic. This is terrible, just need something that's guaranteed to overshoot rn
-    upper_abs = 999
-    for e in graph:
-        for v, delta in e:
-            if delta != -1:
-                upper_abs += delta
-            #
-        #
+def astar(G: dict[int, dict[int, int]], nodes, edges, keys, start: int, end: int, n_max: int=-1) -> int:
 
-    dg = {(i, i): i for i in range(0)}
 
-    n_max = -1
-    initial_key = keys[start]
+    # Priority queue storing each state (tuple of key for nodes visited and current head)
+    queue: list[tuple[int, tuple[int, int]]] = []
 
-    # map (head, key) for current longest dist
-    dg[(start, initial_key)] = 0
+    initial_visited = keys[start]
+    initial_state = (initial_visited, start)
+    h0 = heuristic(G, initial_visited, start)
+    heappush(queue, (h0, initial_state))
 
-    seed = (initial_key, start)
-    queue = [(-upper_abs, seed)]
+    d_g = {(i, i): i for i in range(0)}
+    d_g[initial_state] = 0
+
     nits = 0
-
     record = -1
 
-    while queue and (n_max == -1 or nits <= n_max):
+    while queue and (nits < n_max or n_max == -1):
         nits += 1
 
-        if nits % 1_000_000 == 0:
-            print(f"Queue size: {len(queue)} (nits={nits})")
-
-        h_old, (key, head) = heappop(queue)
-        h_old *= -1
-        dist = dg[(head, key)]
+        h_old_neg, state = heappop(queue)
+        visited, head = state
+        h_old = -h_old_neg
+        dist = d_g[state]
 
         if head == end:
             record = max(record, dist)
             continue
 
-        # get neighbors
-        for neighbor, delta in graph[head]:
-            if neighbor == -1:
-                break
-            
-            if keys[neighbor] & key:
+        for new_head, delta in G[head].items():
+            if visited & new_head:
                 continue
 
             new_dist = dist + delta
-            new_key = key + keys[neighbor]
+            new_visited = visited + keys[new_head]
+            new_state = (new_visited, new_head)
 
-            improved = new_dist > dg.get((neighbor, new_key), -1)
-            # TODO actually compute something here!!!
-            new_upper_bound = upper_abs
-            f = new_dist + new_upper_bound
+            if new_dist <= d_g.get(new_state, -1):
+                continue
+            
+            d_g[new_state] = new_dist
+            upper_bound = new_dist + heuristic(G, new_visited, new_head)
+            heappush(queue, (-upper_bound, new_state))
+            
+        
+        print(f"!!! {visited=}, {head=}")
 
-            if improved and f > record:
-                dg[(neighbor, new_key)] = new_dist
-
-                
-                
-                new_state = (new_key, neighbor)
-                heappush(queue, (-f, new_state))
-            #
-        #
-    
-    print(keys)
     return record
 
 
-def longest_path(G: Graph, start: coordtype, end: coordtype) -> int:
-    # Represent nodes as consecutive ints from 0, and the graph as list of tuples of (neighbor, distance)
-    # This is more efficient with numba because of reasons!
+def longest_path(G_coord: graphtype, start_coord: coordtype, end_coord: coordtype) -> int:
+    
+    # Map the nodes in (i, j) coordinates onto consecutive inds starting at 0
+    _nodes_coord = sorted(G_coord.keys())
+    inv = {coord: i for i, coord in enumerate(_nodes_coord)}
+    nodes = [inv[u] for u in _nodes_coord]
+    G = {inv[u]: {inv[v]: dist for v, dist in d.items()} for u, d in G_coord.items()}
+
+    assert len(_nodes_coord) < 64 - 1
+    keys = [2**i for i in range(len(_nodes_coord))]
+
+    # Get all the distinct edges (regardless of direction)
+    _edge_lookup = {tuple(sorted((u, v))): dist for u, d in G.items() for v, dist in d.items()}
+    edges_by_size = sorted(_edge_lookup.items(), key=lambda t: t[-1])
+
+    start, end = inv[start_coord], inv[end_coord]
+    
+    res = astar(G, nodes, edges_by_size, keys, start, end, n_max=5)   # !!!
+
+    return res
+
+    # !!!
     nodes_ordered = sorted(G.nodes())
     inv = {node: i for i, node in enumerate(nodes_ordered)}
     stuff = [((-1, -1), (-1, -1), (-1, -1), (-1, -1)) for _ in nodes_ordered]
@@ -276,16 +251,18 @@ def longest_path(G: Graph, start: coordtype, end: coordtype) -> int:
 
 def solve(data: str) -> tuple[int|str, ...]:
     M = parse(data)
-    G = Graph(M)
-    start = min(G.nodes())
-    end = max(G.nodes())
+    G = build_graph(M)
+    G2 = build_graph(M, allow_uphill=True)
+
+    start = min(G.keys())
+    end = max(G.keys())
 
     
     # TODO solve puzzle
     star1 = longest_path(G, start, end)
     print(f"Solution to part 1: {star1}")
 
-    G2 = Graph(M, allow_uphill=True)
+    
     star2 = longest_path(G2, start, end)
     print(f"Solution to part 2: {star2}")
 
@@ -295,7 +272,7 @@ def solve(data: str) -> tuple[int|str, ...]:
 def main() -> None:
     year, day = 2023, 23
     from aocd import get_data
-    raw = get_data(year=year, day=day)
+    #raw = get_data(year=year, day=day)
     solve(raw)
 
 

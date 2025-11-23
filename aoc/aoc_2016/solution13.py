@@ -74,10 +74,9 @@ def a_star(G: Graph, target, start=(1, 1)) -> list[tuple[int, int]]:
     d_g = dict()
     d_g[start] = 0
 
-    d_f = dict()
-    d_f[start] = manhatten_dist(start, target)
+    f0 = manhatten_dist(start, target)
 
-    open_.push(start, priority=d_f[start])
+    open_.push(start, priority=f0)
     camefrom: dict[tuple[int, int], tuple[int, int]] = dict()
 
     while open_:
