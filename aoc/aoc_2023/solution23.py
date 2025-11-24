@@ -12,8 +12,7 @@ from numba import njit
 from numpy.typing import NDArray
 
 coordtype: t.TypeAlias = tuple[int, int]
-edgetype: t.TypeAlias = tuple[coordtype, coordtype]
-graphtype: t.TypeAlias = dict[coordtype, dict[coordtype, int]]
+graphtype: t.TypeAlias = dict[int, dict[int, tuple[int, bool]]]
 
 
 class Symbols(str, Enum):
@@ -43,82 +42,63 @@ def parse(s: str) -> NDArray[np.str_]:
     return M
 
 
-def _dirs_and_neighbors(M: NDArray[np.str_], i: int, j: int) -> t.Iterator[tuple[tuple[int, int], coordtype]]:
+def _dirs_and_neighbors(M: NDArray[np.str_], i: int, j: int) -> list[tuple[tuple[int, int], coordtype]]:
     """For a given site in the ASCII map, generates pairs of (direction, neighbor coordinates)."""
 
+    res: list[tuple[tuple[int, int], coordtype]] = []
     for dir_ in slopes.keys():
         di, dj = dir_
         x = (i + di, j + dj)
         if all(0 <= c < lim for c, lim in zip(x, M.shape)) and M[*x] != Symbols.wall:
-            yield dir_, x
+            res.append((dir_, x))
         #
-    #
+    return res
 
 
-def _iter_segments(M: NDArray[np.str_]) -> t.Iterator[tuple[tuple[coordtype, ...], bool]]:
-    """Given the ASCII map, generates every path segment between non-trivial sites (with != 2 neighbors).
-    Generates for each such segment
-    points on path - tuple of the sites that make up the path segment,
-    uphill (bool) - indicates whether any point on the segment goes up a slope"""
+def build_graph(M: NDArray[np.str_]) -> dict[int, dict[int, tuple[int, bool]]]:
+    """Summarizes the ASCII map into a graph - format: {u: {v1: (dist1, uphill1), ...}, ...}"""
+    
+    # Find the 'interesting' points (start+end points, and points where a path may branch out)
+    adj_cache = {(i, j): _dirs_and_neighbors(M, i, j) for (i, j), char in np.ndenumerate(M) if char != Symbols.wall}
+    junctions = sorted((i, j) for (i, j), steps in adj_cache.items() if len(steps) != 2)
+    # Order and map to ints 0, 1, ...
+    map_ = {coord: i for i, coord in enumerate(junctions)}
 
-    sites = {x for x, char in np.ndenumerate(M) if char != Symbols.wall}
-    _adj_cache = {(i, j): tuple(_dirs_and_neighbors(M, i, j)) for (i, j) in sites}
+    G: dict[int, dict[int, tuple[int, bool]]] = {u: dict() for u in map_.values()}
 
-    branch_points = {x for x, adj_ in _adj_cache.items() if len(adj_) != 2}
-
-    for x in sorted(branch_points):
-        paths: list[tuple[tuple[coordtype, ...], bool]] = [((x,), False)]
-        visited = {x}
+    # Run BFS from each junction point, keep trak of whether we step up a slope
+    for x, u in map_.items():
+        # Represent paths with (set of nodes in path, head node, has stepped uphille)
+        paths: list[tuple[set[coordtype], coordtype, bool]] = [({x}, x, False)]
 
         while paths:
             grow = paths
             paths = []
-            for points, uphill in grow:
-                head = points[-1]
-                for step, neighbor in _adj_cache[head]:
+            for visited, head, uphill in grow:
+                for step, neighbor in adj_cache[head]:
                     if neighbor in visited:
                         continue
-                    visited.add(neighbor)
 
                     char = M[*head]
                     uphill_here = char != Symbols.free and slopes[step] != char
                     new_uphill = uphill or uphill_here
-                    
-                    new_points = points + (neighbor,)
-                    updated_path = (new_points, new_uphill)
 
-                    if neighbor in branch_points:
-                        yield updated_path
-                    else:
+                    try:
+                        v = map_[neighbor]
+                        dist = len(visited)
+                        G[u][v] = (dist, new_uphill)
+                    except KeyError:
+                        updated_path = (visited | {neighbor}, neighbor, new_uphill)
                         paths.append(updated_path)
                     #
                 #
             #
         #
-    #
-
-
-def build_graph(M: NDArray[np.str_], allow_uphill=False) -> graphtype:
-    """Summarizes the ASCII map into a graph - format: {u: {v1: dist1, ...}, ...}"""
-    G: graphtype = dict()
-
-    for path, uphill in _iter_segments(M):
-            if allow_uphill or not uphill:
-                dist = len(path) - 1
-                endpoints = path[0], path[-1]
-                for node in endpoints:
-                    if node not in G:
-                        G[node] = dict()
-                    #
-                u, v = endpoints
-                G[u][v] = dist
-            #
-        #
-
+    
     return G
 
 
-@njit
+@njit(cache=True)
 def heuristic(
         neighbors: NDArray[np.int64],
         edges: NDArray[np.int64],
@@ -131,7 +111,8 @@ def heuristic(
     Nodes visited are represented by a single large integer."""
     
     visited_running = visited
-    blop_sig = 0
+    # Keep track of the set of nodes still reachable
+    reachable = 0
     front = [head]
     
     # Run BFS on remaining nodes, using hte path head as the source node.
@@ -139,7 +120,7 @@ def heuristic(
         iter_ = [elem for elem in front]
         front = []
         for u in iter_:
-            blop_sig += keys[u]
+            reachable += keys[u]
 
             for v in neighbors[u]:
                 if v == -1 or (keys[v] & visited_running):
@@ -151,7 +132,7 @@ def heuristic(
         #
     
     # If there's not path from the current path head to target, no ptah is possible
-    target_reachable = keys[end] & blop_sig
+    target_reachable = keys[end] & reachable
     if not target_reachable:
         return -1
     
@@ -159,14 +140,14 @@ def heuristic(
     res = 0
     for i, j, dist in edges:
         # Require both nodes are reachable
-        if (keys[i] & blop_sig) and (keys[j] & blop_sig):
+        if (keys[i] & reachable) and (keys[j] & reachable):
             res += dist
         #
 
     return res
 
 
-@njit
+@njit(cache=True)
 def astar_long(
         adj: NDArray[np.int64],
         neighbors: NDArray[np.int64],
@@ -262,17 +243,36 @@ def astar_long(
     return record
 
 
-def longest_path(G_coord: graphtype, start_coord: coordtype, end_coord: coordtype) -> int:
-    # Map the nodes in (i, j) coordinates onto consecutive inds starting at 0
-    _nodes_coord = sorted(G_coord.keys())
-    inv = {coord: i for i, coord in enumerate(_nodes_coord)}
-    nodes = [inv[u] for u in _nodes_coord]
+def longest_path(G: graphtype, start: int, end: int, allow_uphill=False) -> int:
+    """Findes the longest path from the input start to end node on the input graph.
+    It's assumed that the start and end nodes only connect to one other node in the graph.
+    allow_uphill specifies whether stepping uphill on a slope is allowed.
+    A number of preprossing steps are done to make the algorithm more efficient:
+    * The adjacency matrix for the graph is stored in a numpy array (for looking up distances
+    when we have nodes u and v). This is because dicts seem to be kind of slow with numba.
+    * The neighbors for each node is stored in another, smaller array. This is because the graph is
+    embedded in a lattice, so each node can have max 4 neighbors. Therefore, we store information on
+    neighboring node in an Nx4 array, where Arr[u] have 4 values which are the neighbors of u. If u have fewer
+    than 4 neighbors, the unused elements are set to -1.
+    * We store in another array the distances of all connections between pairs of nodes in the graph, along with the
+    two connected nodes. This is for computing upper bounds on the remaining distance more efficiently:
+    If the nodes u and v are still unused, only one of the edges u -> v and v -> u may be used. Computing the
+    undirected edges in a preprocessing step enables fast computation of the sum of edges between the remaining
+    nodes.
+    * Finally, we define a 'key' 2^u for each node. This is because unlike in standard pathfinding algorithms like A*,
+    we need to keep track of not just one (shortest, in standard A*) path for each node reached, but the longest
+    path for each distinct subset visited on paths to the node. We also need to be able to use said subsets to
+    efficiently look up the corresponding distances. This is a problem because normal sets aren't hashable, and numba
+    functions don't support frozensets (which are). The 'keys' are a workaround for this issue - summing the keys for
+    any subset of nodes results in a distinct integer which 1) is hashable and thus can be used as a dict key, and 2)
+    allows quick computation of set intersection (bitwise AND)."""
+
+    nodes = sorted(G.keys())
     n_nodes = len(nodes)
+    assert all(node == i for i, node in enumerate(nodes))
 
     # We represent the set of nodes visited by individual bits in a large int, so n_nodes better be small enough
     assert n_nodes < 64 - 1
-
-    G = {inv[u]: {inv[v]: dist for v, dist in d.items()} for u, d in G_coord.items()}
 
     # Each node can have max 4 neighbors. Store them in Nx4 matrix for efficiency (using -1 for no neighbor)
     neighbors = np.full((n_nodes, 4), -1, dtype=np.int64)
@@ -288,7 +288,9 @@ def longest_path(G_coord: graphtype, start_coord: coordtype, end_coord: coordtyp
 
     # Populate adjacency, neighbors, and edge data
     for u, d in G.items():
-        for ind, (v, dist) in enumerate(sorted(d.items())):
+        # Only keep edges with uphill steps if we allow that
+        edges_keep = ((v, dist) for v, (dist, uphill) in d.items() if allow_uphill or not uphill)
+        for ind, (v, dist) in enumerate(sorted(edges_keep)):
             adj[u, v] = dist
             neighbors[u, ind] = v
 
@@ -302,8 +304,6 @@ def longest_path(G_coord: graphtype, start_coord: coordtype, end_coord: coordtyp
         edges_desc[i, 0] = u
         edges_desc[i, 1] = v
         edges_desc[i, 2] = dist
-    
-    start, end = inv[start_coord], inv[end_coord]
 
     res = astar_long(adj=adj, neighbors=neighbors, edges=edges_desc, keys=keys, start=start, end=end)
 
@@ -313,16 +313,13 @@ def longest_path(G_coord: graphtype, start_coord: coordtype, end_coord: coordtyp
 def solve(data: str) -> tuple[int|str, ...]:
     M = parse(data)
     G = build_graph(M)
-    G2 = build_graph(M, allow_uphill=True)
-
     start = min(G.keys())
     end = max(G.keys())
 
     star1 = longest_path(G, start, end)
     print(f"Solution to part 1: {star1}")
-
     
-    star2 = longest_path(G2, start, end)
+    star2 = longest_path(G, start, end, allow_uphill=True)
     print(f"Solution to part 2: {star2}")
 
     return star1, star2
