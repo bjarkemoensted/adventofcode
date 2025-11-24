@@ -4,9 +4,10 @@
 # +· . *` •·  ·   *· . `   ·  ·   *  . · ·` +     ·     *`· •     .`·  *·.`  *.·
 
 from __future__ import annotations
+
+import typing as t
 from collections import defaultdict
 from dataclasses import dataclass
-import typing as t
 
 intervaltype: t.TypeAlias = tuple[int, int]
 
@@ -132,7 +133,7 @@ class Tetris:
         """Maps each brick index to a list of indices of bricks which rest on it.
         'rest on' here doesn't preclude resting on other bricks as well."""
 
-        supports = {i: [] for i in self._bricks.keys()}
+        supports: dict[int, list[int]] = {i: [] for i in self._bricks.keys()}
         for i in self._bricks.keys():
             for other, dist in self.get_vertical_dists(i).items():
                 if dist == 1:
@@ -148,7 +149,7 @@ class Tetris:
         supports = self.get_supports()
 
         # Conversely, map each to the bricks it rests upon (so {A: {B, C}} means A rests on B and C)
-        supported_by = {i: set() for i in self._bricks.keys()}
+        supported_by: dict[int, set[int]] = {i: set() for i in self._bricks.keys()}
         for k, v in supports.items():
             for otherind in v:
                 supported_by[otherind].add(k)

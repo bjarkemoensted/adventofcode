@@ -3,13 +3,13 @@
 # *· . ·   `.  ·.•·    https://adventofcode.com/2023/day/23   ·   .*  ·.* ·`  ·.
 # ·`*    ··.`·.*      ·`·.*`·*   .·`.·  +·.      · `·.*    `   · ` ·    ·*.·.`+·
 
+import typing as t
 from enum import Enum
 from heapq import heappop, heappush
-from numba import njit
-import numpy as np
-from numpy.typing import NDArray
-import typing as t
 
+import numpy as np
+from numba import njit
+from numpy.typing import NDArray
 
 coordtype: t.TypeAlias = tuple[int, int]
 edgetype: t.TypeAlias = tuple[coordtype, coordtype]
@@ -56,7 +56,7 @@ def _dirs_and_neighbors(M: NDArray[np.str_], i: int, j: int) -> t.Iterator[tuple
 
 
 def _iter_segments(M: NDArray[np.str_]) -> t.Iterator[tuple[tuple[coordtype, ...], bool]]:
-    """Given the ASCII map, generates every path segment, meaning all paths between non-trivial sites (with != 2 neighbors).
+    """Given the ASCII map, generates every path segment between non-trivial sites (with != 2 neighbors).
     Generates for each such segment
     points on path - tuple of the sites that make up the path segment,
     uphill (bool) - indicates whether any point on the segment goes up a slope"""
@@ -118,7 +118,7 @@ def build_graph(M: NDArray[np.str_], allow_uphill=False) -> graphtype:
     return G
 
 
-@njit(cache=True)
+@njit
 def heuristic(
         neighbors: NDArray[np.int64],
         edges: NDArray[np.int64],
@@ -166,7 +166,7 @@ def heuristic(
     return res
 
 
-@njit(cache=True)
+@njit
 def astar_long(
         adj: NDArray[np.int64],
         neighbors: NDArray[np.int64],
