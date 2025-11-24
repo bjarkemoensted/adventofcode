@@ -67,7 +67,7 @@ def _iter_segments(M: NDArray[np.str_]) -> t.Iterator[tuple[tuple[coordtype, ...
     branch_points = {x for x, adj_ in _adj_cache.items() if len(adj_) != 2}
 
     for x in sorted(branch_points):
-        paths = [((x,), False)]
+        paths: list[tuple[tuple[coordtype, ...], bool]] = [((x,), False)]
         visited = {x}
 
         while paths:
