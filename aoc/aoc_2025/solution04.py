@@ -7,9 +7,6 @@
 import numpy as np
 from numpy.lib.stride_tricks import sliding_window_view
 from numpy.typing import NDArray
-import typing as t
-
-coordtype: t.TypeAlias = tuple[int, int]
 
 _occupied = "@"
 
