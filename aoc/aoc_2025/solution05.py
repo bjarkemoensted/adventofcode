@@ -4,8 +4,9 @@
 # ·*·`.·  . ·  .`·+ .  `··+  ` .  .`·  *·  .` `  ·.·  * ·`·.  `  *·. · ·`.·  *.·
 
 from __future__ import annotations
-from dataclasses import dataclass
+
 import typing as t
+from dataclasses import dataclass
 
 boundtype: t.TypeAlias = tuple[int, int]
 
