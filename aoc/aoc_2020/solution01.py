@@ -3,8 +3,8 @@
 # ` . `  ·  .*  · `·+. https://adventofcode.com/2020/day/1  ·*`   ·.` * · `*  ··
 # · ··.•    ·.`·*     `· *·  .·  `  · +· ·  `*•.`  ·+ · `· +.  • ·     ·`·*. ·•`
 
-from functools import reduce
 import itertools
+from functools import reduce
 
 
 def parse(s: str) -> list[int]:
@@ -26,7 +26,7 @@ def find_elems_with_sum(numbers: list[int], target=2020, n_elems=2) -> int:
             return reduce(lambda a,b: a*b, comb, missing_number)
         #
     
-    raise RuntimeError(f"Sum not found")
+    raise RuntimeError("Sum not found")
 
 
 def solve(data: str) -> tuple[int|str, ...]:

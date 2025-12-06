@@ -3,8 +3,9 @@
 # ·`  ` ·   `.+     `· https://adventofcode.com/2020/day/7 ·•· .` ·  `*· . ·* .·
 # ·+.`*· `·   ·  · `.* ·.  * `·* .·`   `·+.   · .  ·     *· `.*· · ·`   .    ·`.
 
-import networkx as nx
 import re
+
+import networkx as nx
 
 
 def parse(s: str) -> nx.DiGraph:
