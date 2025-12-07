@@ -11,97 +11,73 @@ from dataclasses import dataclass
 boundtype: t.TypeAlias = tuple[int, int]
 
 
-def _independent(*bounds: boundtype) -> bool:
-    """Checks if the input bounds are independent (has no overlap)"""
-    for i, (a0, b0) in enumerate(bounds):
-        for ap, bp in bounds[i+1:]:
-            disjunct = bp < a0 or ap > b0
-            if not disjunct:
-                return False
-            #
+def untangle_bounds(*bounds: boundtype) -> t.Iterator[boundtype]:
+    """Takes some bounds (tuples of lower and upper bounds, inclusive).
+    Iterates over corresponding independent bounds, which contain
+    the same subset of integers, but do not overlap."""
+    
+    if not bounds:
+        return
+    
+    # Start with the bound with the smallest lower limit
+    bounds_ordered = sorted(bounds, reverse=True)
+    a, b = bounds_ordered.pop()
+
+    while bounds_ordered:
+        ap, bp = bounds_ordered.pop()
+        # If the next one overlaps, join into a single interval
+        if ap <= b:
+            b = max(b, bp)
+        else:
+            yield a, b
+            a, b = ap, bp
         #
+    yield a, b
+
+
+@dataclass
+class IDRange:
+    """Represents a range of freshness IDs.
+    Supports boolean lookup (if id_ in instance) and size (len(instance))"""
+
+    lower: int
+    upper: int
     
-    return True
-
-
-@dataclass(init=False)
-class IDSet:
-    """Represents a set of freshness IDs, stored as disjunct tupes of upper and lower bounds
-    of ranges.
-    Supports boolean lookup like
-    if 42 in idset_instance:
-        ...
-    """
-
-    bounds: tuple[boundtype, ...]
-
-    def __init__(self, *bounds: boundtype) -> None:
-        # Make sure we're not trying to instantiate with bounds that overlap
-        if not _independent(*bounds):
-            raise ValueError(f"Bounds {bounds} are not disjunct")
+    def __post_init__(self):
+        if not self.upper >= self.lower:
+            raise ValueError("Upper bound must be >= lower bound")
         
-        self.bounds = tuple(bounds)
-
-    @classmethod
-    def from_string(cls, s: str) -> IDSet:
-        """Instantiate from a string like '<lower>-<upper>'."""
-        a_str, b_str = s.strip().split("-")
-        bound = (int(a_str), int(b_str))
-        return cls(bound)
-    
     def __contains__(self, id_: int) -> bool:
         """Check if an ID is contained in this instance"""
-        return any(a <= id_ <= b for a, b in self.bounds)
-    
-    def __add__(self, other: IDSet) -> IDSet:
-        """Combine with another instance.
-        Returns another IDSet instance, with bounds that contain the set union of
-        the intervals contained in the two instances"""
-
-        # These are the bounds we keep for the resulting instance. These are always mutually independent
-        use_bounds = list(self.bounds)
-
-        for bound in other.bounds:
-            a, b = bound
-            for i in reversed(range(len(use_bounds))):
-                # If disjunct, move on to compare against the next bound
-                existing = use_bounds[i]
-                if _independent((a, b), existing):
-                    continue
-                
-                # Combine the bounds and remove the old one
-                del use_bounds[i]
-                ordered = sorted((a, b, *existing))
-                a, b = ordered[0], ordered[-1]
-            
-            use_bounds.append((a, b))
-        
-        return IDSet(*use_bounds)
+        return self.lower <= id_ <= self.upper
 
     def __len__(self) -> int:
         """Determines the number of IDs contained in this instance"""
-        return sum(b - a + 1 for a, b in self.bounds)
+        return self.upper - self.lower + 1
     
 
-def parse(s: str) -> tuple[list[IDSet], list[int]]:
-    id_sets_string, ids_str = s.split("\n\n")
+def parse(s: str) -> tuple[list[boundtype], list[int]]:
+    freshness_str, ids_str = s.split("\n\n")
     
     ids = [int(line) for line in ids_str.splitlines()]
-    id_sets = [IDSet.from_string(line) for line in id_sets_string.splitlines()]
+    bounds = []
+    for line in freshness_str.splitlines():
+        a, b = map(int, line.split("-"))
+        bounds.append((a, b))
 
-    return id_sets, ids
+    return bounds, ids
 
 
 def solve(data: str) -> tuple[int|str, ...]:
-    id_sets, ids = parse(data)
-
-    # Count up IDs that are present in any of the fresh sets
-    star1 = sum(any(id_ in id_set for id_set in id_sets) for id_ in ids)
+    id_bounds, ids = parse(data)
+    id_ranges = [IDRange(lower, upper) for lower, upper in untangle_bounds(*id_bounds)]
+    
+    # Count up IDs that are present in any of the fresh ID range
+    star1 = sum(any(id_ in id_set for id_set in id_ranges) for id_ in ids)
     print(f"Solution to part 1: {star1}")
 
-    # Compute the union of all the fresh sets and determine its size
-    r_combined = sum(id_sets, IDSet())
-    star2 = len(r_combined)
+    # Sum the size of each range
+    star2 = sum(map(len, id_ranges))
     print(f"Solution to part 2: {star2}")
 
     return star1, star2
