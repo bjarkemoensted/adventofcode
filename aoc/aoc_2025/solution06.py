@@ -3,11 +3,10 @@
 # . ·+*` ·. · .  `· *  https://adventofcode.com/2025/day/6  .  ·`·.  ·.`  ·   ·`
 # ·· .`·     `+ ·.* `.·.·* ·` +.  `·*  ·•.` ·  * ·  .* ·.` · ·  .  `  *··  .* `·
 
+import typing as t
 from dataclasses import dataclass
 from functools import reduce
-from operator import mul, add
-import typing as t
-
+from operator import add, mul
 
 ops = {
     "+": add,
