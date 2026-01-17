@@ -5,12 +5,13 @@
 
 
 import functools
+import typing as t
+from dataclasses import dataclass
 from itertools import combinations
+
 import numba
 import numpy as np
 from numpy.typing import NDArray
-import typing as t
-from dataclasses import dataclass
 
 powertype: t.TypeAlias = tuple[int, ...]
 buttontype: t.TypeAlias = tuple[tuple[int, ...], ...]

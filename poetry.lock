@@ -2,17 +2,17 @@
 
 [[package]]
 name = "advent-of-code-data"
-version = "2.1.0"
+version = "2.1.1"
 description = "Get your puzzle data with a single import"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "advent_of_code_data-2.1.0-py3-none-any.whl", hash = "sha256:1e0457338a9572e610f72da8aad8b06f778311a69b0ec676bf2e5db8328f4d45"},
-    {file = "advent_of_code_data-2.1.0.tar.gz", hash = "sha256:947e6583f581ed184873aac835b333fc39a5712cce606c67532f9d43253a98e2"},
+    {file = "advent_of_code_data-2.1.1-py3-none-any.whl", hash = "sha256:6d92045db4f51820cb0337a3d240873ec586cef16525c686f60250ca97711d6f"},
+    {file = "advent_of_code_data-2.1.1.tar.gz", hash = "sha256:28a85126b06e6225baa475ad0cd7880b75812b89fc890b26d81480997f6bdc6f"},
 ]
 
 [package.dependencies]
-aocd-example-parser = ">=2023.12.24"
+aocd-example-parser = ">=2025.12.11"
 beautifulsoup4 = "*"
 pebble = "*"
 tzdata = {version = "*", markers = "platform_system == \"Windows\""}
@@ -34,13 +34,13 @@ files = [
 
 [[package]]
 name = "aocd-example-parser"
-version = "2024.12.25"
+version = "2025.12.11"
 description = "Implementation of example parser plugins for advent-of-code-data"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "aocd_example_parser-2024.12.25-py3-none-any.whl", hash = "sha256:6447dfb0b7d89bd901ed1c99d6c1c8d74a3b519b81f3db0e4116ca0ba9f5cb08"},
-    {file = "aocd_example_parser-2024.12.25.tar.gz", hash = "sha256:51aa57aee98026164c063ffd943cb9a488787fd2d19779362bea04f9cd386984"},
+    {file = "aocd_example_parser-2025.12.11-py3-none-any.whl", hash = "sha256:c7c7eb4f85052ea2da60626768c69ac3569aebf68c093ddc96801b8e977307ed"},
+    {file = "aocd_example_parser-2025.12.11.tar.gz", hash = "sha256:473c68d31a43a171e68d7d51a4de3a55936d6e45529d46fb58574e15beb385ac"},
 ]
 
 [[package]]
