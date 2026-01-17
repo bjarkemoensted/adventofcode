@@ -13,15 +13,13 @@ from operator import mul
 import numpy as np
 from numpy.typing import NDArray
 
-presenttype: t.TypeAlias = NDArray[np.bool_]
-
 _space = "."
 _shape = "#"
 _map = {_space: False, _shape: True}
 _revmap = {v: k for k, v in _map.items()}
 
 
-def array_to_int(arr: presenttype) -> int:
+def array_to_int(arr: NDArray[np.bool_]) -> int:
     res = 0
     for i, val in enumerate(arr.flat):
         if val:
@@ -31,7 +29,7 @@ def array_to_int(arr: presenttype) -> int:
     return res
 
 
-def generate_transformations(m: presenttype) -> presenttype:
+def generate_transformations(m: NDArray[np.bool_]) -> NDArray[np.bool_]:
     """Takes a 2D array representing a present.
     Returns a 3D array where each slice m[i,:,:] is a distinct rotation
     obtained by flipping/rotating the present."""
@@ -61,7 +59,7 @@ class Region:
     presents: tuple[int, ...]
 
 
-def parse(s: str) -> tuple[presenttype, list[Region]]:
+def parse(s: str) -> tuple[NDArray[np.bool_], list[Region]]:
     section = s.split("\n\n")
     shapeparts = section[:-1]
     regionparts = section[-1]
@@ -101,7 +99,7 @@ class TetrisSolver:
     window is shifted slightly. This process continues until it becomes clear that the remaining of the desired
     combination of presents can fit, or all attempts have been exhausted."""
 
-    def __init__(self, presents: presenttype, verbose=False) -> None:
+    def __init__(self, presents: NDArray[np.bool_], verbose=False) -> None:
         self.verbose = verbose
         self.presents = presents.copy()
         self.present_transformations = [generate_transformations(p) for p in self.presents]
@@ -136,7 +134,7 @@ class TetrisSolver:
         self._fit_cache[key] = res
         return res
 
-    def display_state(self, state: presenttype) -> None:
+    def display_state(self, state: NDArray[np.bool_]) -> None:
         lines = ["".join(_revmap[char] for char in row) for row in state]
         s = "\n".join(lines)
         print(s, end="\n\n")
