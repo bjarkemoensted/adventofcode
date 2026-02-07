@@ -49,7 +49,6 @@ def compute_offsets(dim: int) -> NDArray[np.int_]:
     return m
 
 
-
 def cycle(coords: list[tuple[int, ...]], n_cycles: int) -> int:
     """Simulates n cycles of the conway cubes interacting.
     Returns the number of active cubes after the simulation"""
