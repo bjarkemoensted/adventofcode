@@ -5,6 +5,7 @@
 
 from collections import Counter
 from itertools import product
+
 import numpy as np
 from numpy.typing import NDArray
 
