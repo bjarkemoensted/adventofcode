@@ -3,10 +3,10 @@
 # `··.   ·• `·*. *`· · https://adventofcode.com/2025/day/2 · +··    .·  .`+·· *.
 # ··•*.`·     ·*·  .  •.·` ·+ * ·   .·`·+.   ·. ·* . ·* `.   ·*`· · ·* ·  . *·``
 
-from functools import cache
-from itertools import product
 import string
 import typing as t
+from functools import cache
+from itertools import product
 
 
 def parse(s: str) -> list[tuple[int, int]]:

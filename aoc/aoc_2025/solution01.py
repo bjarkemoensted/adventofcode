@@ -46,7 +46,11 @@ def _reflect(sign: Literal[+1, -1], x: int, mod: int) -> int:
     return res
 
 
-def analyze_rotations(rotations: list[tuple[Literal[-1, +1], int]], accumulator: Callable[[int, int], int], start=50, size=100) -> int:
+def analyze_rotations(
+        rotations: list[tuple[Literal[-1, +1], int]],
+        accumulator: Callable[[int, int], int],
+        start=50,
+        size=100) -> int:
     """Perform the input rotations, with a dial of the specified size and starting position.
     To avoid issues with left rotations, reflect around 0 before adding a new rotation, and undo the reflection
     afterwards. Between the two reflections, the accumulator callable is used to count the number of events of
