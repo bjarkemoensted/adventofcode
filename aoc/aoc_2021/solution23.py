@@ -5,7 +5,10 @@
 
 from collections import defaultdict
 from dataclasses import dataclass, replace
+from functools import cache
 from heapq import heappop, heappush
+import itertools
+import operator
 from typing import Iterator, Literal, TypeAlias, TypeGuard, get_args
 
 import networkx as nx
@@ -55,7 +58,7 @@ def _get_neighbor_coords(*coords: tuple[int, int]) -> set[tuple[int, int]]:
     return res
 
 
-@dataclass(frozen=True, slots=True, order=True)
+@dataclass(frozen=True, order=True)
 class Amphipod:
     pos: int
     kind: amphtype
@@ -77,8 +80,7 @@ def build_graph[T](*coords: tuple[int, int], mapper: dict[tuple[int, int], T]) -
 
     for i, j in coords:
         u = mapper[(i, j)]
-        # TODO use helper function!!!!!
-        for v_coord in ((i+1, j), (i-1, j), (i, j+1), (i, j-1)):
+        for v_coord in _get_neighbor_coords((i, j)):
             if v_coord in coords_set:
                 v = mapper[v_coord]
                 G.add_edge(u, v)
@@ -123,7 +125,7 @@ class Burrow:
         # Pre-compute all shortest paths and their lengths
         G = build_graph(*self.coords_ordered, mapper=self._coords_inv)
         self.paths: dict[int, dict[int, set[int]]] = dict()
-        self.dists = dict()
+        self.dists: dict[int, dict[int, int]] = dict()
 
         for u, d in nx.all_pairs_all_shortest_paths(G):
             assert all(len(p) == 1 for p in d.values())  # check paths are unique
@@ -158,117 +160,95 @@ class Burrow:
         res_list.sort(key=lambda a: (a.kind, a.pos))
         return tuple(res_list)
 
-    def get_target_state(self, map_: NDArray[np.str_]) -> keytype:
-        """Determines the target state, with all "A" amphipods in the leftmost tunnel, etc."""
-        m = map_.copy()
-        pos_and_amph_chars = (((i, j), char) for (i, j), char in np.ndenumerate(m)if is_amph(char))
-        pos, chars = map(list, zip(*pos_and_amph_chars))
-        # Sort position and symbols independently, then update ascii and determine corresponding state
-        pos.sort(key=lambda tup_: tup_[1])
-        chars.sort()
-        for (i, j), c in zip(pos, chars):
-            m[i, j] = c
-        
-        return self.state_from_ascii(m)
-
-    def attempt_move_home(self, state: keytype) -> tuple[int, keytype]|None:
-        res_list = list(state)
-
-        cost = 0
-        modified = False
-        for kind, nodes in self.home_rooms.items():
-            for node in nodes:
-                try:
-                    i, occupier = next((i, a) for i, a in enumerate(res_list) if a.pos == node)
-                    # If the site is occupied by a correct type amphipos, ensure its moved_to_room is True
-                    if occupier.kind == kind:
-                        if not occupier.moved_to_room:
-                            res_list[i] = replace(occupier, moved_to_room=True)
-                            modified = True
-                        #
-                    else:
-                        # This room is currently blocked off by a wrong type amphipod. Proceed to next room
-                        break
-                except StopIteration:
-                    # If the site is free, see if any amphipods have a clear path to the site
-                    candidates = ((i, a) for i, a in enumerate(res_list) if a.kind == kind and not a.moved_to_room)
-                    occupied = {a.pos for a in res_list}
-                    for i, candidate in candidates:
-                        path = self.paths[candidate.pos][node]
-                        path_is_clear = path.isdisjoint(occupied)
-                        if path_is_clear:
-                            cost += len(path)*movement_costs[candidate.kind]
-                            res_list[i] = replace(candidate, pos=node, moved_to_room=True)
-                            modified = True
-                            break
-                        #
-                    #
-                #
+    @cache
+    def _moves_for_single(self, a: Amphipod, blocked: frozenset[int]) -> list[tuple[int, Amphipod]]:
+        res = []
+        for target in sorted(self.hallway_nodes):  # TODO DROP SORTING!!!
+            path = self.paths[a.pos][target]
+            if path.isdisjoint(blocked):
+                res.append((movement_costs[a.kind]*len(path), self._move_amphipod(a, target)))
             #
         
-        if modified:
-            return cost, tuple(res_list)
-        else:
-            return None
-        #
-
-    def get_possible_moves(self, amph: Amphipod, *others: Amphipod) -> Iterator[tuple[int, Amphipod]]:
-        # TODO maybe look for obvious choices like moving unobstructed amphs to their destination!!!
-        unit_cost = movement_costs[amph.kind]
-        pos = amph.pos
-        occupied = {a.pos: a.kind for a in others}
-        if not amph.moved_to_hallway:
-            assert pos in self.room_nodes
-
-            for node_hw in self.hallway_nodes:
-                path = self.paths[pos][node_hw]
-                if not path.isdisjoint(occupied):
-                    continue
-
-                updated = replace(amph, pos=node_hw, moved_to_hallway=True)
-                yield unit_cost*len(path), updated
-            #
-
-    def neighbor_states(self, state: keytype) -> Iterator[tuple[int, keytype]]:
-        # If we can move any amphipods to their home locations, just do that.
-        moved_home_state = self.attempt_move_home(state)
-        if moved_home_state:
-            yield moved_home_state
-            return
-        
-        temp = list(state)
-        for i, amph in enumerate(state):
-            others = [a for j, a in enumerate(state) if j != i]
-            for cost, new_amph in self.get_possible_moves(amph, *others):
-                new_state = tuple(new_amph if j == i else oldamp for j, oldamp in enumerate(temp))
-                yield cost, new_state
-                #
-            #
-        #
-
-    def heuristic(self, state: keytype) -> int:
-        res = 0
-        used = set()
-        for a in state:
-            if a.pos in self.home_rooms[a.kind]:
-                continue
-            closest = None
-            record = -1
-            for home_pos in self.home_rooms[a.kind]:
-                if home_pos in used:
-                    continue
-                dist = self.dists[a.pos][home_pos]
-                if record == -1 or dist < record:
-                    record = dist
-                    closest = home_pos
-                #
-            
-            assert closest is not None
-            used.add(closest)
-            res += record*movement_costs[a.kind]
-
         return res
 
+    def _move_amphipod(self, a: Amphipod, to_: int) -> Amphipod:
+        """Moves an amphipod. Updates its position and its flags for having moved to hallway/home room"""
+        assert not a.moved_to_room
+        if to_ in self.hallway_nodes:
+            assert not a.moved_to_hallway
+            return replace(a, pos=to_, moved_to_hallway=True)
+        else:
+            assert to_ in self.home_rooms[a.kind]
+            return replace(a, pos=to_, moved_to_room=True)
+        
+
+    def move_home(self, *amphipods: Amphipod) -> tuple[int, list[Amphipod]]:
+        """Attempts to move as many amphipods as possible home.
+        The reasoning is, moving an amphipod to its final location can never negatively affect any other
+        changes done, because no other paths can go through the node to which we move an amphipod.
+        Prioritizing moving amphipods home will therefore keep the search space smaller."""
+
+        groups = itertools.groupby(amphipods, operator.attrgetter("kind"))
+        blocked = frozenset((a.pos for a in amphipods))
+        
+        cost = 0
+        updated = []
+
+        for kind, group_ in groups:
+            group = list(group_)
+            home_coords = self.home_rooms[kind]
+            target_ind = -len(group)
+            for a in group:
+                target = home_coords[target_ind]
+                nodes = self.paths[a.pos][target]
+                if nodes.isdisjoint(blocked):
+                    cost += len(nodes)*movement_costs[a.kind]
+                    updated.append(self._move_amphipod(a, target))
+                    target_ind += 1
+                else:
+                    updated.append(a)
+                #
+            #
+        
+        return cost, updated
+
+    def neighbor_states(self, state: keytype) -> Iterator[tuple[int, keytype]]:
+        free_inds, free_amphs = zip(*((i, a) for i, a in enumerate(state) if not a.moved_to_room))
+        temp = list(state)
+
+        cost, after_move_home = self.move_home(*free_amphs)
+        
+        # If we can move some of the amphipods home, do that
+        if cost != 0:
+            for ind, new_amph in zip(free_inds, after_move_home, strict=True):
+                temp[ind] = new_amph
+            yield cost, tuple(temp)
+            return
+        blocked = frozenset((a.pos for a in state))
+
+        for ind, a in enumerate(state):
+            if a.moved_to_hallway or a.moved_to_room:
+                continue
+            original = temp[ind]
+            for cost, moved in self._moves_for_single(state[ind], blocked):
+                temp[ind] = moved
+                yield cost, tuple(temp)
+            temp[ind] = original
+
+    def _lower_bound(self, *amphipods: Amphipod) -> int:
+        groups = itertools.groupby(amphipods, operator.attrgetter("kind"))
+        res = 0
+        for kind, group in groups:
+            cost = movement_costs[kind]
+            for a, target in zip(group, reversed(self.home_rooms[kind])):
+                res += self.dists[a.pos][target]*cost
+            #
+        return res
+
+    def heuristic(self, state: keytype) -> int:
+        res = self._lower_bound(*(a for a in state if a.pos not in self.home_rooms[a.kind]))
+        return res
+        
 
 def a_star(burrow: Burrow, initial_state: keytype, maxiter=-1) -> int:
     d_g = {initial_state: 0}
@@ -325,6 +305,7 @@ def solve(data: str) -> tuple[int|str, ...]:
     burrow = Burrow(map_)
 
     initial_state = burrow.state_from_ascii(map_)
+    burrow.display_state(initial_state)
     star1 = a_star(burrow, initial_state)
     print(f"Solution to part 1: {star1}")
 
