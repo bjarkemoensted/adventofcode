@@ -29,11 +29,33 @@ def pad(arr: NDArray[np.int_], n_pad=2, default=0) -> NDArray[np.int_]:
     return padded
 
 
+class IndexLookup:
+    """Just a trick for caching the computed index from the special 'enhancement array' thingies."""
+
+    def __init__(self) -> None:
+        self.cache: dict[bytes, int] = dict()
+    
+    def __call__(self, subarray: NDArray[np.int_]) -> int:
+        # Use cached result if available
+        key = subarray.tobytes()
+        if key in self.cache:
+            return self.cache[key]
+        
+        assert subarray.shape == (3, 3)
+        binary = sum([list(row) for row in subarray], [])
+        ind = int("".join(map(str, binary)), 2)
+        self.cache[key] = ind
+        return ind
+
+
+index_lookup = IndexLookup()
+
+
 def lookup(subarray: NDArray[np.int_], code: list[int]) -> int:
-    assert subarray.shape == (3, 3)
-    binary = sum([list(row) for row in subarray], [])
-    ind = int("".join(map(str, binary)), 2)
-    return code[ind]
+    ind = index_lookup(subarray)
+    res = code[ind]
+    return res
+
 
 
 def update(arr: NDArray[np.int_], code: list[int], default=0) -> NDArray[np.int_]:
@@ -65,6 +87,7 @@ class Image:
     def __init__(self, arr: NDArray[np.int_], default=0) -> None:
         self.m: NDArray[np.int_] = arr
         self.default = default
+        self.lookup = IndexLookup()
 
     def enhance(self, code: list[int]) -> None:
         n_pad = 2
