@@ -163,7 +163,7 @@ class Burrow:
     @cache
     def _moves_for_single(self, a: Amphipod, blocked: frozenset[int]) -> list[tuple[int, Amphipod]]:
         res = []
-        for target in sorted(self.hallway_nodes):  # TODO DROP SORTING!!!
+        for target in sorted(self.hallway_nodes):
             path = self.paths[a.pos][target]
             if path.isdisjoint(blocked):
                 res.append((movement_costs[a.kind]*len(path), self._move_amphipod(a, target)))
@@ -182,48 +182,46 @@ class Burrow:
             return replace(a, pos=to_, moved_to_room=True)
         
 
-    def move_home(self, *amphipods: Amphipod) -> tuple[int, list[Amphipod]]:
-        """Attempts to move as many amphipods as possible home.
+    
+    def move_home(self, *amphipods: Amphipod) -> tuple[int, int, Amphipod]|None:
+        """Attempts to move an amphipod home.
         The reasoning is, moving an amphipod to its final location can never negatively affect any other
         changes done, because no other paths can go through the node to which we move an amphipod.
-        Prioritizing moving amphipods home will therefore keep the search space smaller."""
+        Prioritizing moving amphipods home will therefore keep the search space smaller.
+        Returns index, cost, updated_amphipod, or None if none can move home"""
 
         groups = itertools.groupby(amphipods, operator.attrgetter("kind"))
         blocked = frozenset((a.pos for a in amphipods))
         
         cost = 0
-        updated = []
+        ind = -1
 
         for kind, group_ in groups:
             group = list(group_)
             home_coords = self.home_rooms[kind]
-            target_ind = -len(group)
+            target = home_coords[-len(group)]
             for a in group:
-                target = home_coords[target_ind]
+                ind += 1
                 nodes = self.paths[a.pos][target]
                 if nodes.isdisjoint(blocked):
-                    cost += len(nodes)*movement_costs[a.kind]
-                    updated.append(self._move_amphipod(a, target))
-                    target_ind += 1
-                else:
-                    updated.append(a)
+                    cost = len(nodes)*movement_costs[a.kind]
+                    updated = self._move_amphipod(a, target)
+                    return ind, cost, updated
                 #
             #
         
-        return cost, updated
+        return None
 
     def neighbor_states(self, state: keytype) -> Iterator[tuple[int, keytype]]:
         free_inds, free_amphs = zip(*((i, a) for i, a in enumerate(state) if not a.moved_to_room))
         temp = list(state)
 
-        cost, after_move_home = self.move_home(*free_amphs)
-        
-        # If we can move some of the amphipods home, do that
-        if cost != 0:
-            for ind, new_amph in zip(free_inds, after_move_home, strict=True):
-                temp[ind] = new_amph
-            yield cost, tuple(temp)
+        _attempt_move_home = self.move_home(*free_amphs)
+        if _attempt_move_home is not None:
+            ind, cost, updated = _attempt_move_home
+            yield cost, tuple(a if i != free_inds[ind] else updated for i, a in enumerate(state))
             return
+        
         blocked = frozenset((a.pos for a in state))
 
         for ind, a in enumerate(state):
