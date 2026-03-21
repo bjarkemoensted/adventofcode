@@ -3,12 +3,12 @@
 # ·.*`··*   `·  .  ··  https://adventofcode.com/2021/day/23   + ·*`  · `·.+ · `.
 # `·.    ··.*     *`  ·. ·  `·*`.   · ·* ·+`   .·.`   `*· ·   ·   · . ·* ·*   ·`
 
+import itertools
+import operator
 from collections import defaultdict
 from dataclasses import dataclass, replace
 from functools import cache
 from heapq import heappop, heappush
-import itertools
-import operator
 from typing import Iterator, Literal, TypeAlias, TypeGuard, get_args
 
 import networkx as nx
@@ -181,8 +181,6 @@ class Burrow:
             assert to_ in self.home_rooms[a.kind]
             return replace(a, pos=to_, moved_to_room=True)
         
-
-    
     def move_home(self, *amphipods: Amphipod) -> tuple[int, int, Amphipod]|None:
         """Attempts to move an amphipod home.
         The reasoning is, moving an amphipod to its final location can never negatively affect any other
