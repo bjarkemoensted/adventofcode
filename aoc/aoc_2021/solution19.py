@@ -5,13 +5,15 @@
 
 
 import itertools
-from collections import defaultdict
 from dataclasses import dataclass, field
 from functools import cache
 from typing import Iterator
 
 import numpy as np
 from numpy.typing import NDArray
+
+dtype = np.int_
+BEACONS_THRESHOLD = 12
 
 
 def make_rotation_matrix(alpha: float, beta: float, gamma: float) -> NDArray[np.floating]:
@@ -39,13 +41,6 @@ def make_rotation_matrix(alpha: float, beta: float, gamma: float) -> NDArray[np.
     return M
 
 
-def _coords_from_array(arr: NDArray[np.int_]) -> list[tuple[int, int, int]]:
-    """Get the coordinates from each row in an array, as a list of tuples."""
-    coords = (tuple(map(int, row) for row in arr))
-    res = [(a, b, c) for a, b, c in coords]
-    return res
-
-
 @cache
 def _all_rotation_matrices() -> NDArray[np.int_]:
     """Generate all distinct 3D rotation matrices for n*pi/2 rotations"""
@@ -67,70 +62,79 @@ def _all_rotation_matrices() -> NDArray[np.int_]:
 
         parts.append(M_int)
     
-    res = np.stack(parts)
+    res = np.stack(parts, dtype=dtype)
     return res
-
 
 
 def distinct_rotations(arr: NDArray[np.int_]) -> NDArray[np.int_]:
     """Generate all 90 degree rotations of a matrix"""
 
-    parts = []
-
-    for M in _all_rotation_matrices():
-        x = np.dot(arr, M.T)
-        parts.append(x)
+    rotations = _all_rotation_matrices()
+    prod = (rotations @ arr.T)
+    res = prod.transpose(0, 2, 1)
     
-    res = np.stack(parts)
+    return res
+
+
+def pairwise_differences(a: NDArray[np.int_], b: NDArray[np.int_]):
+    """Given two arrays of shapes (Na x d) and (Nb x d), computes all pairwise differences
+    into an array of shape (Na*Nb x d)."""
+
+    _, dim = a.shape
+    assert len(a.shape) == len(b.shape) and b.shape[-1] == dim
+
+    diffs = a[None, :, :] - b[:, None, :]
+    res = diffs.reshape(-1, dim)
     return res
 
 
 @dataclass
-class Scanner:
+class Scan:
+    """Represents a scan of the ocean floor. Holds the scanner's ID, and
+    the recorded distances to beacons, along with all 3D rotations of the beacons."""
+
     beacons: NDArray[np.int_]
     id_: int
     rotations: NDArray[np.int_] = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
         self.rotations = distinct_rotations(self.beacons)
+    
+    def transform(self, rotation: int, translation: NDArray[np.int_]) -> NDArray[np.int_]:
+        """Returns the beacons as they appear after a rotation and translation."""
+        res = self.rotations[rotation].copy() + translation
+        return res
     #
 
+    @property
+    def dim(self) -> int:
+        _, d = self.beacons.shape
+        return d
 
-def parse(s: str) -> list[Scanner]:
+
+def parse(s: str) -> list[Scan]:
     parts = s.split("\n\n")
     res = []
     for part in parts:
         lines = part.splitlines()
         id_ = int(lines[0].split("scanner ")[-1].split()[0])
-        arr = np.array([[int(s) for s in line.split(",")] for line in lines[1:]])
-        scanner = Scanner(beacons=arr, id_=id_)
+        arr = np.array([[int(s) for s in line.split(",")] for line in lines[1:]], dtype=dtype)
+        scanner = Scan(beacons=arr, id_=id_)
         res.append(scanner)
     
     return res
 
 
-class MapAssembler:
-    """Helper class for efficiently (ish) determining whether and how scan arrays can line up
-    such that the required number of beacon points overlap."""
-
-    def __init__(self) -> None:
-        self._cache: dict[tuple[bytes, bytes], NDArray[np.int_]|None] = dict()
-        self.threshold = 12
-        self.dim = 3
-    
-    @staticmethod
-    def _key(a: NDArray[np.int_], b: NDArray[np.int_]) -> tuple[bytes, bytes]:
-        ka, kb = (arr.tobytes() for arr in (a, b))
-        return ka, kb
-
-    def _find_offset(self, a: NDArray[np.int_], b: NDArray[np.int_]) -> NDArray[np.int_]|None:
+def find_offset(a: NDArray[np.int_], b: NDArray[np.int_]) -> NDArray[np.int_]|None:
         """Attempts to determine a 3D vector by which to displace b, such that it lines up with a.
         If no such vector exists, such that the threshold for the number of aligned points is met,
         None is returned."""
 
+        _, dim = a.shape
+        assert len(a.shape) == len(b.shape) and b.shape[-1] == dim
+
         # Find all pairwise distances
-        diffs = a[None, :, :] - b[:, None, :]
-        pairwise = diffs.reshape(-1, self.dim)
+        pairwise = pairwise_differences(a, b)
 
         # Find the displacement along each direction which occurs most frequently
         inds = []
@@ -144,139 +148,94 @@ class MapAssembler:
             displacement.append(vals[ind])
         
         # The arrays can line up iff the most common displacement meets threshold in all directions
-        if not all(n_match >= self.threshold for n_match in n):
+        if not all(n_match >= BEACONS_THRESHOLD for n_match in n):
             return None
         
-        res = np.array(displacement)
-
-        # Double check that we meet the threshold after adding the result to b
-        overlaps_after_shift = set(_coords_from_array(a)).intersection(_coords_from_array(b + res))
-        assert len(overlaps_after_shift) >= self.threshold
+        res = np.array(displacement, dtype=dtype)
 
         return res
+    #
 
-    def find_offset(self, a: NDArray[np.int_], b: NDArray[np.int_]) -> NDArray[np.int_]|None:
-        key = self._key(a, b)
-        if key in self._cache:
-            return self._cache[key]
+
+def determine_alignment(a: NDArray[np.int_], b: NDArray[np.int_]) -> Iterator[tuple[int, NDArray[np.int_]]]:
+    """Given scan arrays a and b, determine the rotation and translation of b, such that a sufficient
+    number of beacons overlap with a.
+    Array a should be shape (N, 3) and b (24, N, 3) - 24 3D rotations, of N 3D coordinate vectors.
+    The result is a tuple of the rotation index, and the translation vector.
+    This means if the result is i, x, and if B is the scanner object containing array b, we can
+    align it with a by taking B.rotations[i] + x.
+    If no alignment is possible, None is returned."""
+
+    assert len(a.shape) == 2 and len(b.shape) == 3
     
-        res = self._find_offset(a, b)
-        self._cache[key] = res
-        return res
-
-    def determine_alignment(self, a: NDArray[np.int_], b: NDArray[np.int_]) -> Iterator[tuple[int, NDArray[np.int_]]]:
-        """Given scan arrays a and b, determine the rotation and translation of b, such that a sufficient
-        number of beacons overlap with a.
-        Array a should be shape (N, 3) and b (24, N, 3) - 24 3D rotations, of N 3D coordinate vectors.
-        The result is a tuple of the rotation index, and the translation vector.
-        This means if the result is i, x, and if B is the scanner object containing array b, we can
-        align it with a by taking B.rotations[i] + x.
-        If no alignment is possible, None is returned."""
-
-        assert len(a.shape) == 2 and len(b.shape) == 3 and a.shape[-1] == b.shape[-1] == self.dim
-        
-        # Go over all rotations of b
-        for i, arr in enumerate(b):
-            x = self.find_offset(a, arr)
-            if x is not None:
-                yield i, x
-            #
-        
-    def scanners_align(self, a: Scanner, b: Scanner) -> bool:
-        """Determines whether it's possible to align scanners a and b"""
-        try:
-            next(self.determine_alignment(a.beacons, b.rotations))
-            return True
-        except StopIteration:
-            return False
+    # Go over all rotations of b
+    for i, arr in enumerate(b):
+        x = find_offset(a, arr)
+        if x is not None:
+            assert isinstance(x, np.ndarray)
+            yield i, x
         #
+    #
 
 
-assembler = MapAssembler()
+def align_scanners(*scans: Scan) -> dict[int, tuple[int, NDArray[np.int_]]]:
+    """Determine how the scanner must be transformed in order to form a coherent image.
+    This works by starting with scanner 0 as a reference, then doing a BFS-style approach, determining
+    if and how each of the remaining scanner can be rotated and shifted to achieve a sufficient
+    overlap in beacons.
+    Returns: A dictionary mapping each scanner ID to a tuple (i, arr), with i indicating the scanner's rotation,
+    and arr the translation. This can be passed to the Scan.tranform method to obtain the corrected
+    beacon positions."""
 
-
-def _connect_scans(scanners: dict[int, Scanner]) -> dict[int, list[int]]:
-    """Given the scans, determine which scans connect to which.
-    In the resulting dict, the presence of d[a] = b, means that
-    scanner a contains a number of beacons (at least the threshold) which
-    overlap with some rotation of scan b."""
+    # Store scanners under their ID
+    d_scans = {s.id_: s for s in scans}
     
-    connections: dict[int, set[int]] = defaultdict(set)
+    # Start with the 'reference scanner' (ID 0), with no rotation or translation
+    reference = d_scans[0]
+    aligned = {reference.id_: (0, np.array([0 for _ in range(reference.dim)], dtype=dtype))}
     
-    ids = sorted(scanners.keys())
-    for ka in ids:
-        for kb in ids:
-            a, b = scanners[ka], scanners[kb]
-            if a.id_ == b.id_:
-                continue
-            if assembler.scanners_align(a, b):
-                connections[a.id_].add(b.id_)
-            #
-        #
-    
-    return {k: sorted(v) for k, v in connections.items()}
-    
-
-def assemble_image(*scanners: Scanner) -> tuple[NDArray[np.int_], NDArray[np.int_]]:
-    d = {scanner.id_: scanner for scanner in scanners}
-
-    ids = sorted(d.keys())
-    assert len(ids) == len(scanners)
-
-    links = _connect_scans(d)
-
-    ref = ids[0]
-    resolved = {ref: d[ref].beacons}
-    front = [ref]
-
-    offsets = []
+    # Keep looking for remaining scanners that overlap with newly added ones
+    front = {0}
 
     while front:
-        next_: list[int] = []
-        for id_ in front:
-            if id_ not in links:
-                continue
-            beacons = resolved[id_]
-            next_ids = links[id_]
+        next_ = set()
+        for id_ in sorted(front):
+            # Transform the newly added scanner so its coordinates are relative to the reference scanner
+            i, x = aligned[id_]
+            known_beacons = d_scans[id_].transform(i, x)
 
-            for next_id in next_ids:
-                next_scanner = d[next_id]
-                if next_id in resolved:
+            # Look at each remaining (still unaligned) scanner
+            for other, b in d_scans.items():
+                if other in aligned:
                     continue
-                next_.append(next_id)
-
-                alignment = next(assembler.determine_alignment(beacons, next_scanner.rotations))
-
-                i, x = alignment
-                offsets.append(x)
-                next_beacons = next_scanner.rotations[i] + x
-                resolved[next_id] = next_beacons
-
-                meh_a = set(_coords_from_array(beacons))
-                meh_b = set(_coords_from_array(next_beacons))
-                overlap = list(meh_a.intersection(meh_b))
-
-                assert len(overlap) >= 12  # !!!
-
-            
+                
+                # Look for a way to match with the newly added scanner
+                trans = determine_alignment(known_beacons, b.rotations)
+                try:
+                    # If successful, store the alignment and use the new scanner for next iteration
+                    aligned[other] = next(trans)
+                    next_.add(other)
+                except StopIteration:
+                    continue  # If no match is possible, proceed to the nest remaining scanner
+                #
+            #
         front = next_
     
-    all_beacons = np.vstack(list(resolved.values()))
-    translations = np.vstack(offsets)
-
-    return translations, all_beacons
-
+    assert len(aligned) == len(scans)
+    return aligned
 
 
 def solve(data: str) -> tuple[int|str, ...]:
-    scanners = parse(data)
-    translations, beacons = assemble_image(*scanners)
+    scans = parse(data)
+    alignment = align_scanners(*scans)
+    beacons = np.vstack([scan.transform(*alignment[scan.id_]) for scan in scans])
 
     star1 = len(np.unique(beacons, axis=0))
     print(f"Solution to part 1: {star1}")
 
-    pairwise_dists = translations[:, None, :] - translations[None, :, :]    
-    star2 = np.abs(pairwise_dists).sum(axis=-1).max()
+    scanner_positions = np.vstack([pos for _, pos in alignment.values()])
+    scanner_dists = pairwise_differences(scanner_positions, scanner_positions)
+    star2 = np.abs(scanner_dists).sum(axis=-1).max()
     print(f"Solution to part 2: {star2}")
 
     return star1, star2
