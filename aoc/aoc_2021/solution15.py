@@ -4,10 +4,15 @@
 # *. ·`  ·• `·. ` ·*.   +.· `  .·* ·`   ·*.  ` .`·*.  · `·  ·   + . · `    `· .·
 
 import copy
+from collections import defaultdict
+from heapq import heappop, heappush
+from typing import Literal, overload
 
-import networkx as nx
 import numpy as np
 from numpy.typing import NDArray
+
+type coordtype = tuple[int, int]
+type graphtype = dict[coordtype, dict[coordtype, int]]
 
 
 def parse(s: str) -> NDArray[np.int_]:
@@ -15,24 +20,80 @@ def parse(s: str) -> NDArray[np.int_]:
     return res
 
 
-def build_graph_of_cave(cave: NDArray[np.int_]) -> nx.DiGraph:
+def build_graph_of_cave(cave: NDArray[np.int_]) -> graphtype:
     """Constructs a directional graph of a cave"""
-    G = nx.DiGraph()
-    # Connect each node to its neighbors, using neighbor risk as edge weight
-    coords = [(i, j) for i, j in np.ndindex(cave.shape)]
-    coords_set = set(coords)
+    
+    G: graphtype = defaultdict(dict)
+    coords_set = set(np.ndindex(cave.shape))
 
-    for u in coords:
-        i, j = u
+    for v, w in np.ndenumerate(cave):
+        i, j = v
         neighbors = ((i+1, j), (i-1, j), (i, j+1), (i, j-1))
-        for v in neighbors:
-            if v not in coords_set:
+        for u in neighbors:
+            if u not in coords_set:
                 continue
+            G[u][v] = int(w)
+        #
 
-            ip, jp = v
-            weight = cave[ip, jp]
-            G.add_edge(u, v, weight=weight)
     return G
+
+
+@overload
+def dijkstra(G: graphtype, source: coordtype, target: coordtype, return_path: Literal[True]) -> list[coordtype]: ...
+@overload
+def dijkstra(G: graphtype, source: coordtype, target: coordtype, return_path: Literal[False]=False) -> int: ...
+def dijkstra(G, source, target, return_path=False) -> int|list[coordtype]:
+    """Uses Dijkstra's algorithm to find the shortest path from the source to the target node.
+    G: The graph, represented as a dictionary.
+    source/target - the source and target nodes.
+    return_path (bool, default=False) - whether to return the full path. If False, returns
+        the shortest distance (int)"""
+    
+    # Priority queue for the shortest path in the open set
+    queue: list[tuple[int, coordtype]] = []
+    # Start with just the source node, at distance 0
+    initial_state = (0, source)
+    dist = {source: 0}
+    heappush(queue, initial_state)
+
+    # The predecessors of each node. For reconstructing the full path
+    camefrom: dict[coordtype, coordtype] = dict()
+
+    while queue:
+        # If the currently shortest path reaches the target, we're done
+        d, u = heappop(queue)
+        if u == target:
+            # If we don't need the full path, just return the distance
+            if not return_path:
+                return dist[target]
+            
+            # Otherwise, reconstruct the path
+            node = u
+            path_rev = [node]
+            while node in camefrom:
+                node = camefrom[node]
+                path_rev.append(node)
+            
+            path = path_rev[::-1]
+            return path
+        
+        # Drop this path if we have a faster path to u
+        if d > dist.get(u, float("inf")):
+            continue
+        
+        # Otherwise, check all neighbors or u
+        for v, delta in G[u].items():
+            d_new = d + delta
+            improved = d_new < dist.get(v, float("inf"))
+            if improved:
+                # If this beats the current best path to v, update dist and predecessor info
+                dist[v] = d_new
+                camefrom[v] = u
+                heappush(queue, (d_new, v))
+            #
+        #
+    
+    raise RuntimeError("No path found")
 
 
 def grow_larger_cave(cave: NDArray[np.int_], factor=5, max_level=9) -> NDArray[np.int_]:
@@ -67,16 +128,16 @@ def solve(data: str) -> tuple[int|str, ...]:
     exit = tuple(v - 1 for v in cave.shape)
     
     # Find the shortest path through the cave
-    path = nx.shortest_path(G, enter, exit, weight="weight")
-    star1 = sum([cave[i, j] for i, j in path[1:]])  # Remember the first step doesn't count
+    star1 = dijkstra(G, enter, exit)
+    print(star1)
+    #star1 = sum([cave[i, j] for i, j in path[1:]])  # Remember the first step doesn't count
     print(f"Solution to part 1: {star1}")
 
     cave2 = grow_larger_cave(cave)
     G2 = build_graph_of_cave(cave2)
     enter = (0, 0)
     exit = tuple(v - 1 for v in cave2.shape)
-    path = nx.shortest_path(G2, enter, exit, weight="weight")
-    star2 = sum([cave2[i, j] for i, j in path[1:]])
+    star2 = dijkstra(G2, enter, exit)
     print(f"Solution to part 2: {star2}")
 
     return star1, star2
