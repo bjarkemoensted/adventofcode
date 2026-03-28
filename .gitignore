@@ -139,4 +139,5 @@ deleteme*
 .vscode/**
 # scalene profiling files
 **/profile.*
+**/scalene-profile.*
 sandbox*
