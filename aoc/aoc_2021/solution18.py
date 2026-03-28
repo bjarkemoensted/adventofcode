@@ -8,10 +8,9 @@ import math
 from copy import deepcopy
 from functools import reduce
 from operator import mul
-from typing import Iterator, cast
+from typing import Iterator
 
 type nested = list[int|nested]
-type nested_tuple = tuple[int|nested_tuple, int|nested_tuple]
 
 EXPLODE_DEPTH = 4
 SPLIT_THRESHOLD = 10
@@ -36,7 +35,7 @@ def _set_nested(arr, inds, val):
     ptr[inds[-1]] = val
 
 
-def iter_nested[T: nested|nested_tuple](arr: T, inds: nested|None=None) -> Iterator[tuple[nested, int|T]]:
+def iter_nested(arr: nested, inds: nested|None=None) -> Iterator[tuple[nested, int|nested]]:
     """Iterates over inds and values in nested data."""
 
     if inds is None:
@@ -44,9 +43,9 @@ def iter_nested[T: nested|nested_tuple](arr: T, inds: nested|None=None) -> Itera
     
     for i, subarr in enumerate(arr):
         inds.append(i)
-        subarr = cast(T, subarr)
+
         yield inds, subarr
-        if not isinstance(subarr, int):
+        if isinstance(subarr, list):
             yield from iter_nested(subarr, inds)
         inds.pop()
 
@@ -94,16 +93,6 @@ class Number:
                 #
             #
         #
-    
-    def magnitude(self) -> int:
-        res = 0
-        for inds, val in iter_nested(self.arr):
-            if isinstance(val, int):
-                factors = [3 if i == 0 else 2 for i in inds]
-                factor = reduce(mul, factors)
-                res += factor*val
-            #
-        return res
     
     def try_explode(self):
         for inds, subarr in iter_nested(self.arr):
@@ -197,34 +186,21 @@ class Number:
             inds.append(next_)
         return self[inds]
 
-
-def max_magnitude(*numbers: Number) -> int:
-    pairs = ((numbers[i], numbers[j]) for i in range(len(numbers)) for j in range(len(numbers)) if i != j)
-    magnitudes = ((a + b).magnitude() for a, b in pairs)
-    res = max(magnitudes)
-    return res
-
-    for i, a in enumerate(numbers):
-        for j, b in enumerate(numbers):
-            if i == j:
-                continue
-            sum_ = a + b
-            this_mag = sum_.magnitude()
-            if res is None or res < this_mag:
-                res = this_mag
+    def magnitude(self) -> int:
+        """Computes the magnitude of the snailfish number"""
+        res = 0
+        for inds, val in iter_nested(self.arr):
+            if isinstance(val, int):
+                factors = [3 if i == 0 else 2 for i in inds]
+                factor = reduce(mul, factors)
+                res += factor*val
             #
-        #
-    
-    if res is None:
-        raise RuntimeError
-    return res
-    
+
+        return res
 
 
 def solve(data: str) -> tuple[int|str, ...]:
-
     nums = [Number(arr, verbose=False) for arr in parse(data)]
-
     running = nums[0]
     for num in nums[1:]:
         running += num
@@ -232,7 +208,9 @@ def solve(data: str) -> tuple[int|str, ...]:
     star1 = running.magnitude()    
     print(f"Solution to part 1: {star1}")
 
-    star2 = max_magnitude(*nums)
+    all_pairs = ((nums[i], nums[j]) for i in range(len(nums)) for j in range(len(nums)) if i != j)
+    magnitudes = ((a + b).magnitude() for a, b in all_pairs)
+    star2 = max(magnitudes)
     print(f"Solution to part 2: {star2}")
 
     return star1, star2
