@@ -4,12 +4,12 @@
 # ·.+` ·   .`*·`  . +  ·`·     ·*`    ·. ·*`         ·*  .``     ` · * . ·+.· ` 
 
 from collections import defaultdict
-from dataclasses import dataclass
 from functools import cache
 from heapq import heappop, heappush
 
 import numpy as np
 from numpy.typing import NDArray
+from typing import NamedTuple
 
 raw = """#.######
 #>>.<^<#
@@ -57,8 +57,7 @@ def step(pos: coordtype, dx: coordtype, limits: tuple[coordtype, coordtype]) -> 
     return a, b
 
 
-@dataclass(frozen=True, order=True)
-class State:
+class State(NamedTuple):
     """Represents a state on the elves' journey to the extraction point.
     pos: Coordinates (i, j).
     tick: The time, used to lookup blizzard positions"""
@@ -174,16 +173,34 @@ class Graph:
     #
 
 
+class PriorityQueue[T]:
+    """Simple priority queue for the A* implementation. This is faster than putting State objects directly on a list
+    with heapq, because adding a tiebreaker integer means we don't need comparison operations on state instances."""
+
+    def __init__(self) -> None:
+        self.a: list[tuple[int, int, T]] = []
+        self.counter = 0
+    
+    def push(self, priority: int, elem: T) -> None:
+        heappush(self.a, (priority, self.counter, elem))
+        self.counter += 1
+    
+    def pop(self) -> T:
+        _, _, res = heappop(self.a)
+        return res
+
+
 def a_star(G: Graph, initial_state: State, target: coordtype) -> list[State]:
     """Uses A* to find the shortest path to the target state."""
     
     f0 = G.lower_bound(initial_state)
-    queue = [(f0, initial_state)]
+    queue: PriorityQueue[State] = PriorityQueue()
+    queue.push(f0, initial_state)
     d_g = {initial_state: 0}
     camefrom: dict[State, State] = dict()
 
     while queue:
-        _, u = heappop(queue)
+        u = queue.pop()
 
         done = u.pos == target and not u.destinations
         if done:
@@ -206,7 +223,7 @@ def a_star(G: Graph, initial_state: State, target: coordtype) -> list[State]:
                 h = G.lower_bound(v)
                 f_score = g_tentative + h
                 camefrom[v] = u
-                heappush(queue, (f_score, v))
+                queue.push(f_score, v)
 
     raise RuntimeError("No path found")
 
