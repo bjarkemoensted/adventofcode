@@ -6,10 +6,10 @@
 from collections import defaultdict
 from functools import cache
 from heapq import heappop, heappush
+from typing import NamedTuple
 
 import numpy as np
 from numpy.typing import NDArray
-from typing import NamedTuple
 
 raw = """#.######
 #>>.<^<#
