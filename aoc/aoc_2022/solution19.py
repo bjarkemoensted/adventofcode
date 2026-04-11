@@ -3,50 +3,42 @@
 # ·`.*.···*   `  . ·`* https://adventofcode.com/2022/day/19      `· •.* ·   +`··
 #  .·  *` ·.·* · *.+  ·`   * · ·  . ` ·   . +* · `   ·.·     *·.`  · *     ·`·.*
 
+import re
 from dataclasses import dataclass
-from numba import njit
+from enum import IntEnum
+from functools import partial, reduce
+from operator import mul
+
 import numpy as np
 from numpy.typing import NDArray
-import re
 
 
-raw = """Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.
-Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian."""
+class Inds(IntEnum):
+    """Indices for number of minerals and robots, and time left in a state"""
+    N_ORE = 0
+    N_CLAY = 1
+    N_OBSIDIAN = 2
+    N_GEODES = 3
+    N_ORE_ROBOTS = 4
+    N_CLAY_ROBOTS = 5
+    N_OBSIDIAN_ROBOTS= 6
+    N_GEODE_ROBOTS = 7
+    MINUTES_LEFT = 8
 
 
-class Counter:
-    """For keeping track of indices for array representations of states"""
-    def __init__(self) -> None:
-        self._running = 0
-    
-    @property
-    def size(self) -> int:
-        return self._running
-    
-    def __call__(self) -> int:
-        res = self._running
-        self._running += 1
-        return res
-
-
-# Indices for minerals, robots, and time left
-indscounter = Counter()
-minerals_order = np.array([indscounter() for _ in range(4)])
-N_ORE, N_CLAY, N_OBSIDIAN, N_GEODES = minerals_order
-robots_order = np.array([indscounter() for _ in range(4)])
-N_ORE_ROBOTS, N_CLAY_ROBOTS, N_OBSIDIAN_ROBOTS, N_GEODE_ROBOTS = robots_order
-MINUTES_LEFT = indscounter()
-
+minerals_order = np.array([Inds.N_ORE, Inds.N_CLAY, Inds.N_OBSIDIAN, Inds.N_GEODES])
+robots_order = np.array([Inds.N_ORE_ROBOTS, Inds.N_CLAY_ROBOTS, Inds.N_OBSIDIAN_ROBOTS, Inds.N_GEODE_ROBOTS])
 mineral_inds: dict[str, int] = dict(zip(('ore', 'clay', 'obsidian', 'geode'), minerals_order))
 n_minerals = len(mineral_inds)
 
-dtype = np.int64
+dtype = np.int32
+type arrtype = NDArray[dtype]
 
 
 @dataclass
 class Blueprint:
     id_: int
-    costs: NDArray[np.int_]
+    costs: arrtype
 
 
 def parse(s: str) -> list[Blueprint]:
@@ -69,124 +61,138 @@ def parse(s: str) -> list[Blueprint]:
     return res
 
 
-def _initial_state(n_minutes_total: int) -> NDArray[np.int_]:
-    """Makes an array representing an initial state, with 1 ore robot, and all minutes left"""
-    res = np.zeros(shape=(indscounter.size,), dtype=dtype)
-    res[MINUTES_LEFT] = n_minutes_total
-    res[N_ORE_ROBOTS] = 1
+def bfs_step(
+        states: arrtype,
+        costs: arrtype
+    ) -> arrtype:
+    """Takes a 2D array where each row represents a state (counts of each mineral and robot type,
+    and number of minutes left). Returns a new 2D array representing the possible next states,
+    after attempting to save up to each possible robot type."""
+
+    # Make N copies of current states (one for each robot type to buy)
+    new_states = np.repeat(states, repeats=n_minerals, axis=0)
+    nrows, _ = new_states.shape
+    inds = np.arange(nrows)
+    robot_types = inds % n_minerals  # which robot to buy from each state
+
+    # How much more we need of each mineral type
+    prices = costs[robot_types]
+    available = new_states[:, minerals_order]
+    needed = prices - available
+    # Upper bound on each robot type
+    ceiling = costs.max(axis=0)
+
+    # Determine the time until we've saved enough for each robot type
+    robots = new_states[:, robots_order]
+    # Default to infinity, then compute values for owned robot types, to avoid zero division
+    production_times = np.full(shape=robots.shape, fill_value=np.inf)
+    producible_mask = (needed > 0) & (robots > 0)
+    production_times[producible_mask] = needed[producible_mask] / robots[producible_mask]
+    # No time is needed when we already have sufficient minerals
+    production_times[needed <= 0] = 0
+    prod_time = np.ceil(production_times.max(axis=1))
+
+    # Set minutes left to a negative number where required minerals aren't produced
+    impossible_mask = np.isinf(prod_time)
+    new_states[impossible_mask, Inds.MINUTES_LEFT] = -1
+
+    # Wait for one additional minute, so the new robot is ready
+    possible_mask = ~impossible_mask
+    wait_times = prod_time[possible_mask].astype(int) + 1
+
+    # Update resources and remaining time
+    produced = wait_times[:, None]*robots[possible_mask]
+    updated_minerals = (produced - prices[possible_mask])
+    new_states[np.ix_(possible_mask, minerals_order)] += updated_minerals
+    new_states[possible_mask, Inds.MINUTES_LEFT] -= wait_times
+    # Increment number of robots
+    robot_inds = robots_order[robot_types]
+    new_states[inds, robot_inds] += 1
+
+    # Look for 'pointless' states where a mineral production exceeds max daily needs
+    robot_checks = robots_order[robots_order != Inds.N_GEODE_ROBOTS]
+    pointless_mask = np.any(new_states[:, robot_checks] > ceiling[minerals_order != Inds.N_GEODES], axis=1)
+    new_states[pointless_mask, Inds.MINUTES_LEFT] = -1
+    
+    # Return feasible states
+    res = new_states[new_states[:, Inds.MINUTES_LEFT] > 0]
     return res
 
 
-@njit(cache=True)
-def bfs_step(
-        states: NDArray[np.int_],
-        costs: NDArray[np.int_],
-        ceiling: NDArray[np.int_]
-    ) -> NDArray[np.int_]:
+def make_initial_state(n_minutes_total: int) -> arrtype:
+    """Makes an array representing an initial state, with 1 ore robot, and all minutes left"""
+    arr = np.zeros(shape=(len(Inds),), dtype=dtype)
+    arr[Inds.MINUTES_LEFT] = n_minutes_total
+    arr[Inds.N_ORE_ROBOTS] = 1
 
-    for i in range(len(states)):
-        robot_type = i % n_minerals
-        cost = costs[robot_type]
-
-        available = states[i, minerals_order]
-        robots = states[i, robots_order]
-
-        # Don't buy robot if production already meets the max price for that resource
-        robot_is_pointless = robots[robot_type] >= ceiling[robot_type] and robot_type != N_GEODES
-        if robot_is_pointless:
-            states[i, MINUTES_LEFT] = -1
-            continue
-
-        need = cost - available
-        ind_need = np.where(need > 0)
-        
-        # There's no way to wait and buy the robot if we're short on minerals which aren't being produced
-        impossible = np.any(robots[ind_need] == 0)
-
-        if impossible:
-            states[i, MINUTES_LEFT] = -1
-            continue
-            
-        prod_time = np.ceil(need[ind_need] / robots[ind_need])
-        n_turns_wait = 1 if len(prod_time) == 0 else int(prod_time.max()) + 1
-
-        new_minerals = available + n_turns_wait*robots - cost
-        states[i, minerals_order] = new_minerals
-        states[i, robots_order[robot_type]] += 1
-        states[i, MINUTES_LEFT] -= n_turns_wait
-
-    return states[states[:, MINUTES_LEFT] >= 0]
+    res = np.vstack([arr])
+    return res
 
 
-def pareto_frontier(arr: NDArray[np.int_]) -> NDArray[np.bool]:
-    mask = np.array([True for _ in range(len(arr))])
+def heuristic(states: arrtype) -> arrtype:
+    """Computes an upper bound on the number of geodes that can be attained in the remaining time.
+    Works by assuming a free geode robot can be produced every turn.
+    The geodes produced by these free robots amount to
+    0 + 1 + ... + n-1 = n(n-1)/2.
+    This number is added to the production from the current robots to achieve the bound."""
+    
+    res = (
+        states[:, Inds.N_GEODES]
+        + states[:, Inds.N_GEODE_ROBOTS]*states[:, Inds.MINUTES_LEFT]
+        + (states[:, Inds.MINUTES_LEFT]*(states[:, Inds.MINUTES_LEFT] - 1)) // 2
+    )
+    return res
 
-    for i in range(len(arr)):
-        vec = arr[i]
-        remaining = arr[i+1:]
-        better = np.all(remaining >= vec, axis=1)
-        if np.any(better):
-            mask[i] = False
 
-    return mask
-
-
-def max_geodes(blueprint: Blueprint, n_minutes=24, max_iter=-1) -> int:
+def max_geodes(blueprint: Blueprint, n_minutes=24) -> int:
+    """Computes the maximum possible number of geodes attainable with the input blueprint,
+    in the input amount of turns.
+    Starts with the initial state, then repeatedly expands current states by attempting to
+    buy each of the 4 robot types from each state, waiting the necessary amount of turns until
+    sufficient minerals are available. States are truncated by maintaining the current greatest amount,
+    discarding states with a lower upper bound."""
+    
     record = 0
-
-    states = np.vstack([_initial_state(n_minutes)])
-    ceiling = blueprint.costs.max(axis=0)
-    nits = 0
+    states = make_initial_state(n_minutes_total=n_minutes)
 
     while len(states) > 0:
-        nits += 1
-        if max_iter != -1 and nits > max_iter:
-            raise RuntimeError
-
-        print(len(states), record, states[:, MINUTES_LEFT].mean())
-        frontier = pareto_frontier(states)
-        states = states[frontier].copy()
-
-        new_states = np.repeat(states, repeats=n_minerals, axis=0)
-        new_states = bfs_step(new_states, costs=blueprint.costs, ceiling=ceiling)
-        if len(new_states) == 0:
-            break
+        # Update states
+        new_states = bfs_step(states, costs=blueprint.costs)
         
-        interpolations = new_states[:, N_GEODES] + new_states[:, N_GEODE_ROBOTS]*new_states[:, MINUTES_LEFT]
-        best_interpolation_ind = np.argmax(interpolations)
-        best_interpolation = interpolations[best_interpolation_ind]
-        if best_interpolation > record:
-            print("BEST", best_interpolation, new_states[best_interpolation_ind])
-            record = best_interpolation
-
-        # TODO TIGHTER HEURISTIC
-        upper_bound = (
-            new_states[:, N_GEODES]
-            + new_states[:, N_GEODE_ROBOTS]*new_states[:, MINUTES_LEFT]
-            + (new_states[:, MINUTES_LEFT]*(new_states[:, MINUTES_LEFT] - 1)) // 2
+        # Check if any exceed the current record for number of geodes
+        interpolations = (
+            new_states[:, Inds.N_GEODES]
+            + new_states[:, Inds.N_GEODE_ROBOTS]*new_states[:, Inds.MINUTES_LEFT]
         )
+        best_interpolation = np.max(interpolations, initial=0)
+        if best_interpolation > record:
+            record = int(best_interpolation)
 
-        states = new_states[upper_bound >= record].copy()
+        # Drop states which can never exceed the current best
+        upper_bound = heuristic(new_states)
+        states = new_states[upper_bound >= record]
         
 
     return record
 
 
+def quality_level(blueprint: Blueprint, n_minutes=24) -> int:
+    """Computes the quality level of a blueprint, by multiplying its ID with the maximum
+    number of geodes attainable in the available time."""
+
+    n_max = max_geodes(blueprint=blueprint, n_minutes=n_minutes)
+    res = blueprint.id_ * n_max
+    return res
+
+
 def solve(data: str) -> tuple[int|str, ...]:
     blueprints = parse(data)
     
-    star1 = 0
-    for bp in blueprints:
-        print(f"*** BLUEPRINT {bp.id_} ***")
-        n_max = max_geodes(bp)
-        star1 += bp.id_*n_max
-    
-
+    star1 = sum(map(quality_level, blueprints))
     print(f"Solution to part 1: {star1}")
 
-    star2 = 1
-    for bp in blueprints[:3]:
-        star2 *= max_geodes(bp, n_minutes=32)
+    geodes_extra_time = partial(max_geodes, n_minutes=32)
+    star2 = reduce(mul, map(geodes_extra_time, blueprints[:3]), 1)
     print(f"Solution to part 2: {star2}")
 
     return star1, star2
