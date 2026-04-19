@@ -3,25 +3,13 @@
 # ··* ` ·.+ ·. *·.·  · https://adventofcode.com/2022/day/16 .·` ·  *.· `  ·.  *·
 # +`··.·. · `•·` ·*     .*·`·.* ·   ··. * .`·. `· `*    ·`* ·+.· `.   ·+` .· .·`
 
+import re
 from dataclasses import dataclass
-from itertools import combinations
+
 import networkx as nx
 import numpy as np
+from numba import njit
 from numpy.typing import NDArray
-import re
-from typing import Iterator
-
-
-raw = """Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
-Valve BB has flow rate=13; tunnels lead to valves CC, AA
-Valve CC has flow rate=2; tunnels lead to valves DD, BB
-Valve DD has flow rate=20; tunnels lead to valves CC, AA, EE
-Valve EE has flow rate=3; tunnels lead to valves FF, DD
-Valve FF has flow rate=0; tunnels lead to valves EE, GG
-Valve GG has flow rate=0; tunnels lead to valves FF, HH
-Valve HH has flow rate=22; tunnel leads to valve GG
-Valve II has flow rate=0; tunnels lead to valves AA, JJ
-Valve JJ has flow rate=21; tunnel leads to valve II"""
 
 
 @dataclass
@@ -29,6 +17,21 @@ class Valve:
     label: str
     flow_rate: int
     neighbors: tuple[str, ...]
+
+
+def parse(s: str) -> list[Valve]:
+    res = []
+    for line in s.split("\n"):
+        match = re.match(r'Valve (.*) has flow rate=(.*);(.*)', line)
+        assert match is not None
+        label, flow_str, tunnels_str = match.groups()
+        flow_rate = int(flow_str)
+        tunnels = tuple(s_.replace(",", "") for s_ in tunnels_str.split()[4:])
+        
+        valve = Valve(label=label, flow_rate=flow_rate, neighbors=tunnels)
+        res.append(valve)
+
+    return res
 
 
 def compute_pairwise_dists(*valves: Valve) -> dict[str, dict[str, int]]:
@@ -53,26 +56,50 @@ def compute_pairwise_dists(*valves: Valve) -> dict[str, dict[str, int]]:
     return res
 
 
-def parse(s: str) -> list[Valve]:
-    res = []
-    for line in s.split("\n"):
-        match = re.match(r'Valve (.*) has flow rate=(.*);(.*)', line)
-        assert match is not None
-        label, flow_str, tunnels_str = match.groups()
-        flow_rate = int(flow_str)
-        tunnels = tuple(s_.replace(",", "") for s_ in tunnels_str.split()[4:])
-        
-        valve = Valve(label=label, flow_rate=flow_rate, neighbors=tunnels)
-        res.append(valve)
+@njit
+def _compute_max_release(
+        keys: NDArray[np.int_],
+        reliefs: NDArray[np.int_],
+        startind=0,
+        key=0,
+        sum_=0,
+        n_workers=1) -> int:
+    """Given an array with 'keys' - integers representing the set of opened valves,
+    and a coresponding array of 'reliefs', the total pressure released for the optimal way
+    of opening the valves, computes the maximum possible relief when using n independent
+    workers to traverse the graph and open valves.
+    This works by considering all combinations of N paths taken by the N workers, taking
+    only the paths with mutually independent subsets of the valves, and computing the
+    total relief."""
+    
+    res = sum_
 
+    for i in range(startind, len(reliefs)):
+        if keys[i] & key:
+            continue  # Ignore overlapping subsets
+        
+        if n_workers == 1:
+            subres = sum_ + reliefs[i]
+        else:
+            # If there are more workers, recurse on the remainder of the paths
+            subres = _compute_max_release(
+                keys=keys,
+                reliefs=reliefs,
+                startind=i+1,
+                key=keys[i]+key,
+                sum_=sum_+reliefs[i],
+                n_workers=n_workers-1
+            )
+
+        if subres > res:
+            res = subres
+        #
     return res
 
 
 class Cavern:
-    def __init__(self, valves: list[Valve], elephant=False, startat: str="AA", total_time=30) -> None:
+    def __init__(self, valves: list[Valve], startat: str="AA") -> None:
         self.startat = startat
-        self.minutes_total = total_time
-        self.n_workers = 2 if elephant else 1
 
         # Keep start position and any nonzero-flow valve, ordered by flows
         valves_ordered = sorted(
@@ -102,66 +129,76 @@ class Cavern:
             if all(node in self.labels_inverse for node in (u, v))
         )
         
-        # Store distances between valves in a matrix
+        # Store distances between between relevant valves in a matrix
         self.dists = np.zeros(shape=(self.n_valves, self.n_valves), dtype=int)
         for u, v, d in edges:
             i, j = (self.labels_inverse[node] for node in (u, v))
             self.dists[i, j] = d
         #
 
-    def bfs(self, pos: int=-1, minutes=-1, valves=0, relief=0, d: dict|None=None) -> dict[int, int]:
+    def determine_optimal_paths(
+            self,
+            pos: int=-1,
+            minutes=30,
+            valves=0,
+            relief=0, d: dict|None=None
+            ) -> dict[int, int]:
+        """Determines the optimal way of opening every possible subset of valves in the
+        specified amount of time.
+        Returns a dict mapping each valve subset to the greatest possible amount
+        of pressure released."""
+
+        # For initial call, use starting position and empty dict
         if pos == -1:
             pos = self.start_ind
-        if minutes == -1:
-            minutes = self.minutes_total
         if d is None:
             d = dict()
         
+        # Update result if this path beats the current record for this subset
         improved = relief > d.get(valves, 0)
         if improved:
             d[valves] = relief
         
+        # Attempt to move to, and open, each remaining valve
         for target, power in enumerate(self.valve_powers):
-            remaining = minutes - self.dists[pos, target] - 1
-            if remaining <= 0 or power & valves:
+            # Skip valve if already opened
+            if power & valves:
+                continue
+
+            # Ignore valves with zero pressure (should only be the starting valve)
+            if self.flow_rates[target] == 0:
                 continue
             
-            flow = self.flow_rates[target]*remaining
-            if flow == 0:
+            # Time left after opening (need to travel the distance and open)
+            remaining = minutes - self.dists[pos, target] - 1
+            
+            # Ignore if we have no time to get to the valve
+            if remaining <= 0:
                 continue
-            self.bfs(pos=target, minutes=remaining, valves=valves+power, relief=relief+flow, d=d)
+            
+            # Recurse from the target node
+            flow = self.flow_rates[target]*remaining
+            self.determine_optimal_paths(
+                pos=target,
+                minutes=remaining,
+                valves=valves+power,
+                relief=relief+flow,
+                d=d
+            )
 
         return d
 
     def max_release(self, minutes=30, n_workers=1) -> int:
-        d = {int(k): int(v) for k, v in self.bfs(minutes=minutes).items()}
+        """Computes the maximum possible pressure release with the specified
+        time and number of workers"""
 
-        best = -1
+        # Compute the solution for every valves subset for a single worker
+        solutions_single = self.determine_optimal_paths(minutes=minutes)
 
-        keys, reliefs = map(np.array, zip(*d.items()))
-        print(reliefs)
-
-        a, b = zip(*d.items())
-        
-        hmm = combinations(d.items(), n_workers)
-        for elem in hmm:
-            valve_sets, reliefs = zip(*elem)
-            
-            overlap = False
-            running = 0
-            for vs in valve_sets:
-                if vs & running:
-                    overlap = True
-                    break
-                else:
-                    running += vs
-                #
-            
-            if not overlap:
-                best = max(best, sum(reliefs))
-            
-        return best
-    #
+        # Find the optimal combination of n mutually exclusive solutions
+        keys, reliefs = map(np.array, zip(*solutions_single.items()))
+        res = _compute_max_release(keys=keys, reliefs=reliefs, n_workers=n_workers)
+        return res
 
 
 def solve(data: str) -> tuple[int|str, ...]:
@@ -180,7 +217,7 @@ def solve(data: str) -> tuple[int|str, ...]:
 def main() -> None:
     year, day = 2022, 16
     from aocd import get_data
-    #raw = get_data(year=year, day=day)
+    raw = get_data(year=year, day=day)
     solve(raw)
 
 
