@@ -102,7 +102,7 @@ def crab_cups(cups: NDArray[np.int_], n_rounds=100, n_cups_total: int=-1) -> NDA
         labels[len(cups):] = np.arange(max_cup+1, max_cup + 1 + (n_cups_total - len(cups)))
 
     # Make an array where columns 0 and 2 map to previous and next element
-    arr = np.arange(len(labels), dtype=np.int32)[:, None].repeat(3, axis=1)
+    arr = np.arange(len(labels), dtype=int)[:, None].repeat(3, axis=1)
     arr[:, 0] = np.roll(arr[:, 0], +1)
     arr[:, 2] = np.roll(arr[:, 2], -1)
     arr[:, 1] = labels

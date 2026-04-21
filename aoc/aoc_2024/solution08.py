@@ -7,6 +7,7 @@
 from collections import defaultdict
 
 import numpy as np
+from numpy.typing import NDArray
 
 
 def parse(s: str):
@@ -17,14 +18,14 @@ def parse(s: str):
 class Grid:
     """Grid class for keeping track of antenna locations and calculating antinodes"""
 
-    def __init__(self, m: np.ndarray):
+    def __init__(self, m: NDArray[np.str_]):
         # Keep a reference to the input array
         self.m = m
         
         # Map each frequency to a set of coordinates with antennas using that frequency
-        self.d = defaultdict(lambda: set([]))
+        self.d: dict[str, set[tuple[int, int]]] = defaultdict(lambda: set([]))
         for i, j in np.ndindex(self.m.shape):
-            char = self.m[i, j]
+            char = self.m[i, j].item()
             if char != ".":
                 self.d[char].add((i, j))
             #

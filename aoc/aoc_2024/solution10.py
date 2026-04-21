@@ -8,11 +8,12 @@ from collections import defaultdict
 from typing import TypeAlias
 
 import numpy as np
+from numpy.typing import NDArray
 
-coordtype: TypeAlias = tuple[int, ...]
+coordtype: TypeAlias = tuple[int, int]
 
 
-def parse(s: str):
+def parse(s: str) -> NDArray[np.int_]:
     m = np.array([[int(x) for x in line] for line in s.splitlines()])
     return m
 
@@ -27,14 +28,14 @@ class Graph:
         (-1, 0)
     )
     
-    def __init__(self, m: np.ndarray):
+    def __init__(self, m: NDArray[np.int_]):
         # Keep track of edges, and the indices of each value encountered
         self.edges: dict[coordtype, list[coordtype]] = dict()
-        self.value_lookup = defaultdict(lambda: [])
+        self.value_lookup: dict[int, list[coordtype]] = defaultdict(lambda: [])
         
         # Go over all indices and values in the map
         for u in np.ndindex(m.shape):
-            val = m[u]
+            val = m[u].item()
             self.value_lookup[val].append(u)
             self.edges[u] = []
             
@@ -124,6 +125,7 @@ def sum_trailhead_ratings(trail_groups: list):
 
 def solve(data: str) -> tuple[int|str, int|str]:
     m = parse(data)
+
     G = Graph(m)
     trail_groups = get_all_trails(G=G)
     

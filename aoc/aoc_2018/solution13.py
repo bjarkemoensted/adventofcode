@@ -114,7 +114,7 @@ class Mine:
     def setup(self, map_: np.typing.NDArray[np.str_]) -> None:
         """Sets up the mine, given the char array data from the input"""
         for i, j in np.ndindex(self.shape):
-            char = map_[i, j]
+            char = map_[i, j].item()
             if char == " ":
                 continue
             
