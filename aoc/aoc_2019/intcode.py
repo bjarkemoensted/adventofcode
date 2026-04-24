@@ -49,7 +49,7 @@ class Computer:
     def __setitem__(self, key: Par, value: int):
         """Sets a parameter value"""
         if key.mode != Mode.POSITION:
-            raise RuntimeError(f"Attempted to write a parameter in non-position mode")
+            raise RuntimeError("Attempted to write a parameter in non-position mode")
         self.memory[key.val] = value
 
     def halt(self) -> None:
