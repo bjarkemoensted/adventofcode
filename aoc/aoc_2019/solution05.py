@@ -16,9 +16,6 @@ def solve(data: str) -> tuple[int|str, ...]:
     star1 = intcode.Computer(program).add_input(1).run().stdout[-1]
     print(f"Solution to part 1: {star1}")
 
-    print(intcode.Computer(program).add_input(1).run().stdout)
-    print(intcode.Computer(program).add_input(5).run().stdout)
-
     star2 = intcode.Computer(program).add_input(5).run().stdout[-1]
     print(f"Solution to part 2: {star2}")
 
