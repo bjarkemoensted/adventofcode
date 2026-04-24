@@ -16,8 +16,8 @@ def compute_output(program: list[int], noun: int, verb: int) -> int:
     program = program.copy()
     program[1] = noun
     program[2] = verb
-    computer = Computer()
-    res = computer.run(program)
+    computer = Computer(program)
+    res = computer.run().read_memory()
     return res
 
 
