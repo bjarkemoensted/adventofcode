@@ -85,7 +85,9 @@ class Computer:
         val = 1 if self[a] == self[b] else 0
         self[c] = val
 
-    def resolve_instruction(self, value: int) -> tuple[Callable, list[Mode]]:
+    def resolve_instruction(self, value: int=-1) -> tuple[Callable, list[Mode]]:
+        if value == -1:
+            value = self.memory[self.ip]
         mod = 100
         opcode = value % mod
         method, n_pars = resolve_opcode(self, opcode)
@@ -97,6 +99,16 @@ class Computer:
             temp //= 10
         
         return method, modes
+
+    @property
+    def current_instruction(self) -> Callable:
+        ins, _ = self.resolve_instruction()
+        return ins
+
+    def __repr__(self) -> str:
+        ins = self.current_instruction.__name__
+        s = f"IntCode instance at instruction {self.ip} ({self.memory[self.ip]}: {ins})"
+        return s
 
     def run_instruction(self) -> None:
         """Runs a single instruction"""
@@ -115,7 +127,7 @@ class Computer:
 
         method(*pars)
         ip_moved = self.ip != ip
-        if not ip_moved:
+        if not ip_moved and not self.halted:
             self.ip += len(modes) + 1
         
     def run(self) -> Self:
@@ -129,7 +141,9 @@ class Computer:
     def read_memory(self, address: int=0) -> int:
         """Reads from memory, at the specified address"""
         return self.memory[address]
-    #
+    
+    def read_stdout(self) -> int:
+        return self.stdout.popleft()
 
 
 @cache
