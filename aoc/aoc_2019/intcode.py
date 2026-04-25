@@ -9,6 +9,7 @@ class Mode(IntEnum):
     """Allowed parameter modes"""
     POSITION = 0
     IMMEDIATE = 1
+    RELATIVE = 2
 
 
 class Par(NamedTuple):
@@ -19,8 +20,11 @@ class Par(NamedTuple):
 
 class Computer:
     def __init__(self, program: Iterable[int], debug=False) -> None:
-        self.memory = [elem for elem in program]
+        self.memory: dict[int, int] = dict()
+        for i, val in enumerate(program):
+            self.memory[i] = val
         self.ip = 0  # instruction pointer
+        self.relative_base = 0
         self.stdin: deque[int] = deque()
         self.stdout: deque[int] = deque()
         self.halted = False
@@ -36,21 +40,37 @@ class Computer:
             self.stdin.append(val)
         return self
 
-    def __getitem__(self, key: Par):
+    def _resolve_address(self, par: Par) -> int:
+        """Resolve the memory address of a parameter"""
+        match par.mode:
+            case Mode.POSITION:
+                return par.val
+            case Mode.RELATIVE:
+                return par.val + self.relative_base
+            case _:
+                raise RuntimeError(f"Can't resolve address for parameter mode {par.mode}")
+            #
+        #
+
+    def __getitem__(self, key: Par) -> int:
         """Gets the value of a parameter"""
-        if key.mode == Mode.POSITION:
-            return self.memory[key.val]
-        elif key.mode == Mode.IMMEDIATE:
-            return key.val
-        else:
-            raise ValueError(f"Invalid key: {key}")
+        match key.mode:
+            case Mode.IMMEDIATE:
+                return key.val  # Use the raw value when in 'immediate' mode
+            case Mode.POSITION | Mode.RELATIVE:
+                # In other modes, resolve memory address and return the value there
+                adr = self._resolve_address(key)
+                return self.memory[adr]
+            case _:
+                raise ValueError(f"Invalid key: {key}")
+            #
         #
     
     def __setitem__(self, key: Par, value: int):
         """Sets a parameter value"""
-        if key.mode != Mode.POSITION:
-            raise RuntimeError("Attempted to write a parameter in non-position mode")
-        self.memory[key.val] = value
+        # Resolve the address (this raises an error if par is in immediate mode by mistake)
+        address = self._resolve_address(key)
+        self.memory[address] = value
 
     def halt(self) -> None:
         self.halted = True
@@ -84,21 +104,35 @@ class Computer:
     def eq(self, a: Par, b: Par, c: Par) -> None:
         val = 1 if self[a] == self[b] else 0
         self[c] = val
+    
+    def adjust_relative_base(self, a: Par) -> None:
+        self.relative_base += self[a]
 
-    def resolve_instruction(self, value: int=-1) -> tuple[Callable, list[Mode]]:
-        if value == -1:
-            value = self.memory[self.ip]
+    def resolve_instruction(self, address: int=-1) -> tuple[Callable, list[Par]]:
+        """Determine the instruction, and list of parameters including modes, from
+        the specified address"""
+        
+        if address == -1:
+            address = self.ip
+        value = self.memory[address]
+        # Determine opcode (last 2 digits), and n pars
         mod = 100
         opcode = value % mod
         method, n_pars = resolve_opcode(self, opcode)
 
+        # Determine modes for the parameters which will be read by the op
         temp = value // mod
         modes: list[Mode] = []
+        pars: list[Par] = []
         for _ in range(n_pars):
             modes.append(Mode(temp % 10))
+            mode = Mode(temp % 10)
+            address += 1
+            par = Par(val=self.memory[address], mode=mode)
+            pars.append(par)
             temp //= 10
         
-        return method, modes
+        return method, pars
 
     @property
     def current_instruction(self) -> Callable:
@@ -114,21 +148,15 @@ class Computer:
         """Runs a single instruction"""
 
         ip = self.ip
-        value = self.memory[self.ip]
-        self.vprint(f"ip: {self.ip}: {value}")
-        method, modes = self.resolve_instruction(value)
+        self.vprint(f"ip: {self.ip}: {self.memory[self.ip]}")
+        method, pars = self.resolve_instruction()
         
-        pars = tuple(
-            Par(val=self.memory[self.ip+i+1], mode=mode)
-            for i, mode in enumerate(modes)
-        )
-
-        self.vprint(f"ip: {self.ip}, op: {method.__name__}, memory: {self.memory[self.ip:self.ip+4]}, {pars=}")
+        self.vprint(f"ip: {self.ip}, op: {method.__name__}, memory: {self.memory[self.ip]}, {pars=}")
 
         method(*pars)
         ip_moved = self.ip != ip
         if not ip_moved and not self.halted:
-            self.ip += len(modes) + 1
+            self.ip += len(pars) + 1
         
     def run(self) -> Self:
         """Runs an Intcode program"""
@@ -143,6 +171,7 @@ class Computer:
         return self.memory[address]
     
     def read_stdout(self) -> int:
+        """Reads a value from the standard output"""
         return self.stdout.popleft()
 
 
@@ -175,6 +204,8 @@ def opcode_lookup(computer: Computer, opcode: int) -> Callable:
             return computer.le
         case 8:
             return computer.eq
+        case 9:
+            return computer.adjust_relative_base
         case 99:
             return computer.halt
         case _:
