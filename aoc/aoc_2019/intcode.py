@@ -1,5 +1,5 @@
 import inspect
-from collections import deque
+from collections import defaultdict, deque
 from enum import IntEnum
 from functools import cache
 from typing import Callable, Iterable, NamedTuple, Self
@@ -20,7 +20,7 @@ class Par(NamedTuple):
 
 class Computer:
     def __init__(self, program: Iterable[int], debug=False) -> None:
-        self.memory: dict[int, int] = dict()
+        self.memory: dict[int, int] = defaultdict(int)
         for i, val in enumerate(program):
             self.memory[i] = val
         self.ip = 0  # instruction pointer
@@ -144,12 +144,16 @@ class Computer:
         s = f"IntCode instance at instruction {self.ip} ({self.memory[self.ip]}: {ins})"
         return s
 
-    def run_instruction(self) -> None:
-        """Runs a single instruction"""
+    def run_instruction(self) -> bool:
+        """Runs a single instruction. Returns a boolean indicating whether
+        the instruction was succesful. False is returned if the computer
+        reaches an input instruction, with no data in the input queue."""
 
         ip = self.ip
         self.vprint(f"ip: {self.ip}: {self.memory[self.ip]}")
         method, pars = self.resolve_instruction()
+        if method == self.input and not self.stdin:
+            return False
         
         self.vprint(f"ip: {self.ip}, op: {method.__name__}, memory: {self.memory[self.ip]}, {pars=}")
 
@@ -158,11 +162,15 @@ class Computer:
         if not ip_moved and not self.halted:
             self.ip += len(pars) + 1
         
+        return True
+        
     def run(self) -> Self:
         """Runs an Intcode program"""
         
         while not self.halted:
-            self.run_instruction()
+            success = self.run_instruction()
+            if not success:
+                break
         
         return self
      
