@@ -2,7 +2,7 @@ import inspect
 from collections import defaultdict, deque
 from enum import IntEnum
 from functools import cache
-from typing import Callable, Iterable, NamedTuple, Self
+from typing import Callable, Iterable, NamedTuple, Self, overload
 
 
 class Mode(IntEnum):
@@ -178,9 +178,24 @@ class Computer:
         """Reads from memory, at the specified address"""
         return self.memory[address]
     
-    def read_stdout(self) -> int:
-        """Reads a value from the standard output"""
-        return self.stdout.popleft()
+    @overload
+    def read_stdout(self, n: None = None) -> int: ...
+    @overload
+    def read_stdout(self, n: int) -> tuple[int, ...]: ...
+    def read_stdout(self, n=None):
+        """Reads from the standard output.
+        If no n is specified (default), returns a single integer.
+        Otherwise, returns a tuple of n elements. n=-1 can be used
+        to empty the stdout queue and return everything as a tuple."""
+
+        if n is None:
+            return self.stdout.popleft()
+
+        if n == -1:
+            n = len(self.stdout)
+        return tuple(self.stdout.popleft() for _ in range(n))
+    
+    #
 
 
 @cache
