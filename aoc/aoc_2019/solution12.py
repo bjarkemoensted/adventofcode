@@ -4,11 +4,12 @@
 # *·.`· *+  · .  . *·`  .* · . · . *·` ·.*  . *···. `  .·* ·  *.`  ·• . · * . .·
 
 import math
-from numba import njit
-import numpy as np
-from numpy.typing import NDArray
 import re
 from typing import Self
+
+import numpy as np
+from numba import njit
+from numpy.typing import NDArray
 
 
 def parse(s: str) -> NDArray[np.int_]:
@@ -110,7 +111,7 @@ class Simulation:
         dimension must be found prior to calling this (i.e. the .run_until_recurrence method)"""
         
         if np.any(self._recurrence_times == -1):
-            raise ValueError(f"Simulation must run until we have recurrence times for each dimension")
+            raise ValueError("Simulation must run until we have recurrence times for each dimension")
 
         # Recurrence time for the system is the least common multiple of the independent times for each dim
         res = math.lcm(*self._recurrence_times)
