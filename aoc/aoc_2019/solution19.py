@@ -3,11 +3,9 @@
 # * .`·*.·  `* .··   · https://adventofcode.com/2019/day/19     *  `.·*   `· *·`
 # ··• *·`+ `*  ·+  · .  ` * ·  ·. ` .  + ·· ` . • · *·.`  ·   . ·`  + · ·`  ··*.
 
-from collections import defaultdict, deque
-from itertools import product
-from typing import Iterator
-
-import numpy as np
+import math
+from dataclasses import dataclass
+from typing import Callable
 
 from aoc.aoc_2019.intcode import Computer
 
@@ -15,96 +13,126 @@ type coord = tuple[int, int]
 # Assuming since part 1 prompts for the initial 50x50 grid that no slope greater than that occurs
 UPPER_BOUND = 50
 
+
 def parse(s: str) -> list[int]:
     return list(map(int, s.split(",")))
 
 
-def _iter_square(startat=0, stopat=-1) -> Iterator[coord]:
-    """Iterate over the points at the edge of a squate of ever-increasing side length"""
-    
-    assert stopat == -1 or stopat > startat
-    n = startat
+@dataclass
+class Slope:
+    """Helper class for representing a line slope and updating it with
+    additional information. It stores bounds on the slope a of an edge of the
+    tractor beam:
+    j = a*i
+    """
 
-    while stopat == -1 or n < stopat:
-        yield n, n
-        for other in range(n-1, -1, -1):
-            yield n, other
-            yield other, n
-            
-        n += 1
+    lower: float=0.0
+    upper: float=float("inf")
+    fitted: bool=False
+    _i_max: int = -1
 
+    def add_observation(self, i: int, j: int) -> None:
+        """Adds an observed point i, j"""
+        eps = 0.5
+        if i == 0 or i < self._i_max:
+            return
+        
+        self.lower = (j - eps) / (i + eps)
+        self.upper = (j + eps) / (i - eps)
+        self.fitted = True
+        
+        assert self.upper >= self.lower
+        
+    def predict(self, i: int) -> tuple[float, float]:
+        """Predict the value of j at the input i coordinate.
+        The result represents the lower and upper bounds on the value of j"""
+        assert self.fitted
+        lower = i*self.lower
+        upper = i*self.upper
 
-def _determine_slope_bounds(i: int, j: int, i0=0, j0=0) -> tuple[float, float]:
-    """Determine the bounds on a slope (dx/dy because we're using matrix coords),
-    given points i, j (and optionally i0, j0, defaulting to 0) on the line.
-    Works by assuming a true, continuous slope like
-    x_float = alpha_float*y,
-    and computing bounds where x_float would be rounded to the input values."""
+        return lower, upper
+    #
 
-    di = i - i0
-    dj = j - j0
-    if di == 0:
-        return (float("nan"), float("nan"))
-    
-    eps = 0.49
-    lower = (dj - eps) / di
-    upper = (dj + eps) / di
-    return (lower, upper)
+def bisection_search(x0: int, func: Callable[[int], bool], left=True) -> int:
+        """Uses bijection search to locate the two subsequent integers a, b where
+        the input callable evaluates to (False, True) (if left) or (True, False) (if right).
+        func: The callable to use.
+        x0: a point where we assume (func(x0) = True)"""
+
+        assert func(x0)
+
+        delta = -1 if left else +1
+        bounds = [x0, x0]
+        ind = 0 if left else 1
+        other_ind = 1 - ind
+        bounds[ind] = x0 + delta
+
+        # Move other point until it's definitely outside the beam
+        while func(bounds[ind]):
+            if bounds[ind] < 0:
+                return 0
+            delta *= 2
+            bounds[ind] = x0 + delta
+                
+        # Cut search space in half until (left, right) captures the beam edge
+        while bounds[1] - bounds[0] > 1:
+            mid = (bounds[1] + bounds[0]) // 2
+            update_ind = int(not (func(mid) ^ left))
+            bounds[update_ind] = mid
+        
+        # Double check the results
+        assert func(bounds[other_ind])
+        assert not func(bounds[ind])
+
+        res = bounds[other_ind]
+
+        return res
 
 
 class Scanner:
+    """A scanner helper class for determining tractor beam properties"""
+
     def __init__(self, program: list[int]) -> None:
+        self._program = [val for val in program]
         # cache points inside/outside beam
         self._cache: dict[coord, bool] = dict()
-        
         # cache beam left/right edge at each i
         self._edges_cache: dict[int, tuple[int, int]] = dict()
-        self.max_y_probed = -1
         
-        self.program = [val for val in program]
         # Lower and upper bounds on the left and right slopes of the beam
-        self.edge_slopes = [[float("nan"), float("nan")], [float("nan"), float("nan")]]
+        self.edge_slopes = [Slope(), Slope()]
 
+        # Start by finding a point on the rim of a square around origin
+        cut = UPPER_BOUND - 1
+        _initial_rim = sum(([(cut, cut-a), (cut-a, cut)] for a in range(cut)), [])[1:]
+        y0, x0 = next(p for p in _initial_rim if self.inside_beam(*p))
+        # Determine the beam edges from that point, so we have some info on the beam edge slopes
+        self._probe_line(y0, x0)
+
+    def _margin(self, i: int, left=True) -> int|None:
+        """Use known bounds on the slopes of the beam's edges to find
+        a point inside the tractor beam on the input line.
+        Returns None if no pixels are affected by the beam (can happen close
+        to the origin due to rounding)."""
+
+        a, b = self.edge_slopes[0 if left else 1].predict(i)
+        eps = 1
+
+        # Determine bounding points to consider
+        if left:
+            points = [val for val in range(math.ceil(a), math.ceil(b)+eps) if val >= 0]
+        else:
+            points = [val for val in range(math.floor(a), math.ceil(b)+eps) if val >= 0]
+        if not left:
+            points.reverse()
         
+        # Determine one of the points, return None if all points are outside the beam
+        try:
+            res = next(p for p in points if self.inside_beam(i, p))
+        except StopIteration:
+            return None
 
-        assert self.inside_beam(0, 0)
-
-        cut = 20
-        square = _iter_square(stopat=cut)
-        self.m = np.zeros(shape=(cut, cut), dtype=int)
-        for x, y in square:
-            if self.inside_beam(x, y):
-                self.m[x, y] = 1
-            #
-
-        temp = defaultdict(list)
-        for (i, j), inside in self._cache.items():
-            if not inside:
-                continue
-            temp[i].append(j)
-
-        for i, vals in temp.items():
-            mid = sum(vals) // len(vals)
-            self.probe_line(i, mid)
-            
-        self._check(cut=cut)
-    
-    def _check(self, cut: int) -> None:
-        # checks  TODO REMOVE !!!
-        for i in range(cut):
-            row = [j_ for (i_, j_ ), inside in self._cache.items() if inside and i_ == i]
-            if not row:
-                continue
-            j0 = (min(row) + max(row)) // 2
-            #print(f"checking {i=}, {j0}")
-
-            left = self._find_edge(i, j0, left_edge=True)
-            assert self.inside_beam(i, left)
-            assert left == 0 or not self.inside_beam(i, left-1)
-
-            right = self._find_edge(i, j0, left_edge=False)
-            assert self.inside_beam(i, right)
-            assert not self.inside_beam(i, right+1)
+        return res
 
     def inside_beam(self, i: int, j: int) -> bool:
         """Returns whether the input point is inside the tractor beam"""
@@ -116,14 +144,33 @@ class Scanner:
         except KeyError:
             pass
 
-        computer = Computer(self.program)
-        status = computer.add_input(j, i).run().read_stdout()
+        status = Computer(self._program).add_input(j, i).run().read_stdout()
         assert status in (0, 1)
         res = status == 1
         self._cache[(i, j)] = res
         return res
 
-    def probe_line(self, i: int, left_bound: int, right_bound: int|None=None) -> None:
+    def get_beam_edges(self, i: int) -> tuple[int, int]:
+        """Determine the j-coordinate of the leftmost and rightmost point inside
+        the tractor beam at line i."""
+        
+        # Used cached result if available
+        if i in self._edges_cache:
+            return self._edges_cache[i]
+        
+        # Use known slope bounds to determine a search region
+        left_bound = self._margin(i, left=True)
+        right_bound = self._margin(i, left=False)
+        if left_bound is None:
+            assert right_bound is None
+            raise RuntimeError(f"No beam at line {i}")
+
+        # Use bisection search to find the edges
+        res = self._probe_line(i=i, left_bound=left_bound, right_bound=right_bound)
+        self._edges_cache[i] = res
+        return res
+
+    def _probe_line(self, i: int, left_bound: int, right_bound: int|None=None) -> tuple[int, int]:
         """Scans across the input line (specified by i-coordinate) to find the left and right
         edges of the tractor beam.
         left_bound: A point just to the right of the beam's left edge.
@@ -131,10 +178,7 @@ class Scanner:
             If not provided, the same point will be used"""
         
         right_bound = left_bound if right_bound is None else right_bound
-        most_precise = i > self.max_y_probed
-        if most_precise:
-            self.max_y_probed = i
-
+        
         # Edges of the beam at this i-value
         these_edges = [-1, -1]
 
@@ -142,150 +186,96 @@ class Scanner:
             slope_ind = 0 if left else 1
             bound = left_bound if left else right_bound
             assert self.inside_beam(i, bound)
-            edge = self._find_edge(i, j0=bound, left_edge=left)
+            edge = bisection_search(x0=bound, func=lambda x: self.inside_beam(i=i, j=max(0, x)), left=left)
+            self.edge_slopes[slope_ind].add_observation(i=i, j=edge)
+            
             these_edges[slope_ind] = edge
-            bounds = _determine_slope_bounds(i=i, j=edge)
-            if most_precise:
-                self.edge_slopes[slope_ind][:] = bounds
-            #
         
         a, b = these_edges
         self._edges_cache[i] = (a, b)
+        return a, b
 
-    def _find_edge(self, i: int, j0: int, left_edge=True) -> int:
-        """Uses bijection search to locate the left edge of the beam.
-        right: a point assumed to be inside the beam somewhere.
-        left_edge: Whether to search for the left edge of the beam. Set to False to fint right edge."""
-
-        assert self.inside_beam(i, j0)
-        # Move leftmost point left until it's definitely outside the beam
+    def count_affected_in_region(self, width: int) -> int:
+        """Counts the number of coordinates in the initial square region with
+        y and x < width which are affected by the tractor beam"""
         
-        # If finding the left edge, the search region must go from outside-inside beam and vise versa
-        invariant = [False, True] if left_edge else [True, False]
-
-        delta = -1 if left_edge else +1
-        bounds = [j0, j0]
-        ind = 0 if left_edge else 1
-        other_ind = 1 - ind
-        bounds[ind] = j0 + delta
-
-        # TODO NUKE THIS!!!
-        def _check_invariant() -> bool:
-            res = all(constraint == self.inside_beam(i, b) for constraint, b in zip(invariant, bounds, strict=True))
-            return res
-
-        while self.inside_beam(i, max(0, bounds[ind])):
-            if bounds[ind] < 0:
-                return 0
-            assert not _check_invariant()
-            delta *= 2
-            bounds[ind] = j0 + delta
-
-        assert _check_invariant()
-                
-        # Cut search space in half until (left, right) captures the beam edge
-        while bounds[1] - bounds[0] > 1:
-            mid = (bounds[1] + bounds[0]) // 2
-            midpoint_in_beam = self.inside_beam(i, mid)
-            update_ind = int(not (midpoint_in_beam ^ left_edge))
-            bounds[update_ind] = mid
-
-            if not _check_invariant():
-                print(f"{midpoint_in_beam=}, {left_edge=}, new bounds: {bounds}")
-                raise RuntimeError
-            #
-        
-        assert self.inside_beam(i, bounds[other_ind])
-        assert not self.inside_beam(i, bounds[ind])
-        return bounds[other_ind]
-
-    def expand(self) -> None:
-        """Detemine the beam edges at the next line"""
-        new_edges = [-1, -1]
-        i_current = self.max_y_probed
-        i = i_current + 1
-
-        for left_edge in (True, False):
-            ind = 0 if left_edge else 1
-            lower, upper = self.edge_slopes[ind]
-
-            # extrapolate using the known slope bounds
-            est_low = round(i*lower)
-            est_high = round(i*upper)
-            
-            predictable = est_low == est_high
-            j0 = est_high if left_edge else est_low
-            if predictable:
-                # TODO FIX
-                cut = self._find_edge(i=i, j0=est_low, left_edge=left_edge)
-                print(cut, est_low)
-            else:
-                cut = self._find_edge(i=i, j0=j0, left_edge=left_edge)
-            
-            new_bounds = _determine_slope_bounds(i, cut)
-
-            self.edge_slopes[ind][:] = new_bounds
-            new_edges[ind] = cut
-            
-        
-        self.max_y_probed = i
-        a, b = new_edges
-        self._edges_cache[i] = (a, b)
-
-    def find_room_for_square(self, width=100) -> coord:
-        widths: deque[tuple[int, int]] = deque(maxlen=width)
-
-        def done() -> tuple[int, int]|None:
-            nonlocal widths
-            if len(widths) < width:
-                return None
-            a1, right_edge = widths[0]
-            left_edge = right_edge - width + 1
-            if left_edge < a1:
-                return None
-            
-            a2, _ = widths[-1]
-            if a2 <= left_edge:
-                return left_edge, right_edge
-            else:
-                return None
-            #
-
-        i = -1
-        while True:
-            i += 1
-            while i > self.max_y_probed:
-                self.expand()
-            
-            if i not in self._edges_cache:
-                widths.clear()
+        res = 0
+        for i in range(width):
+            # Catch the runtime error for the lines with no beam pixels
+            try:
+                edges = self.get_beam_edges(i)
+            except RuntimeError:
                 continue
             
-            slice_width = self._edges_cache[i]
-            widths.append(slice_width)
+            # Add the number of affected pixels inside the square on this line
+            a, b = edges
+            if a >= width:
+                continue
+            a, b = (min(width-1, val) for val in edges)
+            res += (b - a + 1)
 
-            side_locations = done()
-            if side_locations is not None:
-                a, b = side_locations
-                assert all(le <= a and re >= b for le, re in widths)
-                
-                return i - width + 1, a
-            #
-        #
-    #
+        return res
 
+    def _square_overhead(self, i: int, width: int) -> int:
+        """If inserting a square with the specified width at line i in the tractor beam,
+        return the amount of overhead room left.
+        If there's obviously no room for the square, -width is returned."""
+        
+        if i < width - 1:
+            return -width
+        
+        a, b = self.get_beam_edges(i)
+
+        right = a + width - 1
+        # the lower beam slice must accomodate the entire region
+        if b < right:
+            return -width
+
+        _, b2 = self.get_beam_edges(i - width + 1)
+        delta = b2 - right
+        return delta
+
+    def find_square_location(self, width: int) -> coord:
+        """Determines the northwestern corner of the first coordinate where a square
+        of the input width can fit entirely inside the tractor beam.
+        Because some rounding logic makes a bit of noise on the edges of the beam, we first
+        use bisection search to find the first line where the square can 'almost' fit,
+        meaning the beam width is 2 too narrow (because rounding can make the edges differ by
+        1 each). Then a more granular scan is made until a location with enough space is found."""
+        
+        # look for the first line with an overhead of -2
+        def func(x: int) -> bool:
+            return self._square_overhead(x, width=width) >= -2
+        
+        # Keep incrementing x0 until we overshoot
+        x0 = 2**math.ceil(math.log2(width-1))
+        while not func(x0):
+            x0 *= 2
+        
+        # Bisection search to find a line where the square almost fits
+        i_south = bisection_search(x0=x0, func=func, left=True)
+        
+        # More granular scan for the exact location
+        while self._square_overhead(i_south, width=width) < 0:
+            i_south += 1
+
+        # Determine the coordinates for the upper left corner of the square
+        i_corner = i_south - width + 1
+        _, b = self.get_beam_edges(i_corner)
+        j_corner = b - width + 1
+
+        return i_corner, j_corner
+    
 
 def solve(data: str) -> tuple[int|str, ...]:
     program = parse(data)
 
     scanner = Scanner(program)
 
-    points = ((i, j) for i, j in product(range(50), repeat=2))
-
-    star1 = sum(scanner.inside_beam(*p) for p in points)
+    star1 = scanner.count_affected_in_region(width=50)
     print(f"Solution to part 1: {star1}")
 
-    y_square, x_square = scanner.find_room_for_square(100)
+    y_square, x_square = scanner.find_square_location(100)    
     star2 = 10_000*x_square + y_square
     print(f"Solution to part 2: {star2}")
 
