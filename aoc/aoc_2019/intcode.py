@@ -11,6 +11,12 @@ class Mode(IntEnum):
     IMMEDIATE = 1
     RELATIVE = 2
 
+    @classmethod
+    @cache
+    def from_int(cls, n: int) -> Self:
+        """Just caching this because it's much faster than repeated instantiation"""
+        return cls(n)
+
 
 class Par(NamedTuple):
     """Parameter for the IntCode computer"""
@@ -122,11 +128,9 @@ class Computer:
 
         # Determine modes for the parameters which will be read by the op
         temp = value // mod
-        modes: list[Mode] = []
         pars: list[Par] = []
         for _ in range(n_pars):
-            modes.append(Mode(temp % 10))
-            mode = Mode(temp % 10)
+            mode = Mode.from_int(temp % 10)
             address += 1
             par = Par(val=self.memory[address], mode=mode)
             pars.append(par)
