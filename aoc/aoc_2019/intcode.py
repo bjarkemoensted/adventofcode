@@ -2,7 +2,7 @@ import inspect
 from collections import defaultdict, deque
 from enum import IntEnum
 from functools import cache
-from typing import Callable, Iterable, NamedTuple, Self, overload
+from typing import Callable, Iterable, Literal, NamedTuple, Self, TypeGuard, get_args, overload
 
 
 class Mode(IntEnum):
@@ -24,27 +24,72 @@ class Par(NamedTuple):
     mode: Mode
 
 
+def _ints_to_ascii(vals: Iterable[int]) -> str:
+    """Converts integers into a string"""
+    return "".join(map(chr, vals))
+
+
+def _ascii_to_ints(s: str, auto_add_newline: bool) -> Iterable[int]:
+    """Converts a string into integers"""
+    if auto_add_newline and not s.endswith("\n"):
+        s += "\n"
+
+    res = tuple(ord(char) for char in s)
+    return res
+
+
+type displaytype = Literal["text_display", "ascii_display"]
+_disp_types = set(get_args(displaytype.__value__))
+
+
+def is_disptype(s: object) -> TypeGuard[displaytype]:
+    return s in _disp_types
+
+
+def setup_display(type_: displaytype) -> Callable[[Iterable[int]], None]:
+    """Factory method for standard display types to which we can pipe stdout"""
+    match type_:
+        case "text_display":
+            return lambda vals: print(_ints_to_ascii(vals))
+        case "ascii_display":
+            # TODO get the ASCII display with breakout to work here
+            raise NotImplementedError
+        case _:
+            raise RuntimeError(f"Invalid display type: {type_}")
+        #
+    #
+
+
 class Computer:
-    def __init__(self, program: Iterable[int], debug=False) -> None:
+    def __init__(
+            self,
+            program: Iterable[int],
+            debug=False,
+            pipe: Callable[[Iterable[int]], None]|displaytype|None=None
+        ) -> None:
+
         self.memory: dict[int, int] = defaultdict(int)
         for i, val in enumerate(program):
             self.memory[i] = val
         self.ip = 0  # instruction pointer
         self.relative_base = 0
+        
+        self.pipe: Callable[[Iterable[int]], None]|None = None
+        
         self.stdin: deque[int] = deque()
         self.stdout: deque[int] = deque()
         self.halted = False
         self.debug = debug
+    
+    def set_display(self, pipe: Callable[[Iterable[int]], None]|displaytype|None) -> None:
+        pipe_ = setup_display(pipe) if is_disptype(pipe) else pipe
+        assert pipe_ is None or callable(pipe_)
+        self.pipe = pipe_
 
     def vprint(self, *args, **kwargs):
         if self.debug:
             print(*args, **kwargs)
-
-    def add_input(self, *args: int) -> Self:
-        """Adds values to the input queue. Input operations can then pop elements from the queue"""
-        for val in args:
-            self.stdin.append(val)
-        return self
+        #
 
     def _resolve_address(self, par: Par) -> int:
         """Resolve the memory address of a parameter"""
@@ -143,10 +188,14 @@ class Computer:
         ins, _ = self.resolve_instruction()
         return ins
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         ins = self.current_instruction.__name__
         s = f"IntCode instance at instruction {self.ip} ({self.memory[self.ip]}: {ins})"
         return s
+    
+    def __repr__(self) -> str:
+        res = f"{self.__class__.__name__}"
+        return res
 
     def run_instruction(self) -> bool:
         """Runs a single instruction. Returns a boolean indicating whether
@@ -175,6 +224,11 @@ class Computer:
             success = self.run_instruction()
             if not success:
                 break
+            #
+        
+        if self.stdout and self.pipe is not None:
+            out = self.read_stdout(-1)
+            self.pipe(out)
         
         return self
      
@@ -182,6 +236,24 @@ class Computer:
         """Reads from memory, at the specified address"""
         return self.memory[address]
     
+    def add_input(self, *args: int) -> Self:
+        """Adds values to the input queue. Input operations can then pop elements from the queue"""
+        for val in args:
+            self.stdin.append(val)
+        return self
+
+    def input_ascii(self, *args: str, auto_add_newline=True) -> Self:
+        """Takes ASCII input, converts into integers, and writes to stdin"""
+        
+        for s in args:
+            self.add_input(*_ascii_to_ints(s, auto_add_newline=auto_add_newline))
+        return self
+    
+    def output_ascii(self) -> str:
+        """Reads stdout, converts into ASCII and returns the corresponding string"""
+        res = "".join(map(chr, self.read_stdout(-1)))
+        return res
+
     @overload
     def read_stdout(self, n: None = None) -> int: ...
     @overload
