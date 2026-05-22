@@ -3,12 +3,10 @@ name = "aoc"
 version = "1.0.0"
 description = ""
 authors = [{ name = "Bjarke Moensted", email = "nope@nope.com" }]
-requires-python = ">=3.12, <4.0, !=3.11.0"
+requires-python = ">=3.14, <4.0"
 readme = "README.md"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
@@ -39,7 +37,7 @@ omd = "aoc:plugin"
 dev = [
     "advent-of-code-data>=2.0.1,<3",
     "browser-cookie3>=0.19.1,<0.20",
-    "mypy>=1.16.0,<2",
+    "mypy>=2,<3",
 ]
 
 [tool.uv]
