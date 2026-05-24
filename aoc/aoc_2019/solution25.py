@@ -3,12 +3,11 @@
 # ·`· +·`  * •·  . `·  https://adventofcode.com/2019/day/25  `. ·  · .* ·`    ··
 # .·.    ` ·· * · .   ·`      · ··  .*` ·*   .`+··.     · ·`   ·  ` · ·   .` · *
 
-import random
 import re
-from concurrent.futures import ProcessPoolExecutor, TimeoutError
+from collections import defaultdict, deque
+from concurrent.futures import Future, ProcessPoolExecutor, TimeoutError
 from copy import deepcopy
 from dataclasses import dataclass, field
-from itertools import chain, combinations
 from typing import Iterator, Literal, Self
 
 import networkx as nx
@@ -115,11 +114,12 @@ class State:
             raise InvalidAction(f"Invalid command: '{command}'")
         return res
 
-    def take(self, item: str) -> Self:
+    def take(self, *items: str) -> Self:
         """Take an item"""
-        output = self._run(f"take {item}")
-        if "You don't see that item here." in output:
-            raise InvalidAction(f"Can't take: {item}")
+        for item in items:
+            output = self._run(f"take {item}")
+            if "You don't see that item here." in output:
+                raise InvalidAction(f"Can't take: {item}")
         return self
     
     def move(self, *directions: str) -> Self:
@@ -149,7 +149,7 @@ class State:
         out (e.g. picking up the 'infinite loop')"""
         state.take(item).drop(item)
 
-    def check_pickup(self, item: str) -> bool:
+    def can_take_item(self, item: str) -> bool:
         """Determines whether it's possible to pick up the specified item from
         the current state. Works by taking a copy of the state, then attempting to pick
         up and drop the item. If that attempt succeeds, the item can be picked up."""
@@ -181,6 +181,8 @@ class State:
             input_ = input()
             output = self._run(input_)
             print(output)
+        #
+    #
 
 
 class Starship:
@@ -193,15 +195,19 @@ class Starship:
 
         # Keep track of where items are located
         self.items: dict[str, str] = dict()
+        self.traps: set[str] = set()  # items that shouldn't be picked up
 
         self.explore()
+        # cache all dists and paths
+        self.paths = {u: d for u, d in nx.all_pairs_dijkstra_path(self.G)}
+        self.dists = {u: {v: len(path)-1 for v, path in d.items()} for u, d in self.paths.items()}
 
     def determine_path(self, source: str, target: str) -> Iterator[str]:
         """Determines the instructions ('north', 'south', etc.)
         which form the shortest path from source to target."""
 
         assert all(node in self.G for node in (source, target))
-        path = nx.shortest_path(self.G, source=source, target=target)
+        path = self.paths[source][target]
         if not path:
             return
         
@@ -210,6 +216,45 @@ class Starship:
             direction = self.G[u][v][self.DIRECTION_KEY]
             yield direction
 
+    def _optimal_route(self, source: str, target: str, *must_visit: str) -> tuple[str, ...]:
+        """Determine the shortest path from source to target which visites every required node"""
+
+        required_set = set(must_visit)
+        # queue of current_path, current length
+        s0 = (source, frozenset({source}))
+        stack: list[tuple[str, frozenset[str]]] = [s0]
+
+        best: dict[tuple[str, frozenset[str]], float] = defaultdict(lambda: float("inf"))
+        best[s0] = 0
+        camefrom: dict[tuple[str, frozenset[str]], tuple[str, frozenset[str]]] = dict()
+
+        while stack:
+            key = stack.pop()
+            head, visited = key
+            missing_nodes = sorted(required_set - visited) or [target]
+            current_length = best[key]
+            for node in missing_nodes:
+                new_length = current_length + self.dists[head][node]
+                new_visited = visited | {node}
+                new_key = (node, new_visited)
+                improved = new_length < best[new_key]
+                if improved:
+                    best[new_key] = new_length
+                    camefrom[new_key] = key
+                    stack.append(new_key)
+                #
+            #
+        
+        target_key = (target, frozenset(required_set | {source, target}))
+        if target_key not in best:
+            raise RuntimeError
+        
+        rev = [target_key]
+        while rev[-1] in camefrom:
+            rev.append(camefrom[rev[-1]])
+        path = tuple(node for node, _ in reversed(rev))
+        return path
+    
     def initial_state(self) -> State:
         return State(self.program)
 
@@ -223,57 +268,61 @@ class Starship:
     def explore(self) -> None:
         """Explores the ship, building a graph of connected rooms and noting
         where each item is located"""
-        visited: set[str] = set()
-
-        def process(state: State) -> State:
-            nonlocal visited
-            
-            pos = state.location
-            if pos in visited:
-                return state
-            
-            visited.add(pos)
-            
-            if pos not in self.G.nodes():
-                self.G.add_node(pos)
-            
-            for item in state.output.items:
-                assert item not in self.items
-                self.items[item] = pos
-            
-            for door in state.output.doors:
-                new_state = deepcopy(state).move(door)
-                state_after = process(new_state)
-                other_room = state_after.output.labels[0]
-                self._add_edge(u=pos, v=other_room, direction=door)
-
-            return state
         
-        state_ = self.initial_state()
-        process(state_)
+        n_moves = 0
+        visited: set[str] = set()
+        queue = deque([self.initial_state()])
+        # For background processes figuring out which items can be picked up
+        pending_items: dict[str, Future] = dict()
+
+        with ProcessPoolExecutor() as executor:
+            while queue:
+                state = queue.popleft()
+                pos = state.location
+
+                if pos in visited:
+                    continue
+            
+                visited.add(pos)
+
+                if pos not in self.G.nodes():
+                    self.G.add_node(pos)
+                
+                for item in state.output.items:
+                    assert item not in self.items
+                    self.items[item] = pos
+                    # Start backgroun job to attempt to pick up item
+                    pending_items[item] = executor.submit(deepcopy(state).can_take_item, item=item)
+                
+                for door in state.output.doors:
+                    already_done = any(v for v, d in self.G[pos].items() if d[self.DIRECTION_KEY] == door)
+                    if already_done:
+                        continue
+                    new_state = deepcopy(state)
+                    new_state.move(door)
+                    n_moves += 1
+
+                    other_room = new_state.output.labels[0]
+                    self._add_edge(u=pos, v=other_room, direction=door)
+                    queue.append(new_state)
+                #
+            for item, job in pending_items.items():
+                if job.result() is False:
+                    self.traps.add(item)
+                #
+            #
+        #
 
     def _move_to(self, state: State, target: str) -> None:
         path = self.determine_path(source=state.location, target=target)
         state.move(*path)
 
-    def _pickup_all(self, state: State) -> None:
-        """Grab all items"""
-        for item, room in self.items.items():
-            self._move_to(state, room)
-            
-            if state.check_pickup(item):
-                state.take(item)
-            #
-        #
-    
-    def _try_items(self, state: State, *items) -> Literal["heavier", "lighter"]|int:
+    def _try_items(self, state: State) -> Literal["heavier", "lighter"]|int:
         """Tries stepping on the pressure plates with the specified items.
         Returns whether the system responds that other droids are lighter/heavier,
         or if we hit the right weight, determine the provided keypad code
         from the terminal output."""
 
-        drop = (item for item in state.inventory if item not in items)
-        state.drop(*drop)
         self._move_to(state, target=self.TARGET_ROOM)
 
         hits = re.findall(
@@ -291,50 +340,81 @@ class Starship:
         s = hits[0]
         assert s == "lighter" or s == "heavier"
         return s
-    
+
     def complete(self) -> int:
         """Picks up all items, figures out the correct combination to pass
         the pressure plates, and returns the provided keypad code"""
-        state = self.initial_state()
-        self._pickup_all(state)
-
+   
+        initial_state = self.initial_state()
+        
         # Move to the room adjacent to the pressure plates
         next_to_target = next(self.G.neighbors(self.TARGET_ROOM))
-        self._move_to(state, next_to_target)
+        item_locs = sorted(v for k, v in self.items.items() if k not in self.traps)
 
-        # Keep track of combinations that are too light or too heavy
-        too_heavy: list[set[str]] = []
-        too_light: list[set[str]] = []
+        item_locs = sorted(v for k, v in self.items.items() if k not in self.traps)
+        next_to_target = next(self.G.neighbors(self.TARGET_ROOM))
+        path = self._optimal_route(initial_state.location, next_to_target, *item_locs)
 
-        # Generate all item combinations
-        items = set(state.inventory)
-        combs = list(chain.from_iterable(combinations(items, r) for r in range(len(items)+1)))
-        combs.sort(key = lambda _: random.uniform(0, 1))
+        for room in path:
+            self._move_to(initial_state, room)
+            initial_state.take(*initial_state.output.items)
 
-        for keep in map(set, combs):
-            # Skip combination if heavier/lighter than a known too heavy/light combination
-            if any(keep.issuperset(other) for other in too_heavy):
-                continue
-            if any(keep.issubset(other) for other in too_light):
-                continue
+        all_items = sorted(initial_state.inventory)
+        all_items_set = frozenset(all_items)
+        k0 = frozenset(all_items)
+        state_cache = {k0: initial_state}
+
+        def make_state(required_items: frozenset[str]) -> State:
+            """Generates a state from the closest available in the cache
+            (requiring the fewest take/drop ops)"""
+            nonlocal state_cache
+            if required_items in state_cache:
+                return state_cache[required_items]
             
-            # Try the combination and return the code if successful
-            result = self._try_items(deepcopy(state), *keep)
-            if isinstance(result, int):
-                return result
+            # Determine closest state
+            nearest = min(state_cache.keys(), key=lambda s: len(s ^ required_items))
+            s_ = deepcopy(state_cache[nearest])
+            # Generate target state by dropping/taking items
+            s_.drop(*(nearest - required_items))
+            s_.take(*(required_items - nearest))
+            state_cache[required_items] = deepcopy(s_)
+            return s_
+
+        queue = deque([k0])
+        seen: set[frozenset[str]] = set()
+
+        too_heavy: list[frozenset[str]] = []
+        too_light: list[frozenset[str]] = []
+
+        while queue:
+            key = queue.pop()
+            if key in seen:
+                continue
+            seen.add(key)
             
-            # Otherwise, add to the too heavy/light combinations
-            match result:
-                case "lighter":
-                    too_heavy.append(keep)
-                case "heavier":
-                    too_light.append(keep)
-                case _:
-                    raise RuntimeError(f"Invalid: {result}")
+            # If items are a larger set than a known too-large set, skip
+            if any(key.issuperset(other) for other in too_heavy):
+                outcome: Literal["heavier", "lighter"]|int = "lighter"
+            elif any(key.issubset(other) for other in too_light):
+                outcome = "heavier"
+            else:
+                outcome = self._try_items(make_state(key))
+                if isinstance(outcome, int):
+                    return outcome
+                #
+            
+            if outcome == "lighter":  # drones are usually lighter -> too heavy
+                too_heavy.append(key)
+                for dropitem in sorted(key):
+                    queue.append(key - {dropitem})
+            elif outcome == "heavier":  # drones are usually heavier -> too light
+                too_light.append(key)
+                for takeitem in sorted(all_items_set - key):
+                    queue.append(key | {takeitem})
                 #
             #
-        raise RuntimeError("No working combination of items found")    
-    #
+
+        raise RuntimeError("No solution found")
 
 
 def solve(data: str) -> tuple[int|str|None, ...]:
